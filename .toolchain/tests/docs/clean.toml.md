@@ -10,3 +10,4 @@ The first two cases run a short Python program. It runs `clean.py`, then writes 
 | clean keeps the sources | `clean.py` removes `build/x/a.txt` and `build/p-x.zip`, and keeps `build/third_party/s/fetched.txt`. | `clean.py --all`. |
 | distclean removes the folder build | `clean.py --all` removes `build/x/a.txt` and `build/third_party/s/fetched.txt`. `.toolchain/project.toml` stays. | No `--all`. |
 | nothing to clean | The project has no folder `build`: `clean.py` writes `nothing to clean`. | The project has `build/a.txt`. |
+| clean removes a read-only file | A short Python program makes `build/x/ro.txt` read-only, then runs `clean.py`. `clean.py` removes the file. | The source `s` of the project has the folder `build/x`, thus `clean.py` keeps the file. |
