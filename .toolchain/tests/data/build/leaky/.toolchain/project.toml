@@ -1,6 +1,9 @@
 [project]
 name = "leaky"
 
+[variables]
+stamp = "{root}"
+
 [kinds.stamped]
 output = "{name}.txt"
 steps = [
@@ -13,7 +16,7 @@ steps = [
 name = "stamped"
 kind = "stamped"
 sources = ["src/note.txt"]
-manifest = ["{root}"]
+manifest = ["{stamp}"]
 
 [test]
 timeout = 60

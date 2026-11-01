@@ -166,7 +166,7 @@ false = { files = { "{case}/g/src/b.txt" = "b" } }
 name = "a package that holds a path of its machine is refused"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/leaky", "--out", "{case}/out", "--pack"]
 claims = { status = 1, has = [", a path of the machine that built it"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/leaky", "--out", "{case}/out"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/leaky", "--out", "{case}/out", "--pack", "--set", "stamp=leaky"] }
 
 [[case]]
 name = "the cache of zig is a path from the folder of the project"
@@ -356,7 +356,7 @@ false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\
 name = "the variable toolchain names the toolchain of the tools"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/toolchained", "--out", "{case}/out"]
 claims = { status = 0, files = { "{case}/out/{target}/notice.txt" = "Under the GNU Affero General Public License" } }
-false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/toolchained", "--out", "{case}/out", "--set", "place=.toolchain"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/toolchained", "--out", "{case}/out", "--set", "place=other"] }
 
 [[case]]
 name = "a library of x86_64-windows-gnu links no compiler_rt"
