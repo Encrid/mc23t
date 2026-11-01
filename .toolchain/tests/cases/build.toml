@@ -360,15 +360,15 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 
 [[case]]
 name = "a library of x86_64-windows-gnu links no compiler_rt"
-run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "size", "{root}", "{case}/out", "small"]
+run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "size", "{root}", "{case}/out", "small", "{root}/.toolchain/tests/data/build/runtime"]
 claims = { status = 0, line = ["small.dll: under 16 KB"] }
-false = { run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "size", "{root}", "{case}/out", "bare"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "size", "{root}", "{case}/out", "bare", "{root}/.toolchain/tests/data/build/runtime"] }
 
 [[case]]
 name = "a library of x86_64-windows-gnu takes its moves and its fills from Windows"
-run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "imports", "{root}", "{case}/out", "small"]
+run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "imports", "{root}", "{case}/out", "small", "{root}/.toolchain/tests/data/build/runtime"]
 claims = { status = 0, line = ["KERNEL32.dll: RtlMoveMemory", "KERNEL32.dll: RtlFillMemory"] }
-false = { run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "imports", "{root}", "{case}/out", "bare"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "imports", "{root}", "{case}/out", "bare", "{root}/.toolchain/tests/data/build/runtime"] }
 
 [[case]]
 name = "a library moves, fills, compares and counts each byte, and touches no byte outside its buffers"

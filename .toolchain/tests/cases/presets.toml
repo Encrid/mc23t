@@ -4,3 +4,10 @@ run = ["{python}", "-c", "import subprocess, sys; [subprocess.run([sys.executabl
 folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_sources.toml", ".toolchain/presets/native_module/native_targets.toml", ".toolchain/presets/native_module/native_kinds.toml", ".toolchain/presets/native_module/native_checks.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/probe.c"] }
 claims = { status = 0, has = ["probe{library}"] }
 false = { folders = { "{case}/proj/src" = [".toolchain/tests/data/presets/unmarked/probe.c"] } }
+
+[[case]]
+name = "a native module of x86_64-windows-gnu takes its moves and its fills from Windows"
+run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py", "imports", "{root}", "{case}/out", "probe", "{case}/proj"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/runtime/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/runtime/probe.c"] }
+claims = { status = 0, line = ["KERNEL32.dll: RtlMoveMemory", "KERNEL32.dll: RtlFillMemory"] }
+false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/runtime/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/presets/runtime/bare_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/runtime/probe.c"] } }
