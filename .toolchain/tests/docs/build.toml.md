@@ -18,7 +18,7 @@ The cases of the options, of the report and of the files of a project run a shor
 | `config` | The artifact `thing`, stated in a file of `.toolchain/config` and not in `project.toml`. |
 | `joined` | The artifact `alpha` in `project.toml`, and the artifact `beta` in `more.toml` of `.toolchain/config`. |
 | `clash` | `[variables] word` in `one.toml` and in `two.toml` of `.toolchain/config`. |
-| `leaky` | The artifact `stamped`, whose section holds `{root}`: the folder of the project. |
+| `leaky` | The artifact `stamped`, whose section holds `[variables] stamp`. `stamp` is `{root}`: the folder of the project. |
 | `archived` | The archive `one`. |
 | `started` | The program `sizer`, which calls `stat`. |
 | `placed` | The program `placed`, whose kind compiles `src/main.c` with the folder `include`, and `side.c` by its bare name, in the folder `{side}`. `side` is `side`, the folder that holds `side.c`. |
@@ -27,7 +27,8 @@ The cases of the options, of the report and of the files of a project run a shor
 | `family` | The parts `alpha`, `beta` and `gamma`, each with one artifact `<part>.txt` of the kind `file`. `beta` uses `alpha`, and `gamma` uses `beta`. |
 | `ordered` | The parts `alpha` and `zeta`, in `alpha.toml` and `zeta.toml` of `.toolchain/config`. `alpha.txt` links `zeta.txt`, and `alpha` uses `zeta`. |
 | `unordered` | The same parts, but `alpha` uses no part. |
-| `toolchained` | The artifact `notice.txt` of the kind `taken`, which copies `{place}/header.txt`. `[variables] place` is `{toolchain}`. |
+| `spliced` | The artifact `spliced.txt` of the kind `file`. Its sources are the list variable `inputs`, which holds `.toolchain/project.toml`. |
+| `toolchained` | The artifact `notice.txt` of the kind `taken`, which copies `{place}/header.txt`. `[variables] place` is `{toolchain}`. `other/header.txt` holds no notice. |
 | `runtime` | The library `small` of the kind `library`, the same library `bare` of the kind `bare_library`, which adds no `runtime`, the library `checked`, and the program `checker`, which links `checked`. `tools/inspect.py` builds the project that its last argument names, for `x86_64-windows-gnu`, and gives the size or the imports of one library. |
 
 In `built`, `greet` gets its greeting from `defines`.
@@ -64,6 +65,8 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | Case | Claim | False variant |
 | --- | --- | --- |
 | a program linked with a library | `test` on `built` passes the cases `greeter` and `greeter_static`: the archive and its flag work. | `test --break`. |
+| a build skips the test artifacts | `build` on `built` writes `greet_static.a`, and does not build `greeter_static`, which has `test = true`. | `test.py` on `built`, which builds the test artifacts too. |
+| a list variable as the sources | `build` on `spliced` writes `spliced.txt`: the items of `inputs` are its sources. | `--set inputs=none.txt`: no file matches the sources, thus `build` stops. |
 | a variant without its section | With `--set said=first,second`, `build` stops: `plain.txt does not hold 'first,second'`. | No `--set`. |
 | a build for debugging | With `--debug`, `package.txt` is in `{case}/out/{target}-debug`. | No `--debug`. |
 | a package in a zip | `build --pack` writes the path of the zip, and the names of the files in it. The proof builds with the nested header `include/sub/extra.h`. `greeter_static` has `test = true`, thus no name of the zip starts with `greeter_static/`. | No `--pack`. |
@@ -88,7 +91,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a report with no fault | `shared.report` gets no fault, 12 and `commits`. It writes `no fault in 12 commits`, and the status is 0. | One fault. |
 | the files of a project, walked | `shared.repository` writes `False` for `{case}/w`. `shared.ours` gives `{case}/w/a.txt` and `{case}/w/src/build/e.txt`. It leaves out `tests`, the folder `build` at the root and `__pycache__`. | `{case}/w/src/b.txt` is also there. |
 | the files of a project, from git | The program makes `{case}/g` a repository of git, and `shared.repository` writes `True`. `shared.ours` gives `a.txt` and `.gitignore`, but not `tests` or a file that git ignores. | `{case}/g/src/b.txt` is also there. |
-| a package that holds a path of its machine is refused | `build --pack` on `leaky` stops: `stamped.txt` holds the folder of the project. | No `--pack`. |
+| a package that holds a path of its machine is refused | `build --pack` on `leaky` stops: `stamped.txt` holds the folder of the project. | `--set stamp=leaky`: `stamped.txt` holds no folder, thus `pack` writes the zip. |
 | the cache of zig is a path from the folder of the project | `build.prepared` on the template, which holds the cache, sets `ZIG_LOCAL_CACHE_DIR` to `build/zig-cache/local`. | `build.prepared` on `built`, which does not hold the cache: a whole path. |
 | an archive of a release holds no path of its machine | `build --pack --target x86_64-windows-gnu` on the copy of `archived` writes its zip, thus `one.a` holds no folder of the machine. Without `-fstrip`, each object of `one.a` holds its own path. | `--debug`: the debug information of `one.a` holds the folder of the project, thus `pack` stops. |
 | a program of a release holds no path of its machine | `build --pack --target x86_64-linux-gnu` on `started` writes its zip, thus `sizer` holds no folder of the machine. `sizer` links objects that zig builds for glibc, with their debug information. Without `-s`, `sizer` keeps it. | `--debug`: the debug information of `sizer` holds the folder of the project, thus `pack` stops. |
@@ -118,7 +121,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a build of a part makes the parts that it uses first | `build --part alpha` on `ordered` builds `zeta.txt`, then `alpha.txt`. | `unordered`, which builds only `alpha.txt`. |
 | parts that use each other | `a` uses `b`, and `b` uses `a`: `the uses of the parts make a cycle: `, and the parts. | `b` uses no part. |
 | a part that uses a part that [parts] does not have | With no `--part`, `uses = ["nowhere"]` stops: `no part nowhere; the parts: a`. | `uses = []`. |
-| the variable toolchain names the toolchain of the tools | `build` on `toolchained` copies `header.txt` of the toolchain that runs, though the root holds no toolchain. | `--set place=.toolchain`: the `.toolchain` of the root has no `header.txt`, thus `build` stops. |
+| the variable toolchain names the toolchain of the tools | `build` on `toolchained` copies `header.txt` of the toolchain that runs, though the root holds no toolchain. | `--set place=other`: `build` copies `other/header.txt`, which holds no notice. |
 | a library of x86_64-windows-gnu links no compiler_rt | `inspect.py size` writes `small.dll: under 16 KB`. | `bare.dll`, which links compiler_rt: `16 KB or more`. |
 | a library of x86_64-windows-gnu takes its moves and its fills from Windows | `inspect.py imports` writes `KERNEL32.dll: RtlMoveMemory` and `KERNEL32.dll: RtlFillMemory` for `small.dll`. | `bare.dll`, which imports neither. |
 | a library moves, fills, compares and counts each byte, and touches no byte outside its buffers | `test` on `runtime` builds for the target of the machine, and the case `checker` writes `bad 0`: `checker: 1 cases: 1 as written`. | `--break`: `checker` gets the argument `wrong`, and writes `bad 1`. |
