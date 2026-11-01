@@ -27,6 +27,8 @@ The project of the case `a full project` has these files, and the document of ea
 | a path that the layout does not allow | `notes.txt: the layout does not allow this file`. | No `notes.txt`. |
 | a file of the runtime that is no source | `.toolchain/runtime/notes.txt: the layout does not allow this file`: the runtime holds only `.c` and `.h` files. | The runtime holds `notes.c`. |
 | a file that the layout needs | A project with no `license`: `license: the layout needs this file`. | The project has `license`. |
+| the guide of the needs that the layout needs | A project with no `docs/contributing/needs.md`: `docs/contributing/needs.md: the layout needs this file`. | `needs.md` is in `docs/contributing`. |
+| the guide of the decisions that the layout needs | A project with no `docs/contributing/decisions.md`: `docs/contributing/decisions.md: the layout needs this file`. | `decisions.md` is in `docs/contributing`. |
 | the folder that the layout needs | A project with no file in `.toolchain/tools`: `.toolchain/tools/: the layout needs this folder`. No line names `src/`. | The project has a file in `.toolchain/tools`. |
 | a source without its document | `src/a.c: no document docs/intern/a.c.md`. | The project has the document. |
 | a header without its document | `include/a.h: no document docs/extern/a.h.md`. | The project has the document. |
