@@ -28,7 +28,7 @@ The cases of the options, of the report and of the files of a project run a shor
 | `ordered` | The parts `alpha` and `zeta`, in `alpha.toml` and `zeta.toml` of `.toolchain/config`. `alpha.txt` links `zeta.txt`, and `alpha` uses `zeta`. |
 | `unordered` | The same parts, but `alpha` uses no part. |
 | `toolchained` | The artifact `notice.txt` of the kind `taken`, which copies `{place}/header.txt`. `[variables] place` is `{toolchain}`. |
-| `runtime` | The library `small` of the kind `library`, the same library `bare` of the kind `bare_library`, which adds no `runtime`, the library `checked`, and the program `checker`, which links `checked`. `tools/inspect.py` builds the project for `x86_64-windows-gnu`, and gives the size or the imports of one library. |
+| `runtime` | The library `small` of the kind `library`, the same library `bare` of the kind `bare_library`, which adds no `runtime`, the library `checked`, and the program `checker`, which links `checked`. `tools/inspect.py` builds the project that its last argument names, for `x86_64-windows-gnu`, and gives the size or the imports of one library. |
 
 In `built`, `greet` gets its greeting from `defines`.
 `greeter` includes `.toolchain/tests/data/build/built/include/greet.h`, links `greet`, and has `greet` beside it in its folder.

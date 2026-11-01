@@ -1,0 +1,15 @@
+[project]
+name = "probe"
+
+[variables]
+bridge = "{root}/headers"
+bb_native = "{root}/headers"
+
+[targets.x86_64-windows-gnu]
+section = ".bridge"
+
+[[artifact]]
+name = "probe"
+kind = "native_module"
+sources = ["src/probe.c"]
+manifest = ["test:probe@1.0.0", "abi=3", "config=none", "pinned=false", "reloadable=false"]
