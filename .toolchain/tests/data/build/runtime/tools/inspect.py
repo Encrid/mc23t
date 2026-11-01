@@ -6,9 +6,8 @@ from pathlib import Path
 TARGET = 'x86_64-windows-gnu'
 
 
-def built(root, out):
-    data = Path(root) / '.toolchain' / 'tests' / 'data' / 'build' / 'runtime'
-    done = subprocess.run([sys.executable, str(Path(root) / '.toolchain' / 'tools' / 'build.py'), '--root', str(data),
+def built(root, out, project):
+    done = subprocess.run([sys.executable, str(Path(root) / '.toolchain' / 'tools' / 'build.py'), '--root', project,
                            '--out', out, '--target', TARGET], capture_output=True, text=True)
     if done.returncode:
         raise SystemExit(done.stdout + done.stderr)
@@ -52,8 +51,8 @@ def imports(path):
 
 
 def main():
-    mode, root, out, name = sys.argv[1:5]
-    dll = built(root, out) / (name + '.dll')
+    mode, root, out, name, project = sys.argv[1:6]
+    dll = built(root, out, project) / (name + '.dll')
     if mode == 'size':
         print('%s.dll: %s' % (name, 'under 16 KB' if dll.stat().st_size < 16384 else '16 KB or more'))
     else:
