@@ -38,7 +38,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root
 name = "a case that states fail prepares the build one time"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "-k", "second"]
 claims = { status = 0, line = ["taken: door, package door"], matches_not = ["taken: door.*taken: door"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "-k", "second", "--set", "lists=none"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "-k", "second", "--set", "lists=tests/kept"] }
 
 [[case]]
 name = "a listed call whose callback is a typedef with a calling convention fails"
