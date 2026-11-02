@@ -20,7 +20,19 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 name = "a package in a zip"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--pack"]
 claims = { status = 0, line = ["{case}/out/built-{target}.zip", "greet{library}", "greet_static.a", "include/greet.h", "include/sub/extra.h", "license", "third_party/sample/license", "package proof: built ran"], matches_not = ["(?m)^greeter_static/"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--pack", "--leave", "license"] }
+
+[[case]]
+name = "a file that --leave names is not in the deliverable and not in the zip"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--pack", "--leave", "license"]
+claims = { status = 0, line = ["{case}/out/built-{target}.zip", "third_party/sample/license", "package proof: built ran"], matches_not = ["(?m)^license$"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--pack", "--leave", "third_party/sample/license"] }
+
+[[case]]
+name = "a --leave of a file that the deliverable does not hold is refused"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--leave", "none.txt"]
+claims = { status = 1, has = ["build.py: --leave none.txt: the deliverable holds no none.txt"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/built", "--out", "{case}/out", "--leave", "license"] }
 
 [[case]]
 name = "the proof links the files of [package] link"
