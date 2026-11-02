@@ -47,6 +47,14 @@ claims = { status = 0, line = ["no fault in 2 files"] }
 false = { files = { "{case}/project.py" = "# Copyright (C) 2026 Someone\nprint(1)\n" } }
 
 [[case]]
+name = "a notice with the line ends of Windows"
+run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }
+files = { "{case}/project.py" = "# Copyright (C) 2026 Enkrid\r\n#\r\n# Under the GNU Affero General Public License, version 3 only: see license.\r\nprint(1)\r\n" }
+claims = { status = 0, line = ["no fault in 2 files"] }
+false = { files = { "{case}/project.py" = "print(1)\r\n" } }
+
+[[case]]
 name = "a comment in a Python file"
 run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }
