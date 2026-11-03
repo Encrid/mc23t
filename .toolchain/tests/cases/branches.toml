@@ -51,3 +51,9 @@ name = "a closed library keeps its outcomes"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/loaded", "--out", "{case}/out", "--branches"]
 claims = { status = 0, line = ["branches: 3 outcomes, 3 reached"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/loaded", "--out", "{case}/out", "--branches", "-k", "one"] }
+
+[[case]]
+name = "a probe holds each call of a macro in full"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/expanded", "--out", "{case}/out", "--branches"]
+claims = { status = 1, line = ["src/macros.c:28:14: this condition is in a macro, and is not measured", "src/macros.c:30:9: this condition is in a macro, and is not measured", "src/macros.c:32:5: this condition is in a macro, and is not measured", "branches: 17 outcomes, 17 reached"], has = ["outcomes not reached: 0; branches not measured: 3"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/expanded", "--out", "{case}/out", "--branches", "-k", "none"] }

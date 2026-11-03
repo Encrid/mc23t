@@ -30,6 +30,7 @@ A Python file of a case has no legal notice if the fault of the case is a differ
 | a Python file without the legal notice | `project.py:1: the file does not start with the legal notice`. | `text.py` checks `{case}/fixed`, which has the `project.py` of this project. |
 | a notice with two holders | A second line of copyright, with a different holder, is not a fault. | The second line has no `Copyright (C)`. |
 | a notice of a different holder | The line of copyright names `Someone`. It is not a fault. | The notice has no line of the licence. |
+| a notice with the line ends of Windows | Each line of the file ends with a carriage return and a line feed. It is not a fault. | The file has no notice. |
 | a comment in a Python file | `project.py:1: a comment`. | No comment. |
 | a string statement | A docstring: `project.py:1: a string statement`. | No docstring. |
 | a comment in a TOML file | `a.toml:1: a comment`. | The `#` is in the string. |
