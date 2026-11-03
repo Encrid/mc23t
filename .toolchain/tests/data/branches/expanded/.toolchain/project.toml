@@ -1,0 +1,11 @@
+[project]
+name = "expanded"
+
+[[artifact]]
+name = "macros"
+kind = "program"
+sources = ["src/*.c"]
+
+[test]
+timeout = 60
+copies = 1

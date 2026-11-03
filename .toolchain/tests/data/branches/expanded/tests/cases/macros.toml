@@ -1,0 +1,17 @@
+[[case]]
+name = "none"
+run = ["{out}/macros{exe}"]
+claims = { status = 0, line = ["same", "double"] }
+false = { run = ["{out}/macros{exe}", "1"] }
+
+[[case]]
+name = "two"
+run = ["{out}/macros{exe}", "2", "1"]
+claims = { status = 0, line = ["twice", "double", "and", "pick", "both", "positive"] }
+false = { run = ["{out}/macros{exe}", "2", "2"] }
+
+[[case]]
+name = "three"
+run = ["{out}/macros{exe}", "3", "0"]
+claims = { status = 0, line = ["pick", "both"] }
+false = { run = ["{out}/macros{exe}", "3", "3"] }
