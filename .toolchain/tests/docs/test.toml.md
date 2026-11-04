@@ -1,7 +1,7 @@
 # .toolchain/tests/cases/test.toml
 
 The group `test` checks `.toolchain/tools/test.py`.
-The first seven cases use the keys of a case. Their commands are short Python programs, thus they need no build.
+The first thirteen cases use the keys of a case. Their commands are short Python programs, thus they need no build.
 The other cases run `test.py` on a project in `{case}`. Their `folders` copy the files of `.toolchain/tests/data/test` into it.
 
 | File | Content |
@@ -13,6 +13,10 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `alone.toml` | The case `alone`, which has no false variant. |
 | `silent.toml` | The case `silent`, which claims nothing. |
 | `colour.toml` | The case `colour`, which has the key `colour`. |
+| `signals.py` | A program that writes `ready`, reads a line, and writes `done`. It writes `paused` before `done` if 1 second went by after `ready`. |
+| `signals.py`, the signals | For each signal, `signals.py` writes `got <signal>`. After a hang-up it ends with 0. If it cannot write `done`, it ends with 3. |
+| `unknown_signal.toml`, `closed_input.toml`, `zero_pause.toml` and `ignored_termination.toml` | Each has one case with a value that a script or `ignore` does not allow. |
+| `interrupt_termination.toml`, `after_hang_up.toml` and `wait_after_close.toml` | Each has one case with a script that cannot run the same way on each system. |
 | `late.toml` and `late/project.toml` | The case `late`, which waits 9 seconds, and a timeout of 2 seconds. |
 | `said.toml` and `ruled/project.toml` | The case `said`, which writes `ended after`, and a rule that refuses this text, but not in the group `free/said`. |
 | `still.toml` | The case `still`, whose false variant also passes. |
@@ -34,9 +38,22 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | claims on the status and on the output | `stdin` gives `two`. The command writes `one two`, and ends with 3. `status`, `status_not`, `has` and `lacks` hold. | `stdin` gives `three`. |
 | a script that removes a file | The script removes `gone.txt` that `files` wrote, thus the command writes `False`. | The script removes no file. |
 | a folder of files | `folders` copies `note.txt` into `{case}/in`. | The folder is empty. |
+| a script that sends an interrupt | The script waits for `ready`, sends an interrupt, and waits for `got`. The output has `got interrupt`, then `done`. | The script sends a hang-up. |
+| a script that sends a termination | The output has `got termination`, then `done`. | The script sends an interrupt. |
+| a script that sends a hang-up | The output has `got hang-up`, and no `done`. | The script sends an interrupt. |
+| an interrupt that the command ignores | `ignore` is `["interrupt"]`, so the output has no `got interrupt`. | `ignore` is empty. |
+| a script that closes the output | The script closes the output after `ready`, thus `signals.py` ends with 3. | The script closes nothing. |
+| a step with no wait that pauses | The second step has no `wait`, and pauses 2 seconds. The output has `paused`. | No second step. |
 | a case with no false variant | `test` stops: `the case alone has no false variant`. | `passes.toml` in place of `alone.toml`. |
 | a case that claims nothing | `test` stops: `the case silent claims nothing`. | `passes.toml`. |
 | a case with a key that no case has | `test` stops: `a case has no key colour`. | `passes.toml`. |
+| a signal that is not known | `test` stops: `the case unknown sends stop`. | `passes.toml`. |
+| a close of the input | `test` stops: `the case input closes input`. | `passes.toml`. |
+| a pause of no time | `test` stops: `the case zero pauses 0`. | `passes.toml`. |
+| an ignored termination | `test` stops: `the case deaf ignores ['termination']`. | `passes.toml`. |
+| an interrupt and a termination in one script | `test` stops: `the case both sends an interrupt and a termination`. | `passes.toml`. |
+| a signal after a hang-up | `test` stops: `the case after sends a signal after a hang-up`. | `passes.toml`. |
+| a wait after a close of the output | `test` stops: `the case blind waits for a line after it closes the output`. | `passes.toml`. |
 | a case that differs | `test` writes `fails: differs`, the status and the output. Then it stops: `not as written: fails`. | `passes.toml`. |
 | a case that does not end in time | `test` writes `late: did not end in 2 seconds`, and stops. | `passes.toml`. |
 | a rule of the tests | The group `held/said` fails, and the group `free/said` passes. | `passes.toml` in `held`. |
