@@ -80,6 +80,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a key in project.toml and in toolchain.toml | `build` on `twice` stops: `project.toml states variables.language, and toolchain.toml states it too`. | `build` on `copy`. |
 | a list of tables in two files | `build` on `joined` makes `alpha` and `beta`. | `build` on `config`. |
 | a key in two files of config | `build` on `clash` stops: `config/two.toml states variables.word, and config/one.toml states it too`. | `build` on `copy`. |
+| a file in a folder of config | `project.toml` and `config/more/word.toml` both state `[variables] word`: `config/more/word.toml states variables.word, and project.toml states it too`. | `project.toml` states no `word`. |
 | a built-in variable in [variables] | `build` on `builtin` stops: `[variables] names a built-in variable or a key of a target: root`. | `build` on `copy`. |
 | a target that the toolchain does not have | `--target nowhere` stops `build`: `no target nowhere; the targets:`. | No `--target`. |
 | a tool that is not there | `--set tool=nowhere` stops `build`: `the tool interpreter is not at nowhere`. | No `--set`. |
@@ -109,6 +110,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a table of [compose] with no part, in a project with parts | `[compose.headers]` states no part: `[compose.headers] states no part, and the project has parts`. | The table states the part `a`. |
 | an artifact of a part that [parts] does not have | In a project with no `[parts]`, `note` states the part `a`: `note states the part a, and [parts] does not have it`. | `note` states no part. |
 | a part that states no uses | `[parts.a]` has no `uses`: `[parts.a] states no uses`. | `uses = []`. |
+| a part that states no folder | `[parts.a]` has no `folder`: `[parts.a] states no folder`. | `folder = "a"`. |
 | a key that a part does not have | `[parts.a]` has the key `use`: `[parts.a]: a part has no key use`. | No `use`. |
 | a pack of a part writes the zip of the part | `pack --part beta` on `family` writes `Family-Beta-{target}.zip` with `beta.txt`, `include/beta.h` and `license`, and runs the proof of `beta`. The zip holds no `alpha.txt` and no licence of `third_party`. | `--part alpha`. |
 | the zip of a part holds the licences of its third_party | `pack --part alpha` on `family` writes `Family-Alpha-{target}.zip` with `third_party/sample/license`. | `--part gamma`. |

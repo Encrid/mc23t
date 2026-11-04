@@ -1,5 +1,6 @@
 [parts.zeta]
 name = "Zeta"
+folder = "zeta"
 uses = []
 third_party = []
 

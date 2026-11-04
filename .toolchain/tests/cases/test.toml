@@ -206,6 +206,12 @@ claims = { status = 0, line = ["alpha/alpha: 1 cases: 1 as written"], lacks = ["
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/family", "--out", "{case}/out", "--part", "beta"] }
 
 [[case]]
+name = "the groups of a part in a deep folder"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--part", "beta"]
+claims = { status = 0, line = ["deep/beta/beta: 1 cases: 1 as written"], lacks = ["alpha/alpha"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--part", "alpha"] }
+
+[[case]]
 name = "a part with no group"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/family", "--out", "{case}/out", "--part", "gamma"]
 claims = { status_not = 0, has = ["no case group is in the parts gamma"] }
