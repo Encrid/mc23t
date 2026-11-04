@@ -1,0 +1,6 @@
+[[case]]
+name = "both"
+run = ["{python}", "-c", ""]
+script = [{ signal = "interrupt" }, { signal = "termination" }]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

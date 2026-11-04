@@ -1,0 +1,6 @@
+[[case]]
+name = "blind"
+run = ["{python}", "-c", ""]
+script = [{ close = "output" }, { wait = "done" }]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

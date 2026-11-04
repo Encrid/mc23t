@@ -14,10 +14,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parents[2]
 NAME = re.compile(r'\{([a-z_][a-z0-9_]*)(?::([^{}]*))?\}')
 KEYS = {'step': {'run', 'cwd', 'section', 'text', 'contains', 'copy', 'rename'},
-        'case': {'name', 'run', 'env', 'stdin', 'script', 'helper', 'files', 'folders', 'fail', 'claims', 'false', 'alone'},
-        'false': {'run', 'env', 'stdin', 'script', 'helper', 'files', 'folders', 'fail'},
+        'case': {'name', 'run', 'env', 'stdin', 'script', 'helper', 'files', 'folders', 'fail', 'claims', 'false', 'alone',
+                 'ignore'},
+        'false': {'run', 'env', 'stdin', 'script', 'helper', 'files', 'folders', 'fail', 'ignore'},
         'helper': {'run', 'wait', 'stdin', 'claims'},
-        'script': {'wait', 'put', 'remove', 'type'},
+        'script': {'wait', 'put', 'remove', 'type', 'close', 'signal', 'pause'},
         'claims': {'status', 'status_not', 'line', 'has', 'lacks', 'matches', 'matches_not', 'order', 'output', 'files'},
         'source': {'name', 'url', 'sha256', 'into', 'top', 'patches'},
         'part': {'name', 'folder', 'uses', 'third_party', 'package'},

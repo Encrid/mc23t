@@ -8,10 +8,10 @@
 | --- | --- |
 | `environment(changes, values)` | Gives the environment of a command, with the changes of `env`. |
 | `free_port()` | Gives a free port of this machine. |
-| `started(argv, root, timeout, env)` | Starts a command, with a timer that stops it after `timeout` seconds. |
+| `started(argv, root, timeout, env, use)` | Starts a command with `started` of `signals.py`, with a timer that stops it after `timeout` seconds. `use` is the case, or nothing for a helper. |
 | `waited(running, text)` | Reads the output until a line contains the text. It gives false if the output ends first. |
 | `typed(running, text)` | Writes a text to the command. |
-| `ended(running, text)` | Writes the text, closes the input, and waits for the end of the command. It gives the status and the output. |
+| `ended(running, text)` | Writes the text, closes the input, and waits for the end of the command. It gives the status and the output. It reads no output that a step closed. |
 | `ordered(wanted, lines)` | Tells if the lines have each wanted line, in order. |
 | `holding(path, text)` | Tells if a file is there and contains the text. |
 | `same(path, said)` | Tells if a file is there and holds the same text as the output. |
@@ -69,6 +69,7 @@ A file with no case gives no group.
 `groups_of` stops if a case:
 
 - has a key that a case does not have, or its false variant or its helper has such a key,
+- holds a step or a value of `ignore` that `allowed` of `signals.py` refuses, also in its false variant: `.toolchain/docs/signals.py.md`, *The checks*,
 - claims nothing: `<path>: the case <name> claims nothing`,
 - has no false variant: `<path>: the case <name> has no false variant`,
 - states a call in `fail`, also in its false variant, that `listed` of `fail.py` does not give: `<path>: the case <name> makes <call> fail, and [fail.calls] does not list it`.

@@ -49,6 +49,55 @@ claims = { status = 0, line = ["written at the prompt"] }
 false = { folders = { "{case}/in" = [] } }
 
 [[case]]
+name = "a script that sends an interrupt"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+script = [{ wait = "ready", signal = "interrupt" }, { wait = "got" }]
+claims = { status = 0, order = ["ready", "got interrupt", "done"] }
+false = { script = [{ wait = "ready", signal = "hang-up" }, { wait = "got" }] }
+
+[[case]]
+name = "a script that sends a termination"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+script = [{ wait = "ready", signal = "termination" }, { wait = "got" }]
+claims = { status = 0, order = ["ready", "got termination", "done"] }
+false = { script = [{ wait = "ready", signal = "interrupt" }, { wait = "got" }] }
+
+[[case]]
+name = "a script that sends a hang-up"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+script = [{ wait = "ready", signal = "hang-up" }, { wait = "got" }]
+claims = { status = 0, order = ["ready", "got hang-up"], lacks = ["done"] }
+false = { script = [{ wait = "ready", signal = "interrupt" }, { wait = "got" }] }
+
+[[case]]
+name = "an interrupt that the command ignores"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+ignore = ["interrupt"]
+script = [{ wait = "ready", signal = "interrupt", pause = 1 }]
+claims = { status = 0, order = ["ready", "done"], lacks = ["got interrupt"] }
+false = { ignore = [] }
+
+[[case]]
+name = "a script that closes the output"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+script = [{ wait = "ready", close = "output" }]
+claims = { status = 3 }
+false = { script = [{ wait = "ready" }] }
+
+[[case]]
+name = "a step with no wait that pauses"
+run = ["{python}", "{root}/.toolchain/tests/data/test/signals.py"]
+stdin = "\n"
+script = [{ wait = "ready" }, { pause = 2 }]
+claims = { status = 0, order = ["ready", "paused", "done"] }
+false = { script = [{ wait = "ready" }] }
+
+[[case]]
 name = "a case with no false variant"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/alone.toml"] }
@@ -67,6 +116,55 @@ name = "a case with a key that no case has"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/colour.toml"] }
 claims = { status_not = 0, has = ["tests/cases/colour.toml: a case has no key colour"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a signal that is not known"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/unknown_signal.toml"] }
+claims = { status_not = 0, has = ["tests/cases/unknown_signal.toml: the case unknown sends stop, and the signals are interrupt, termination and hang-up"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a close of the input"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/closed_input.toml"] }
+claims = { status_not = 0, has = ["tests/cases/closed_input.toml: the case input closes input, and only the output can close"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a pause of no time"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/zero_pause.toml"] }
+claims = { status_not = 0, has = ["tests/cases/zero_pause.toml: the case zero pauses 0, and a pause is a number of seconds above 0"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "an ignored termination"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/ignored_termination.toml"] }
+claims = { status_not = 0, has = ["tests/cases/ignored_termination.toml: the case deaf ignores ['termination'], and only interrupt can be ignored"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "an interrupt and a termination in one script"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/interrupt_termination.toml"] }
+claims = { status_not = 0, has = ["tests/cases/interrupt_termination.toml: the case both sends an interrupt and a termination, and on Windows a termination turns off the interrupt"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a signal after a hang-up"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/after_hang_up.toml"] }
+claims = { status_not = 0, has = ["tests/cases/after_hang_up.toml: the case after sends a signal after a hang-up, and on Windows a hang-up ends the console"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a wait after a close of the output"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/wait_after_close.toml"] }
+claims = { status_not = 0, has = ["tests/cases/wait_after_close.toml: the case blind waits for a line after it closes the output"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
 
 [[case]]
