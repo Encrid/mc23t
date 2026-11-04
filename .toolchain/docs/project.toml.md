@@ -304,7 +304,7 @@ Its key `folder` gives the folder of the part in `src`, `include`, `docs/extern`
 | `package` | Optional. The package proof of the part: a table with the keys `proof`, `link` and `include`, as `[package]` has. `.toolchain/docs/build.py.md`, *The package proof*, tells them. |
 
 In a project with parts, each artifact and each table of `[compose]` states its part, with the key `part`.
-A project can put the tables of each part into a file of its own in `.toolchain/config` or in a folder of it, for example `video.toml`:
+A project can put the tables of each part into its own file in `.toolchain/config` or in a folder of it, for example `video.toml`:
 
 ```toml
 [parts.video]
