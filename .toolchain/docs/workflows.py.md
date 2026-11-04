@@ -22,7 +22,7 @@ It gives the tag to the tools with `--tag`. A tag `<part>-v<major>.<minor>.<patc
 `release.yml` does these steps:
 
 1. It makes a draft release, with the name of the tag.
-2. On each target of its matrix, it prepares the runner with `runner.py`, then runs `fetch`, `test` and `pack --target <target>`.
+2. On each target of its matrix, it prepares the runner with `runner.py`, then runs `fetch` and `pack --target <target>`. It runs no test, because the pull request from `dev` into `main` tested the tree of the tag.
 3. On each target, it adds the zip of the target to the draft.
 4. It runs `join`, which joins the zips of the targets of the part of the tag. For the tag of the project, `join` joins nothing.
 5. For the tag of the project, it adds `sha256.txt`, with the sha256 of each zip, to the draft.
