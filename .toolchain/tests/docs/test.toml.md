@@ -21,7 +21,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `port/project.toml`, `unported.toml` and `ported.toml` | A project whose variable `address` holds `{port}`. The case `unported` names `{address}` only, and the case `ported` names `{port}` too. |
 
 The cases of the parts run `test.py` on `.toolchain/tests/data/build/family`, as `.toolchain/tests/docs/build.toml.md` tells, or on `.toolchain/tests/data/test/parted`.
-`parted` has the parts `alpha` and `beta`, each with a program and a group.
+`parted` has the parts `alpha` and `beta`, each with a program and a group. The folder of `beta` is `deep/beta`.
 The cases of `alpha` reach both sides of its condition. The case of `beta` reaches one side, and keeps one block of memory.
 The project exempts that side and that block, so a run of `alpha` meets two exemptions of a different part.
 
@@ -57,6 +57,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a project with no copies | The `.toolchain/project.toml` of the project has no `[test] copies`: `test` stops. | The project gives `copies = 1`. |
 | a case that holds no port gets no port | The case `unported` holds no `{port}`, so `{address}` has no value: `test` stops with `no variable {port} for 127.0.0.1:{port}`. | `ported.toml`, which names `{port}`. |
 | the groups of a part | `test --part alpha` on `family` runs the group `alpha/alpha`, and not `beta/beta`. | `--part beta`. |
+| the groups of a part in a deep folder | `test --part beta` on `parted` runs the group `deep/beta/beta`, and not `alpha/alpha`. | `--part alpha`. |
 | a part with no group | `test --part gamma` on `family` stops: `no case group is in the parts gamma`. | `--part alpha`. |
 | the branches of a part | `test --branches --part alpha` on `parted` probes only `alpha`, and does not read the exemption of `beta`: `branches: 3 outcomes, 3 reached`. | No `--part`: 6 outcomes. |
 | the leaks of a part | `test --leaks --part alpha` on `parted` runs the 2 cases of `alpha`, and does not read the exemption of `beta`: `leaks: 2 cases, 2 give back what they take`. | No `--part`: 3 cases. |

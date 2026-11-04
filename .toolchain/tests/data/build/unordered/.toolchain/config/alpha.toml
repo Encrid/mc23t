@@ -1,5 +1,6 @@
 [parts.alpha]
 name = "Alpha"
+folder = "alpha"
 uses = []
 third_party = []
 
