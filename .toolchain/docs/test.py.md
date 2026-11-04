@@ -61,7 +61,8 @@ The message of step 1 is `<target> does not run here: build it, and test it wher
 
 `groups_of` reads each file `**.toml` of its folder, in the order of the paths.
 The name of a group is the path of its file in `tests/cases`, without `.toml`.
-A group is in a part if the name of the group is the folder of the part, or begins with the folder and a slash.
+
+A group is in a part if its name is the folder of the part, or begins with the folder and a slash.
 The folder of a part is its key `folder`: `.toolchain/docs/project.toml.md`, *[parts]*.
 `picked` stops if no group is in the named parts: `no case group is in the parts <parts>`.
 A file with no case gives no group.
