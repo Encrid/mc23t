@@ -38,7 +38,7 @@ The layout allows only the paths of this table.
 | `.toolchain/runtime/<name>.c`, `.toolchain/runtime/<name>.h` | A source or a header that the toolchain adds to the shared libraries of a target: `.toolchain/docs/toolchain.toml.md`, *[targets.\<target\>]*. |
 | `<folder>/.gitkeep`, in `docs/extern`, `docs/intern`, `include` or `src` | An empty file that keeps an empty folder in git. |
 
-`layout.py` does not read `tests`, and does not read `.toolchain/tests` of the repository `my_c23_template`. Thus they can hold any file.
+`layout.py` does not read `tests`, and does not read `.toolchain/tests` of the repository `mc23t`. Thus they can hold any file.
 `layout.py` makes no check on a file under `third_party`. So `third_party` holds any file, with any name.
 
 The messages are:

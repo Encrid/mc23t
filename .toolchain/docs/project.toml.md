@@ -365,7 +365,7 @@ needs = ["display", "vulkan"]
 | Key | Value |
 | --- | --- |
 | `unicode` | Optional. The paths of the files that can hold text that is not ASCII. A path can contain `*`. The default is an empty list. |
-| `guides` | Optional. The names of the guides that the project adds to `docs/contributing`, beside the 8 guides of the repository `my_c23_template`, for example `timings.md`. `.toolchain/docs/layout.py.md`, *The paths* allows them. |
+| `guides` | Optional. The names of the guides that the project adds to `docs/contributing`, beside the 8 guides of the repository `mc23t`, for example `timings.md`. `.toolchain/docs/layout.py.md`, *The paths* allows them. |
 | `retired` | Optional. A table of the retired words of the project. A key is a retired word, and its value is the word to write, or an empty text. `.toolchain/docs/text.py.md`, *Retired words* tells the check. |
 | `makes` | Optional. A table: each key is a macro whose call makes a public name of its first argument. The value is the end that the name gets, or an empty text. `.toolchain/docs/cover.py.md`, *The public names* tells the check. |
 | `refuse` | Optional. The paths of the lists of the calls that the code must not make, with one name on each line. A path can hold variables. The default is an empty list. `.toolchain/docs/text.py.md`, *Refused calls* tells the check. |
