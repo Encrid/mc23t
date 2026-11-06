@@ -140,8 +140,8 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the runner mpbt builds each artifact each time | `[build] runner = "mpbt"`: the step runs in each of the 2 builds. | The runner `zig`. |
 | a runner that is not a runner | `[build] runner = "make"`: `[build] runner: make is not a runner: mpbt zig`. | The runner `zig`. |
 | a change of a value of a step builds the artifact again | `word` changes from `one` to `two` between the 2 builds, so the command of the step changes, and it runs 2 times. | `word` does not change. |
-| 2 artifacts that do not wait for each other build at the same time | The steps of `a` and `b` take 1 second each, and the 2 starts come before the first end. | `b` links the output of `a`. |
-| an artifact waits for the artifact that it links | `b` links `{out}/a.txt`: `end a` comes before `start b`. | `b` links nothing. |
+| 2 artifacts that do not wait for each other build at the same time | The steps of `a` and `b` take 1 second each. Each one starts before the other one ends, so `order.py` writes `together`. | `b` links the output of `a`. |
+| an artifact waits for the artifact that it links | `b` links `{out}/a.txt`, so `b` starts after `a` ends, and `order.py` writes `apart`. | `b` links nothing. |
 | a kind that passes a file between its steps, with a section | `note.txt` changes from `old` to `new` between the 2 builds. The output starts with `new` and ends with the section. | `note.txt` does not change. |
 | a changed header builds the artifact again | `src/h.h` changes from `VALUE 1` to `VALUE 2` between the 2 builds, and the program writes `2`. | The header does not change. |
 | the runner mpbt compiles each source | The same, with `[build] runner = "mpbt"`: the step `each` of `program` compiles the source, and the program writes `2`. | The header does not change. |
