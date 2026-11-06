@@ -127,8 +127,9 @@ def wrote(name, output):
 def compiled(kind, mine):
     if 'each' not in kind:
         return
-    folder = Path(mine['work'])
+    root, folder = Path(mine['root']).resolve(), Path(mine['work']).resolve()
     folder.mkdir(parents=True, exist_ok=True)
+    folder = folder.relative_to(root) if folder.is_relative_to(root) else folder
     for number, source in enumerate(mine['sources']):
         made = folder / ('%d.o' % number)
         each = dict(mine, source=source, object=made.as_posix(), deps=made.with_suffix('.d').as_posix())
