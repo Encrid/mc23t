@@ -145,5 +145,6 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a kind that passes a file between its steps, with a section | `note.txt` changes from `old` to `new` between the 2 builds. The output starts with `new` and ends with the section. | `note.txt` does not change. |
 | a changed header builds the artifact again | `src/h.h` changes from `VALUE 1` to `VALUE 2` between the 2 builds, and the program writes `2`. | The header does not change. |
 | the runner mpbt compiles each source | The same, with `[build] runner = "mpbt"`: the step `each` of `program` compiles the source, and the program writes `2`. | The header does not change. |
+| the steps of a kind that write no output | The step of `silent` prints `1` and writes no `{output}`: `the steps of note wrote no note.txt`. | The kind `marked`, which writes its output. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.

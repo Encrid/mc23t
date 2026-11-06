@@ -11,5 +11,5 @@ with open(log, 'a', encoding='utf-8') as out:
 time.sleep(seconds)
 with open(log, 'a', encoding='utf-8') as out:
     out.write('end %s\n' % word)
-if len(sys.argv) == 6:
+if len(sys.argv) >= 6:
     shutil.copyfile(sys.argv[4], sys.argv[5])

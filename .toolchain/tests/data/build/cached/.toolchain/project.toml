@@ -5,6 +5,7 @@ name = "cached"
 output = "{name}.txt"
 steps = [
     { run = ["{python}", "-c", "import os, pathlib; print(pathlib.Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())"], cwd = "{build}" },
+    { copy = ["{sources}", "{output}"] },
 ]
 
 [[artifact]]
