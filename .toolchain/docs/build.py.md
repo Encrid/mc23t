@@ -98,7 +98,7 @@ The 2 runners make the same files.
 `graphed` writes the graph `{out}/obj/graph.json`, and runs `zig build` with `.toolchain/graph.zig`, `-Dgraph=<graph>` and `--prefix {out}`.
 `.toolchain/docs/graph.zig.md` tells the form of the graph.
 `graph.zig` is the same file for each project, so zig builds it only once for each version of zig on a machine.
-For each artifact, `specified` writes `{out}/obj/<name>.json`: the values of the artifact, and its steps with their variables replaced.
+For each artifact, `specified` writes `{work}.json`: the values of the artifact, and its steps with their variables replaced.
 It writes the spec only when its text changes, because zig runs a step again when an input has a new time of change.
 The graph has these steps:
 
@@ -123,7 +123,7 @@ The first `zig build` of a version of zig on a machine takes longer, because zig
 1. If the artifact gives a `target`, it uses the keys of that target and its name as `{target}`.
 2. It replaces the variables of the name, and finds the sources. In `sources`, an item that is only a list variable gives the patterns of that list.
 3. It stops if no file matches the sources: `no file matches the sources of <name>`.
-4. It sets `{output}`, `{work}`, `{sources}`, `{defines}`, `{include}`, `{link}` and `{manifest}`, then `{flags}`, which can use them.
+4. It sets `{output}`, then `{work}`, `{sources}`, `{defines}`, `{include}`, `{link}` and `{manifest}`, then `{flags}`, which can use them.
    `{flags}` holds the `flags` of the kind, then the `flags` of the artifact.
 5. It makes the folder of the output, and the folder `obj`.
 6. With `each`, `compiled` runs the step `each` for each source: *Each source*.
@@ -161,7 +161,7 @@ Its value is the output path of the artifact. An artifact's `defines` splices `{
 ## Each source
 
 With the runner `mpbt`, `compiled` runs the step `each` of the kind once for each source, in the order of `{sources}`.
-`{object}` is `{out}/obj/<name>/<number>.o`, and `{deps}` is the same path with `.d` in place of `.o`. `<number>` is the place of the source, from 0.
+`{object}` is `{work}/<number>.o`, and `{deps}` is the same path with `.d` in place of `.o`. `<number>` is the place of the source, from 0.
 Each of these paths is from the root when `{out}` is in the root, as the caches of zig are. Thus an archive names its members with no folder of the machine.
 `{objects}` then gives the objects in the same order.
 
