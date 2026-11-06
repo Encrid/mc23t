@@ -197,7 +197,7 @@ A step does one of these actions:
 | `copy` | Copies the first file to the second file. |
 | `rename` | Moves the first file to the second file. |
 
-In a step with `cwd`, `{sources}` and each folder of `{include}` are whole paths, and so are the caches of zig.
+In a step with `cwd`, `{sources}`, each folder of `{include}`, `{output}`, `{objects}` and `{link}` are whole paths, and so are the caches of zig.
 Each other relative path of the command is a path from `cwd`.
 For example, a command that runs in the folder of a library can link it by its bare name.
 

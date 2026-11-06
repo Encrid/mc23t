@@ -17,6 +17,7 @@ With `--pack`, it also puts the deliverable into a zip file. With `--join`, it j
 | `moved(path, tree)` | Gives the path in `tree` for a path of `src` or of `include`, and else the path. With no tree, it gives the path. |
 | `planned(config, values, artifact, tree)` | Gives the kind and the variables of one artifact, as steps 1 to 4 of *Artifacts* tell. |
 | `built(config, values, artifact, tree)` | Builds one artifact with the runner `mpbt`. It gives the name of the artifact and its files. |
+| `wrote(name, output)` | Stops if the steps of an artifact did not write its output. |
 | `compiled(kind, mine)` | Runs the step `each` of the kind once for each source, and sets `{objects}`: *Each source*. |
 | `specified(config, values, artifact, tree)` | Writes the spec of one artifact for the runner `zig`, and gives its path and its values. |
 | `quoted(text)` | Gives a text as a string of Zig. |
@@ -95,6 +96,7 @@ The 2 runners make the same files.
 
 `graphed` writes `{out}/obj/build.zig`, and runs `zig build` on it with `--prefix {out}`.
 For each artifact, `specified` writes `{out}/obj/<name>.json`: the values of the artifact, and its steps with their variables replaced.
+It writes the spec only when its text changes, because zig runs a step again when an input has a new time of change.
 The graph has these steps:
 
 1. For each source of a kind with `each`, the command of `each`. Its input is the source, and its output is `{object}`.
@@ -135,6 +137,9 @@ It gives the copy of the path in the tree.
 An artifact with a `target` stays in the output folder of the build.
 Thus a build for one target can make a file for a different target, for example a library for each system.
 
+The `steps` of a kind must write `{output}`. Else the build stops: `the steps of <name> wrote no <output>`.
+The `unlinked` steps write no `{output}`.
+
 A kind with no `unlinked` steps stops `built` if a file of `link` is not there.
 The message is `<file> is not there, and <name> is linked with it`.
 An artifact that is not linked gives no file. `built` writes `compiled, not linked: <name>: <file> is not there` for it.
@@ -162,7 +167,7 @@ With the runner `mpbt`, `compiled` runs the step `each` of the kind once for eac
 A step with a key that `KEYS['step']` does not have stops the tool.
 `copy` and `rename` take their paths from the root.
 
-With `cwd`, `run` runs in that folder. `do` then gives the command each source and each folder of `include` as a whole path.
+With `cwd`, `run` runs in that folder, with the whole paths of `.toolchain/docs/project.toml.md`, *[kinds.\<kind\>]*.
 It also gives the command the caches of zig as whole paths, because a path from the root names a different folder in `cwd`.
 `do` stops if the folder is not there: `<folder> is not there, and a step of <name> runs in it`.
 

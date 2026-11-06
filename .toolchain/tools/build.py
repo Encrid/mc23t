@@ -2,10 +2,12 @@
 #
 # Under the GNU Affero General Public License, version 3 only: see license.
 import graphlib
+import json
 import os
 import platform
 import shutil
 import stat
+import sys
 import zipfile
 from pathlib import Path
 
@@ -15,6 +17,8 @@ import take
 from shared import die, expand, expanded, files, known, located, run, sha256
 
 CACHES = {'ZIG_GLOBAL_CACHE_DIR': 'global', 'ZIG_LOCAL_CACHE_DIR': 'local'}
+RUNNERS = ('mpbt', 'zig')
+MARKS = {'source': '\x01source\x01', 'object': '\x01object\x01', 'deps': '\x01deps\x01'}
 
 
 def tools(config, values):
@@ -32,7 +36,9 @@ def run_in(step, values):
     if not folder.is_dir():
         die('%s is not there, and a step of %s runs in it' % (folder.as_posix(), values['name']))
     whole = dict(values, sources=[(root / path).as_posix() for path in values['sources']],
-                 include=['-I' + (root / path[2:]).as_posix() for path in values['include']])
+                 include=['-I' + (root / path[2:]).as_posix() for path in values['include']],
+                 output=(root / values['output']).as_posix(), objects=[(root / path).as_posix() for path in values['objects']],
+                 link=[(root / path).as_posix() for path in values['link']])
     caches = {name: str(root / os.environ[name]) for name in CACHES}
     run(expanded(step['run'], whole), folder, dict(os.environ, **caches))
 
@@ -85,7 +91,8 @@ def planned(config, values, artifact, tree=None):
     mine.update(sources=[moved(source, tree) for source in sources], output=output.as_posix(), work=work.as_posix(),
                 defines=['-D' + define for define in expanded(artifact.get('defines', []), mine)],
                 include=['-I' + moved(folder, tree) for folder in expanded(artifact.get('include', []), mine)],
-                link=expanded(artifact.get('link', []), mine), manifest=expanded(artifact.get('manifest', []), mine))
+                link=expanded(artifact.get('link', []), mine), manifest=expanded(artifact.get('manifest', []), mine),
+                objects=[])
     mine['flags'] = expanded(kind.get('flags', []) + artifact.get('flags', []), mine)
     return kind, mine
 
@@ -100,14 +107,152 @@ def built(config, values, artifact, tree=None):
         die('%s is not there, and %s is linked with it' % (missing[0], name))
     if missing:
         print('compiled, not linked: %s: %s is not there' % (name, missing[0]))
+    compiled(kind, mine)
     for step in kind['unlinked' if missing else 'steps']:
         do(known(step, 'step', artifact['kind']), mine, artifact.get('unstamped', False))
     if missing:
         return name, []
+    wrote(name, output)
     besides = [Path(file) for file in expanded(artifact.get('beside', []), mine)]
     for file in besides:
         put(output.parent / file.name, file)
     return name, [output] + [output.parent / file.name for file in besides]
+
+
+def wrote(name, output):
+    if not Path(output).is_file():
+        die('the steps of %s wrote no %s' % (name, Path(output).name))
+
+
+def compiled(kind, mine):
+    if 'each' not in kind:
+        return
+    folder = Path(mine['work'])
+    folder.mkdir(parents=True, exist_ok=True)
+    for number, source in enumerate(mine['sources']):
+        made = folder / ('%d.o' % number)
+        each = dict(mine, source=source, object=made.as_posix(), deps=made.with_suffix('.d').as_posix())
+        do(known(kind['each'], 'step', mine['name']), each, True)
+        mine['objects'].append(made.as_posix())
+
+
+def runner(config):
+    chosen = config.get('build', {}).get('runner', 'zig')
+    if chosen not in RUNNERS:
+        die('[build] runner: %s is not a runner: %s' % (chosen, ' '.join(RUNNERS)))
+    return chosen
+
+
+def quoted(text):
+    escapes = {'\\': '\\\\', '"': '\\"', '\n': '\\n', '\r': '\\r', '\t': '\\t'}
+    return '"%s"' % ''.join(escapes.get(c, c if c >= ' ' else '\\x%02x' % ord(c)) for c in str(text))
+
+
+def specified(config, values, artifact, tree=None):
+    kind, mine = planned(config, values, artifact, tree)
+    spec = Path(values['out']) / 'obj' / ('%s.json' % mine['name'])
+    spec.parent.mkdir(parents=True, exist_ok=True)
+    Path(mine['output']).parent.mkdir(parents=True, exist_ok=True)
+    text = json.dumps({'kind': kind, 'kind_name': artifact['kind'], 'values': mine, 'unset': shared.UNSET,
+                       'unstamped': artifact.get('unstamped', False)}, sort_keys=True)
+    if not spec.is_file() or spec.read_text(encoding='utf-8') != text:
+        spec.write_text(text, encoding='utf-8')
+    spec.with_suffix('.said').unlink(missing_ok=True)
+    return kind, mine, spec
+
+
+def argument(name, item, lazy, lines):
+    for mark, call in (('source', 'addPrefixedFileArg'), ('object', 'addPrefixedOutputFileArg'),
+                       ('deps', 'addPrefixedDepFileOutputArg')):
+        if item.endswith(MARKS[mark]):
+            what = lazy if mark == 'source' else quoted('%s.%s' % (name, 'o' if mark == 'object' else 'd'))
+            lines.append('    %s %s.%s(%s, %s);' % ('const %s_%s =' % (name, mark) if mark == 'object' else '_ =' if mark == 'deps' else '',
+                                                  name, call, quoted(item[:-len(MARKS[mark])]), what))
+            return
+    lines.append('    %s.addArg(%s);' % (name, quoted(item)))
+
+
+def command(name, argv, cwd, lines):
+    lines.append('    const %s = b.addSystemCommand(&.{%s});' % (name, quoted(argv[0])))
+    lines.append('    %s.setCwd(.{ .cwd_relative = %s });' % (name, quoted(cwd)))
+
+
+def graphed(config, values, chosen, tree=None):
+    if not chosen:
+        return []
+    root, out = Path(values['root']).resolve(), Path(values['out']).resolve()
+    plans = [(artifact,) + specified(config, values, artifact, tree) for artifact in chosen]
+    makers = {Path(mine['output']).resolve(): index for index, (_, _, mine, _) in enumerate(plans)}
+    lines, done = ['const std = @import("std");', '', 'pub fn build(b: *std.Build) void {'], []
+    for index, (artifact, kind, mine, spec) in enumerate(plans):
+        name = mine['name']
+        links = [Path(file).resolve() for file in mine['link']]
+        missing = [file for file, path in zip(mine['link'], links) if path not in makers and not path.is_file()]
+        if missing and 'unlinked' not in kind:
+            die('%s is not there, and %s is linked with it' % (missing[0], name))
+        if missing:
+            print('compiled, not linked: %s: %s is not there' % (name, missing[0]))
+        objects = []
+        for number, source in enumerate(mine['sources'] if 'each' in kind else []):
+            step, path = 'c%d_%d' % (index, number), source
+            argv = expanded(kind['each']['run'], dict(mine, **MARKS))
+            command(step, argv, root.as_posix(), lines)
+            for item in argv[1:]:
+                argument(step, item, '.{ .cwd_relative = %s }' % quoted(path), lines)
+            objects.append('%s_object' % step)
+        step = 'a%d' % index
+        command(step, [Path(sys.executable).as_posix()], root.as_posix(), lines)
+        lines += ['    %s.addArg(%s);' % (step, quoted(item)) for item in (Path(__file__).resolve().as_posix(), '--one')]
+        lines.append('    %s.addFileArg(.{ .cwd_relative = %s });' % (step, quoted(spec.resolve().as_posix())))
+        lines += ['    %s.addFileArg(%s);' % (step, made) for made in objects]
+        for path in [] if missing else links:
+            lazy = 'a%d_output' % makers[path] if path in makers else '.{ .cwd_relative = %s }' % quoted(path.as_posix())
+            lines.append('    %s.addFileArg(%s);' % (step, lazy))
+        inputs = [(root / source).as_posix() for source in mine['sources']] + expanded(mine.get('runtime', []), mine)
+        lines += ['    %s.addFileArg(.{ .cwd_relative = %s });' % (step, quoted(Path(root / item).as_posix())) for item in inputs]
+        lines.append('    %s.addArg(%s);' % (step, quoted('unlinked' if missing else 'steps')))
+        output = Path(mine['output']).resolve()
+        lines.append('    %s %s.addOutputFileArg(%s);' % ('_ =' if missing else 'const %s_output =' % step, step,
+                                                          quoted(output.name)))
+        if not missing:
+            lines.append('    b.getInstallStep().dependOn(&b.addInstallFile(%s_output, %s).step);'
+                         % (step, quoted(output.relative_to(out).as_posix())))
+        done.append((artifact, mine, missing))
+    lines.append('}')
+    graph = out / 'obj' / 'build.zig'
+    graph.parent.mkdir(parents=True, exist_ok=True)
+    graph.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    caches = {name: str(root / os.environ[name]) for name in CACHES}
+    run([values['zig'], 'build', '--build-file', graph.as_posix(), '--prefix', out.as_posix()],
+        values['root'], dict(os.environ, **caches))
+    found = []
+    for artifact, mine, missing in done:
+        said = out / 'obj' / ('%s.said' % mine['name'])
+        if said.is_file():
+            sys.stdout.write(said.read_text(encoding='utf-8'))
+        if missing:
+            found.append((mine['name'], []))
+            continue
+        output = Path(mine['output'])
+        besides = [Path(file) for file in expanded(artifact.get('beside', []), mine)]
+        for file in besides:
+            put(output.parent / file.name, file)
+        found.append((mine['name'], [output] + [output.parent / file.name for file in besides]))
+    return found
+
+
+def one(spec, files):
+    held = json.loads(Path(spec).read_text(encoding='utf-8'))
+    kind, mine = held['kind'], held['values']
+    shared.UNSET.update(held['unset'])
+    sys.stdout = open(Path(spec).with_suffix('.said'), 'w', encoding='utf-8')
+    count = len(mine['sources']) if 'each' in kind else 0
+    linked = 0 if files[-2] == 'unlinked' else len(mine['link'])
+    mine.update(objects=files[:count], link=files[count:count + linked], output=files[-1])
+    for step in kind[files[-2]]:
+        do(known(step, 'step', held['kind_name']), mine, held['unstamped'])
+    if files[-2] == 'steps':
+        wrote(mine['name'], mine['output'])
 
 
 def packaged(config, values, made):
@@ -337,13 +482,13 @@ def ready(args, here=False):
 
 
 def made(config, values, tree=None, tests=True):
-    done, shipped = [], []
-    for artifact in artifacts(config):
-        if not tests and artifact.get('test'):
-            continue
-        done.append(built(config, values, artifact, tree))
-        shipped += [] if artifact.get('test') else done[-1][1]
-    packaged(config, values, shipped)
+    chosen = [artifact for artifact in artifacts(config) if tests or not artifact.get('test')]
+    if runner(config) == 'zig':
+        done = graphed(config, values, chosen, tree)
+    else:
+        done = [built(config, values, artifact, tree) for artifact in chosen]
+    packaged(config, values, [path for artifact, (_, paths) in zip(chosen, done) if not artifact.get('test')
+                              for path in paths])
     return done
 
 
@@ -353,6 +498,8 @@ def build(args, here=False, tests=True):
 
 
 def main():
+    if sys.argv[1:2] == ['--one']:
+        return one(sys.argv[2], sys.argv[3:])
     args = shared.arguments('--leave', pack='--pack', join='--join')
     if args.join:
         return joined(args)
