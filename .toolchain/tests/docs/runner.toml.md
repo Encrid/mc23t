@@ -14,7 +14,11 @@ Each machine writes the same commands for a named target. So each case gives the
 | the packages of each need in one install | For the 3 needs on `aarch64-linux-gnu`, one `apt-get install` names the 8 packages, in the order of their names. | The project needs only `vulkan`. |
 | OpenGL on Windows for x86_64 | For `gl` on `x86_64-windows-gnu`, `runner.py` writes the commands of `.toolchain/docs/runner.py.md`, *Windows*, for the archive `x64` and its digest. | The target `aarch64-windows-gnu`. |
 | OpenGL on Windows for arm64 | For `gl` on `aarch64-windows-gnu`, `runner.py` writes the commands for the archive `arm64` and its digest. | The target `x86_64-windows-gnu`. |
-| no command on macOS | For the 3 needs on `aarch64-macos`, `runner.py` writes nothing. | The target `aarch64-linux-gnu`. |
+| Vulkan on Windows for x86_64 | For `vulkan` on `x86_64-windows-gnu`, `runner.py` writes the commands of `.toolchain/docs/runner.py.md`, *Windows*, for the archives `x64` and `X64` and their digests. | The target `aarch64-windows-gnu`. |
+| Vulkan on Windows for arm64 | For `vulkan` on `aarch64-windows-gnu`, `runner.py` writes the commands for the archives `arm64` and `ARM64` and their digests. | The target `x86_64-windows-gnu`. |
+| Vulkan on macOS for arm64 | For `vulkan` on `aarch64-macos`, `runner.py` writes the commands of `.toolchain/docs/runner.py.md`, *macOS*, with the file of ICD `lvp_icd.aarch64.json`. | The target `x86_64-macos`. |
+| Vulkan on macOS for x86_64 | For `vulkan` on `x86_64-macos`, `runner.py` writes the commands with the file of ICD `lvp_icd.x86_64.json`. | The target `aarch64-macos`. |
+| no command on macOS for the display and OpenGL | For `display` and `gl` on `aarch64-macos`, `runner.py` writes nothing. | The project needs `vulkan` too. |
 | a need that is not a need | The project needs `sound`: `[ci] needs: sound is not a need: display gl vulkan`. | The project needs `display`. |
 | a target that runs on no machine | `--target nowhere`: `no machine runs the target nowhere`. | The target `x86_64-linux-gnu`. |
 
