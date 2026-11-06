@@ -39,6 +39,7 @@ The tools give these variables:
 | `{home}` | The name of the target of this machine. |
 | `{python}` | The Python program that runs the tool. |
 | `{zig}` | The zig program. |
+| `{macos_sdk}` | The SDK of macOS that `xcrun --show-sdk-path` gives on a macOS host. A text that uses it on another host, or when `xcrun` gives no path, stops the tool. |
 | `{paths}` | The `*_PATH` macros of the test libraries, as `.toolchain/docs/build.py.md`, *Modules*, tells. |
 
 A case has more variables: `docs/contributing/tests.md`, *Variables* gives them.
