@@ -439,3 +439,66 @@ name = "a library moves, fills, compares and counts each byte, and touches no by
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/runtime", "--out", "{case}/out"]
 claims = { status = 0, line = ["checker: 1 cases: 1 as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/runtime", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "an unchanged artifact does not build again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] }
+claims = { status = 0, files = { "{case}/p/log.txt" = "start note\nend note\n" } }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/note.txt", "changed", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"] }
+
+[[case]]
+name = "the runner mpbt builds each artifact each time"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/mpbt/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/mpbt/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/mpbt/note.txt"] }
+claims = { status = 0, files = { "{case}/p/log.txt" = "start note\nend note\nstart note\nend note\n" } }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] } }
+
+[[case]]
+name = "a runner that is not a runner"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/wrong/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/wrong/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/wrong/note.txt"] }
+claims = { status_not = 0, has = ["[build] runner: make is not a runner: mpbt zig"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] } }
+
+[[case]]
+name = "a change of a value of a step builds the artifact again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/.toolchain/config/word.toml", "[variables]\\nword = \"two\"\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/flagged/.toolchain/config/word.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/flagged/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/flagged/note.txt"] }
+claims = { status = 0, files = { "{case}/p/log.txt" = "start note\nend note\nstart note\nend note\n" } }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"] }
+
+[[case]]
+name = "2 artifacts that do not wait for each other build at the same time"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] }
+claims = { status = 0, matches = ["^start [ab]\nstart [ab]\n"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] } }
+
+[[case]]
+name = "an artifact waits for the artifact that it links"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] }
+claims = { status = 0, matches = ["end a\nstart b"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] } }
+
+[[case]]
+name = "a kind that passes a file between its steps, with a section"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/note.txt", "new", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; d = open(sys.argv[1], 'rb').read(); print(d[:3].decode(), d.endswith(b'y'))", "{case}/out/{target}/scratch/note.bin"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/chained/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/chained/note.txt"] }
+claims = { status = 0, line = ["new True"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; d = open(sys.argv[1], 'rb').read(); print(d[:3].decode(), d.endswith(b'y'))", "{case}/out/{target}/scratch/note.bin"] }
+
+[[case]]
+name = "a changed header builds the artifact again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/src/h.h", "#define VALUE 2\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/header/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/header/src/a.c", ".toolchain/tests/data/build/graph/header/src/h.h"] }
+claims = { status = 0, line = ["2"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }
+
+[[case]]
+name = "the runner mpbt compiles each source"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/src/h.h", "#define VALUE 2\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/header_mpbt/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/header_mpbt/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/header_mpbt/src/a.c", ".toolchain/tests/data/build/graph/header_mpbt/src/h.h"] }
+claims = { status = 0, line = ["2"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }

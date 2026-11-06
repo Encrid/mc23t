@@ -136,5 +136,14 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a library of x86_64-windows-gnu links no compiler_rt | `inspect.py size` writes `small.dll: under 16 KB`. | `bare.dll`, which links compiler_rt: `16 KB or more`. |
 | a library of x86_64-windows-gnu takes its moves and its fills from Windows | `inspect.py imports` writes `KERNEL32.dll: RtlMoveMemory` and `KERNEL32.dll: RtlFillMemory` for `small.dll`. | `bare.dll`, which imports neither. |
 | a library moves, fills, compares and counts each byte, and touches no byte outside its buffers | `test` on `runtime` builds for the target of the machine, and the case `checker` writes `bad 0`: `checker: 1 cases: 1 as written`. | `--break`: `checker` gets the argument `wrong`, and writes `bad 1`. |
+| an unchanged artifact does not build again | 2 builds with no change: the step of `note` runs one time, so `log.txt` holds 1 start and 1 end. | `note.txt` changes between the 2 builds. |
+| the runner mpbt builds each artifact each time | `[build] runner = "mpbt"`: the step runs in each of the 2 builds. | The runner `zig`. |
+| a runner that is not a runner | `[build] runner = "make"`: `[build] runner: make is not a runner: mpbt zig`. | The runner `zig`. |
+| a change of a value of a step builds the artifact again | `word` changes from `one` to `two` between the 2 builds, so the command of the step changes, and it runs 2 times. | `word` does not change. |
+| 2 artifacts that do not wait for each other build at the same time | The steps of `a` and `b` take 1 second each, and the 2 starts come before the first end. | `b` links the output of `a`. |
+| an artifact waits for the artifact that it links | `b` links `{out}/a.txt`: `end a` comes before `start b`. | `b` links nothing. |
+| a kind that passes a file between its steps, with a section | `note.txt` changes from `old` to `new` between the 2 builds. The output starts with `new` and ends with the section. | `note.txt` does not change. |
+| a changed header builds the artifact again | `src/h.h` changes from `VALUE 1` to `VALUE 2` between the 2 builds, and the program writes `2`. | The header does not change. |
+| the runner mpbt compiles each source | The same, with `[build] runner = "mpbt"`: the step `each` of `program` compiles the source, and the program writes `2`. | The header does not change. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.
