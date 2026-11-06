@@ -162,6 +162,7 @@ Its value is the output path of the artifact. An artifact's `defines` splices `{
 
 With the runner `mpbt`, `compiled` runs the step `each` of the kind once for each source, in the order of `{sources}`.
 `{object}` is `{out}/obj/<name>/<number>.o`, and `{deps}` is the same path with `.d` in place of `.o`. `<number>` is the place of the source, from 0.
+Each of these paths is from the root when `{out}` is in the root, as the caches of zig are. Thus an archive names its members with no folder of the machine.
 `{objects}` then gives the objects in the same order.
 
 ## Steps
