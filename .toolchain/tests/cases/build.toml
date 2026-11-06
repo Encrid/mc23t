@@ -226,7 +226,7 @@ false = { run = ["{python}", "-c", "import argparse, os, sys; from pathlib impor
 
 [[case]]
 name = "an archive of a release holds no path of its machine"
-folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/build/archived/.toolchain/config/build.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
 run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu"]
 claims = { status = 0, line = ["{case}/proj/build/archived-x86_64-windows-gnu.zip", "one.a"] }
 false = { run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu", "--debug"] }
@@ -258,7 +258,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "a step that runs in a folder gets the caches of zig as whole paths"
 run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2]]; build.build(shared.arguments())", "{root}/.toolchain/tools", "{case}/proj"]
-folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/cached/.toolchain/project.toml"] }
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/cached/.toolchain/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/build/cached/.toolchain/config/build.toml"] }
 claims = { status = 0, line = ["{case}/proj/build/zig-cache/local"] }
 false = { run = ["{python}", "-c", "import sys; sys.path.insert(0, sys.argv[1]); import build, shared; sys.argv = ['build.py', '--root', sys.argv[2]]; build.build(shared.arguments())", "{root}/.toolchain/tools", "{case}/proj"] }
 
@@ -509,3 +509,10 @@ run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--
 folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/silent/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/silent/note.txt"] }
 claims = { status_not = 0, has = ["the steps of note wrote no note.txt"] }
 false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] } }
+
+[[case]]
+name = "an archive that the runner zig makes holds no path of its machine"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", "--out", "{case}/out", "--pack", "--target", "x86_64-windows-gnu"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
+claims = { status = 0, line = ["one.a"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", "--out", "{case}/out", "--pack", "--target", "x86_64-windows-gnu", "--debug"] }
