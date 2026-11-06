@@ -76,12 +76,42 @@ claims = { status = 0, line = ["no fault in 2 documents"] }
 false = { files = { "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" } }
 
 [[case]]
+name = "a passage that an exception excuses"
+run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
+claims = { status = 0, line = ["no fault in 2 documents"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" } }
+
+[[case]]
+name = "a passage of an exception and a third document"
+run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" }
+claims = { status = 1, has = ["docs/a.md:3, docs/b.md:3, docs/c.md:3: one two three four five six seven eight"] }
+false = { files = { "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven nine.\n" } }
+
+[[case]]
+name = "an exception that excuses nothing"
+run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven nine.\n" }
+claims = { status = 1, has = ["the exception for 'docs/a.md, docs/b.md' excuses nothing"] }
+false = { files = { "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" } }
+
+[[case]]
+name = "an exception that states no reason"
+run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
+claims = { status = 1, has = ["the exception for 'docs/a.md, docs/b.md' states no reason"] }
+false = { files = { "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n" } }
+
+[[case]]
 name = "the documents of this project"
 run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}"]
-claims = { status = 0, line = ["no fault in 34 documents"] }
+claims = { status = 0, line = ["no fault in 35 documents"] }
 false = { files = { "{case}/docs/a.md" = "# a\n\nThe false variant changes the command or its input.\n" } }
 
 [case.folders]
 "{case}" = ["readme.md"]
-"{case}/docs/contributing" = ["docs/contributing/agreement.md", "docs/contributing/coding_style.md", "docs/contributing/commits.md", "docs/contributing/decisions.md", "docs/contributing/documentation_style.md", "docs/contributing/needs.md", "docs/contributing/pull_request.md", "docs/contributing/tests.md"]
+"{case}/.toolchain" = [".toolchain/project.toml"]
+"{case}/.toolchain/config" = [".toolchain/config/checks.toml"]
+"{case}/docs/contributing" = ["docs/contributing/agreement.md", "docs/contributing/coding_style.md", "docs/contributing/coding_style_cxx.md", "docs/contributing/commits.md", "docs/contributing/decisions.md", "docs/contributing/documentation_style.md", "docs/contributing/needs.md", "docs/contributing/pull_request.md", "docs/contributing/tests.md"]
 "{case}/.toolchain/docs" = [".toolchain/docs/branches.py.md", ".toolchain/docs/build.py.md", ".toolchain/docs/c23.py.md", ".toolchain/docs/check.py.md", ".toolchain/docs/cla.py.md", ".toolchain/docs/clean.py.md", ".toolchain/docs/commits.py.md", ".toolchain/docs/cover.py.md", ".toolchain/docs/dup.py.md", ".toolchain/docs/fetch.py.md", ".toolchain/docs/header.txt.md", ".toolchain/docs/layout.py.md", ".toolchain/docs/licence.py.md", ".toolchain/docs/project.py.md", ".toolchain/docs/project.toml.md", ".toolchain/docs/prose.py.md", ".toolchain/docs/pseudo.py.md", ".toolchain/docs/said.py.md", ".toolchain/docs/shared.py.md", ".toolchain/docs/style.py.md", ".toolchain/docs/take.py.md", ".toolchain/docs/test.py.md", ".toolchain/docs/text.py.md", ".toolchain/docs/toolchain.toml.md", ".toolchain/docs/xref.py.md"]

@@ -23,7 +23,7 @@ The project of the case `a full project` has these files, and the document of ea
 
 | Case | Claim | False variant |
 | --- | --- | --- |
-| a full project | `layout.py` writes `no fault in 38 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
+| a full project | `layout.py` writes `no fault in 39 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
 | a path that the layout does not allow | `notes.txt: the layout does not allow this file`. | No `notes.txt`. |
 | a file of the runtime that is no source | `.toolchain/runtime/notes.txt: the layout does not allow this file`: the runtime holds only `.c` and `.h` files. | The runtime holds `notes.c`. |
 | a file that the layout needs | A project with no `license`: `license: the layout needs this file`. | The project has `license`. |
@@ -32,6 +32,7 @@ The project of the case `a full project` has these files, and the document of ea
 | the folder that the layout needs | A project with no file in `.toolchain/tools`: `.toolchain/tools/: the layout needs this folder`. No line names `src/`. | The project has a file in `.toolchain/tools`. |
 | a source without its document | `src/a.c: no document docs/intern/a.c.md`. | The project has the document. |
 | a header without its document | `include/a.h: no document docs/extern/a.h.md`. | The project has the document. |
+| a header of C++ without its document | `include/a.hpp: no document docs/extern/a.hpp.md`. The layout allows the header. | The project has the document. |
 | a document without its file | `docs/intern/gone.c.md: no file has this document`. | The project has the source `gone.c` in `src`. |
 | a document in the wrong folder | A source has a document in `docs/extern`: `docs/extern/a.c.md: no file has this document`. | The source has no document in `docs/extern`. |
 | the documents of a part are in the folders of the part | The parts `video` and `mouse` each have `window.c`, with its document in the folder of the part. No line names `video` or `mouse`. | The document of the source of `mouse` starts with `# src/video/window.c`. |
