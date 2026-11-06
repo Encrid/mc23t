@@ -10,6 +10,7 @@ The cases of the options, of the report and of the files of a project run a shor
 | `copy` | The artifact `copy.txt` of the kind `file`. The variables `tool`, `source` and `linked` give its tool, its source and its link. |
 | `twice` | `[variables] language`, a key that `.toolchain/toolchain.toml` also gives. |
 | `builtin` | `[variables] root`, the name of a variable that the tools give. |
+| `sdk` | The artifact `noted`, whose step writes `{macos_sdk}`. Its cases replace the system of the host and `xcrun` in a short Python program, so they run on each machine. |
 | `unknown` | An artifact with the name `{named}`. The variable `named` is `{nothing}`, which has no value. |
 | `listed` | An artifact with the name `{named}`. The variable `named` is `{language}`, a list in a text. |
 | `targeted` | The artifact `near-{target}.txt`, and its variant `far-{target}.txt` with the target `nowhere`. The project adds `nowhere`, whose `runs_on` is empty. |
@@ -82,6 +83,11 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a key in two files of config | `build` on `clash` stops: `config/two.toml states variables.word, and config/one.toml states it too`. | `build` on `copy`. |
 | a file in a folder of config | `project.toml` and `config/more/word.toml` both state `[variables] word`: `config/more/word.toml states variables.word, and project.toml states it too`. | `project.toml` states no `word`. |
 | a built-in variable in [variables] | `build` on `builtin` stops: `[variables] names a built-in variable or a key of a target: root`. | `build` on `copy`. |
+| a text with the SDK of macOS on a host that is not a Mac | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: this host is not a Mac`. | A macOS host whose `xcrun` gives a path. |
+| the SDK of macOS that xcrun gives | On a macOS host, the step writes `/fake/MacOSX.sdk`, the path of `xcrun`. | An `xcrun` that fails. |
+| an xcrun that gives no path | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: xcrun gave no path`. | An `xcrun` that gives a path. |
+| an xcrun that does not start | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: xcrun did not start`. | An `xcrun` that gives a path. |
+| the SDK of macOS in [variables] | `build` stops: `[variables] names a built-in variable or a key of a target: macos_sdk`. | `build` on `copy`. |
 | a target that the toolchain does not have | `--target nowhere` stops `build`: `no target nowhere; the targets:`. | No `--target`. |
 | a tool that is not there | `--set tool=nowhere` stops `build`: `the tool interpreter is not at nowhere`. | No `--set`. |
 | sources that match no file | `--set source=none.txt` stops `build`: `no file matches the sources of copy.txt`. | No `--set`. |
