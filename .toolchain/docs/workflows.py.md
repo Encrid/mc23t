@@ -20,7 +20,7 @@ The step `Runner` of `ci.yml` and of `release.yml` gives the runner what the cas
 
 The jobs of `ci.yml`, `release.yml` and `warm.yml` keep the global cache of zig with `actions/cache`.
 Its folder is `[build] cache` of `.toolchain/toolchain.toml`.
-The key is the version of zig and the target. A job that fails saves no cache.
+The key is the digest of `.toolchain/toolchain.toml`, which pins the version of zig, and the target. A job that fails saves no cache.
 A run of a pull request can read the caches of its base branch: https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching.
 Thus each pull request into `dev` starts with the cache of `warm.yml`.
 

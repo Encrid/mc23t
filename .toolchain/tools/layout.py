@@ -6,7 +6,8 @@ import re
 from shared import arguments, config, document, ours, report
 
 GUIDES = ('agreement', 'coding_style', 'coding_style_cxx', 'commits', 'decisions', 'documentation_style', 'needs', 'pull_request', 'tests')
-NEEDED = (('.github/workflows/ci.yml', '.github/workflows/release.yml', '.github/workflows/cla.yml', '.gitattributes',
+NEEDED = (('.github/workflows/ci.yml', '.github/workflows/release.yml', '.github/workflows/cla.yml',
+           '.github/workflows/warm.yml', '.gitattributes',
            '.gitignore', 'cla.md', 'license', 'project.py', '.toolchain/project.toml', 'readme.md')
           + tuple('docs/contributing/%s.md' % guide for guide in GUIDES))
 FOLDERS = ('.toolchain/tools',)
