@@ -10,8 +10,8 @@ It reads the imports of the module with `tools/inspect.py` of `.toolchain/tests/
 
 | File | Content |
 | --- | --- |
-| `project.toml` | The artifact `probe` of the kind `native_module`. Its manifest states the identity `test:probe@1.0.0`, `abi=3`, `config=none`, `pinned=false` and `reloadable=false`. |
-| `probe.c` | A native module of the ABI 3 of Bridge. It exports `init`, `reload` and `shutdown`, and adds the systems `tick` and `tock`. `tock` gives the slot of `tick` in `before`, as the macros of BB-Native need. It puts the manifest into its section. |
+| `project.toml` | The artifact `probe` of the kind `native_module`. Its manifest states the identity `test:probe@1.0.0`, `abi=1`, `config=none`, `pinned=false` and `reloadable=false`. |
+| `probe.c` | A native module of the ABI 1 of Bridge. It exports `init`, `reload` and `shutdown`, and adds the systems `tick` and `tock`. `tock` gives the slot of `tick` in `before`, as the macros of BB-Native need. It puts the manifest into its section. |
 | `unmarked/probe.c` | The same module, without the manifest. |
 | `runtime/project.toml` | The artifact `probe` of the kind `native_module`. It gives the variables `bridge` and `bb_native`, and the section of `x86_64-windows-gnu`, which the preset takes from its sources. |
 | `runtime/probe.c` | A module with its manifest and one function, which needs no header of Bridge. |
