@@ -1,0 +1,21 @@
+[project]
+name = "p"
+
+[variables]
+mark = "mark.py"
+
+[kinds.marked]
+output = "{name}.txt"
+steps = [{ run = ["{python}", "{mark}", "{root}/log.txt", "{name}", "1", "{sources}", "{output}"] }]
+
+[[artifact]]
+name = "a"
+kind = "marked"
+sources = ["a.txt"]
+
+[[artifact]]
+name = "b"
+kind = "marked"
+sources = ["b.txt"]
+link = ["{out}/a.txt"]
+
