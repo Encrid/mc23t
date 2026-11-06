@@ -8,6 +8,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/check.py", "--root", "{cas
 [case.files]
 "{case}/p/.github/workflows/ci.yml" = ""
 "{case}/p/.github/workflows/release.yml" = ""
+"{case}/p/.github/workflows/warm.yml" = ""
 "{case}/p/.github/workflows/cla.yml" = ""
 "{case}/p/.gitattributes" = ""
 "{case}/p/.gitignore" = ""

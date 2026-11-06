@@ -1,0 +1,14 @@
+[project]
+name = "p"
+
+[variables]
+mark = "mark.py"
+
+[kinds.silent]
+output = "{name}.txt"
+steps = [{ run = ["{python}", "-c", "print(1)"] }]
+
+[[artifact]]
+name = "note"
+kind = "silent"
+sources = ["note.txt"]
