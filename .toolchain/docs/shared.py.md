@@ -89,6 +89,7 @@ Thus a build of a macOS target on another host works, until a text uses `{macos_
 A list value in a text needs a separator: `{<name>:<separator>}`. `expand` joins the items with the separator.
 `expanded` replaces a list variable that is a full item of a list with all its items.
 `expand` stops the tool if a variable has no value, or if a list value in a text has no separator.
+
 A variable that `UNSET` names stops the tool with its reason: `{macos_sdk} needs a macOS host with xcrun: <reason>`.
 
 ## The options
