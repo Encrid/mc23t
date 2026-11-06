@@ -143,11 +143,6 @@ def runner(config):
     return chosen
 
 
-def quoted(text):
-    escapes = {'\\': '\\\\', '"': '\\"', '\n': '\\n', '\r': '\\r', '\t': '\\t'}
-    return '"%s"' % ''.join(escapes.get(c, c if c >= ' ' else '\\x%02x' % ord(c)) for c in str(text))
-
-
 def specified(config, values, artifact, tree=None):
     kind, mine = planned(config, values, artifact, tree)
     spec = Path(values['out']) / 'obj' / ('%s.json' % mine['name'])
@@ -161,20 +156,15 @@ def specified(config, values, artifact, tree=None):
     return kind, mine, spec
 
 
-def argument(name, item, lazy, lines):
-    for mark, call in (('source', 'addPrefixedFileArg'), ('object', 'addPrefixedOutputFileArg'),
-                       ('deps', 'addPrefixedDepFileOutputArg')):
+def arg(kind, value, prefix=''):
+    return {'kind': kind, 'prefix': prefix, 'value': str(value)}
+
+
+def marked(item, source, number):
+    for mark, kind, value in (('source', 'file', source), ('object', 'output', '%d.o' % number), ('deps', 'deps', '%d.d' % number)):
         if item.endswith(MARKS[mark]):
-            what = lazy if mark == 'source' else quoted('%s.%s' % (name, 'o' if mark == 'object' else 'd'))
-            lines.append('    %s %s.%s(%s, %s);' % ('const %s_%s =' % (name, mark) if mark == 'object' else '_ =' if mark == 'deps' else '',
-                                                  name, call, quoted(item[:-len(MARKS[mark])]), what))
-            return
-    lines.append('    %s.addArg(%s);' % (name, quoted(item)))
-
-
-def command(name, argv, cwd, lines):
-    lines.append('    const %s = b.addSystemCommand(&.{%s});' % (name, quoted(argv[0])))
-    lines.append('    %s.setCwd(.{ .cwd_relative = %s });' % (name, quoted(cwd)))
+            return arg(kind, value, item[:-len(MARKS[mark])])
+    return arg('text', item)
 
 
 def graphed(config, values, chosen, tree=None):
@@ -182,8 +172,8 @@ def graphed(config, values, chosen, tree=None):
         return []
     root, out = Path(values['root']).resolve(), Path(values['out']).resolve()
     plans = [(artifact,) + specified(config, values, artifact, tree) for artifact in chosen]
-    makers = {Path(mine['output']).resolve(): index for index, (_, _, mine, _) in enumerate(plans)}
-    lines, done = ['const std = @import("std");', '', 'pub fn build(b: *std.Build) void {'], []
+    makers = {Path(mine['output']).resolve(): 'a%d' % index for index, (_, _, mine, _) in enumerate(plans)}
+    steps, done = [], []
     for index, (artifact, kind, mine, spec) in enumerate(plans):
         name = mine['name']
         links = [Path(file).resolve() for file in mine['link']]
@@ -194,37 +184,29 @@ def graphed(config, values, chosen, tree=None):
             print('compiled, not linked: %s: %s is not there' % (name, missing[0]))
         objects = []
         for number, source in enumerate(mine['sources'] if 'each' in kind else []):
-            step, path = 'c%d_%d' % (index, number), source
             argv = expanded(kind['each']['run'], dict(mine, **MARKS))
-            command(step, argv, root.as_posix(), lines)
-            for item in argv[1:]:
-                argument(step, item, '.{ .cwd_relative = %s }' % quoted(path), lines)
-            objects.append('%s_object' % step)
-        step = 'a%d' % index
-        command(step, [Path(sys.executable).as_posix()], root.as_posix(), lines)
-        lines += ['    %s.addArg(%s);' % (step, quoted(item)) for item in (Path(__file__).resolve().as_posix(), '--one')]
-        lines.append('    %s.addFileArg(.{ .cwd_relative = %s });' % (step, quoted(spec.resolve().as_posix())))
-        lines += ['    %s.addFileArg(%s);' % (step, made) for made in objects]
-        for path in [] if missing else links:
-            lazy = 'a%d_output' % makers[path] if path in makers else '.{ .cwd_relative = %s }' % quoted(path.as_posix())
-            lines.append('    %s.addFileArg(%s);' % (step, lazy))
+            steps.append({'name': 'c%d_%d' % (index, number), 'program': argv[0], 'cwd': root.as_posix(),
+                          'args': [marked(item, source, number) for item in argv[1:]]})
+            objects.append(arg('made', 'c%d_%d' % (index, number)))
+        args = [arg('text', Path(__file__).resolve().as_posix()), arg('text', '--one'), arg('file', spec.resolve().as_posix())]
+        args += objects
+        args += [arg('made', makers[path]) if path in makers else arg('file', path.as_posix()) for path in ([] if missing else links)]
         inputs = [(root / source).as_posix() for source in mine['sources']] + expanded(mine.get('runtime', []), mine)
-        lines += ['    %s.addFileArg(.{ .cwd_relative = %s });' % (step, quoted(Path(root / item).as_posix())) for item in inputs]
-        lines.append('    %s.addArg(%s);' % (step, quoted('unlinked' if missing else 'steps')))
-        output = Path(mine['output']).resolve()
-        lines.append('    %s %s.addOutputFileArg(%s);' % ('_ =' if missing else 'const %s_output =' % step, step,
-                                                          quoted(output.name)))
+        args += [arg('file', Path(root / item).as_posix()) for item in inputs]
+        args += [arg('text', 'unlinked' if missing else 'steps'), arg('output', Path(mine['output']).name)]
+        step = {'name': 'a%d' % index, 'program': Path(sys.executable).as_posix(), 'cwd': root.as_posix(), 'args': args}
         if not missing:
-            lines.append('    b.getInstallStep().dependOn(&b.addInstallFile(%s_output, %s).step);'
-                         % (step, quoted(output.relative_to(out).as_posix())))
+            step['install'] = Path(mine['output']).resolve().relative_to(out).as_posix()
+        steps.append(step)
         done.append((artifact, mine, missing))
-    lines.append('}')
-    graph = out / 'obj' / 'build.zig'
+    graph = out / 'obj' / 'graph.json'
     graph.parent.mkdir(parents=True, exist_ok=True)
-    graph.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    text = json.dumps({'steps': steps}, sort_keys=True)
+    if not graph.is_file() or graph.read_text(encoding='utf-8') != text:
+        graph.write_text(text, encoding='utf-8')
     caches = {name: str(root / os.environ[name]) for name in CACHES}
-    run([values['zig'], 'build', '--build-file', graph.as_posix(), '--prefix', out.as_posix()],
-        values['root'], dict(os.environ, **caches))
+    run([values['zig'], 'build', '--build-file', (shared.HERE / '.toolchain' / 'graph.zig').as_posix(),
+         '--prefix', out.as_posix(), '-Dgraph=' + graph.as_posix()], values['root'], dict(os.environ, **caches))
     found = []
     for artifact, mine, missing in done:
         said = out / 'obj' / ('%s.said' % mine['name'])

@@ -20,7 +20,8 @@ With `--pack`, it also puts the deliverable into a zip file. With `--join`, it j
 | `wrote(name, output)` | Stops if the steps of an artifact did not write its output. |
 | `compiled(kind, mine)` | Runs the step `each` of the kind once for each source, and sets `{objects}`: *Each source*. |
 | `specified(config, values, artifact, tree)` | Writes the spec of one artifact for the runner `zig`, and gives its path and its values. |
-| `quoted(text)` | Gives a text as a string of Zig. |
+| `arg(kind, value, prefix)` | Gives one argument of a step of the graph: `.toolchain/docs/graph.zig.md`. |
+| `marked(item, source, number)` | Gives the argument of the graph for one item of the step `each`: the source, `{object}`, `{deps}`, or a text. |
 | `graphed(config, values, chosen, tree)` | Builds the artifacts of `chosen` with the runner `zig`: *The runner zig*. It gives the name and the files of each artifact. |
 | `one(spec)` | Does the steps of one artifact from its spec, as `build.py --one` asks. |
 | `runner(config)` | Gives `[build] runner`, or `zig`. It stops on a different value. |
@@ -94,7 +95,9 @@ The 2 runners make the same files.
 
 ## The runner zig
 
-`graphed` writes `{out}/obj/build.zig`, and runs `zig build` on it with `--prefix {out}`.
+`graphed` writes the graph `{out}/obj/graph.json`, and runs `zig build` with `.toolchain/graph.zig`, `-Dgraph=<graph>` and `--prefix {out}`.
+`.toolchain/docs/graph.zig.md` tells the form of the graph.
+`graph.zig` is the same file for each project, so zig builds it only once for each version of zig on a machine.
 For each artifact, `specified` writes `{out}/obj/<name>.json`: the values of the artifact, and its steps with their variables replaced.
 It writes the spec only when its text changes, because zig runs a step again when an input has a new time of change.
 The graph has these steps:
