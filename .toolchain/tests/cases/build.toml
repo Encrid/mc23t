@@ -293,6 +293,13 @@ files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[part
 claims = { status_not = 0, has = ["note states no part, and the project has parts"] }
 false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
+
+[[case]]
+name = "the readme of a part in its deliverable"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n", "{case}/p/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+claims = { status = 0, line = ["readme.md"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/q", "--out", "{case}/out"], files = { "{case}/q/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/q/note.txt" = "note\n" } }
 [[case]]
 name = "a table of [compose] with no part, in a project with parts"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]

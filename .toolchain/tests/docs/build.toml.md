@@ -113,6 +113,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a build of a part makes no other part | `build --part alpha` on `family` builds `alpha.txt`, and not `beta.txt` or `gamma.txt`. | No `--part`. |
 | a part that the project does not have | `build --part nowhere` on `family` stops: `no part nowhere; the parts: alpha beta gamma`. | `--part alpha`. |
 | an artifact with no part, in a project with parts | The artifact `note` states no part: `note states no part, and the project has parts`. | `note` states the part `a`. |
+| the readme of a part in its deliverable | `build` writes `readme.md`, the readme of the part `a`, among the files of the deliverable. | A project with no readme of the part. |
 | a table of [compose] with no part, in a project with parts | `[compose.headers]` states no part: `[compose.headers] states no part, and the project has parts`. | The table states the part `a`. |
 | an artifact of a part that [parts] does not have | In a project with no `[parts]`, `note` states the part `a`: `note states the part a, and [parts] does not have it`. | `note` states no part. |
 | a part that states no uses | `[parts.a]` has no `uses`: `[parts.a] states no uses`. | `uses = []`. |
