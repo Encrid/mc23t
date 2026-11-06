@@ -1317,25 +1317,25 @@ The column Test gives the version of zig that tested the effect of the flag on c
 
 | Flag | Effect | Test |
 | --- | --- | --- |
-| `-std=c++23` | Selects the language C++23. | Tested with zig 0.17.0. |
-| `-fno-exceptions` | Makes `try` and `throw` compile errors. | Tested with zig 0.17.0. |
-| `-fno-rtti` | Makes `typeid` and `dynamic_cast` compile errors. | Tested with zig 0.17.0. |
-| `-nostdlib++` | Removes the headers of the C++ library. The headers of the C library still build. | Tested with zig 0.17.0. |
-| `-Wall` and `-Wextra` | Turn on the usual warnings. | Tested with zig 0.17.0. |
-| `-Werror` | Makes each warning an error. | Tested with zig 0.17.0. |
-| `-pedantic-errors` | Makes an error of each extension that the standard refuses. The types of A5 still build. | Tested with zig 0.17.0. |
-| `-Wconversion` | Warns about an implicit conversion that can lose a value. | Tested with zig 0.17.0. |
-| `-Wsign-conversion` | Warns about an implicit conversion that changes the sign. `-Wconversion` also turns it on; the flag states it. | Tested with zig 0.17.0. |
-| `-Wold-style-cast` | Warns about a cast of C. It does not find a functional cast such as `float(x)`. | Tested with zig 0.17.0. |
-| `-Wimplicit-fallthrough` | Warns about a `case` that continues into the next `case` with no `[[fallthrough]]`. | Tested with zig 0.17.0. |
-| `-Wvla` | Warns about an array with a size that is not constant. C++ already warns about it; the flag states it. | Tested with zig 0.17.0. |
-| `-Wreorder-init-list` | Warns about designated initializers that are not in the order of the fields. C++ already warns about it; the flag states it. | Tested with zig 0.17.0. |
-| `-Wglobal-constructors` and `-Wexit-time-destructors` | Warn about code that runs before `main` or after `main`. | Tested with zig 0.17.0. |
-| `-Wzero-as-null-pointer-constant` | Warns about `0` as a pointer. | Tested with zig 0.17.0. |
-| `-fenable-matrix` | Enables the matrix types of A5. | Tested with zig 0.17.0. |
-| `-Wno-c23-extensions` | Lets `#embed` build in C++. The check refuses each other extension of C23. | Tested with zig 0.17.0. |
-| `-Wno-bit-int-extension` | Lets `_BitInt(N)` build in C++. | Tested with zig 0.17.0. |
-| `-Wno-c99-designator` | Lets nested designators build in C++. `-Wextra` still demands each field. | Tested with zig 0.17.0. |
+| `-std=c++23` | Selects the language C++23. | Tested with zig 0.17.1. |
+| `-fno-exceptions` | Makes `try` and `throw` compile errors. | Tested with zig 0.17.1. |
+| `-fno-rtti` | Makes `typeid` and `dynamic_cast` compile errors. | Tested with zig 0.17.1. |
+| `-nostdlib++` | Removes the headers of the C++ library. The headers of the C library still build. | Tested with zig 0.17.1. |
+| `-Wall` and `-Wextra` | Turn on the usual warnings. | Tested with zig 0.17.1. |
+| `-Werror` | Makes each warning an error. | Tested with zig 0.17.1. |
+| `-pedantic-errors` | Makes an error of each extension that the standard refuses. The types of A5 still build. | Tested with zig 0.17.1. |
+| `-Wconversion` | Warns about an implicit conversion that can lose a value. | Tested with zig 0.17.1. |
+| `-Wsign-conversion` | Warns about an implicit conversion that changes the sign. `-Wconversion` also turns it on; the flag states it. | Tested with zig 0.17.1. |
+| `-Wold-style-cast` | Warns about a cast of C. It does not find a functional cast such as `float(x)`. | Tested with zig 0.17.1. |
+| `-Wimplicit-fallthrough` | Warns about a `case` that continues into the next `case` with no `[[fallthrough]]`. | Tested with zig 0.17.1. |
+| `-Wvla` | Warns about an array with a size that is not constant. C++ already warns about it; the flag states it. | Tested with zig 0.17.1. |
+| `-Wreorder-init-list` | Warns about designated initializers that are not in the order of the fields. C++ already warns about it; the flag states it. | Tested with zig 0.17.1. |
+| `-Wglobal-constructors` and `-Wexit-time-destructors` | Warn about code that runs before `main` or after `main`. | Tested with zig 0.17.1. |
+| `-Wzero-as-null-pointer-constant` | Warns about `0` as a pointer. | Tested with zig 0.17.1. |
+| `-fenable-matrix` | Enables the matrix types of A5. | Tested with zig 0.17.1. |
+| `-Wno-c23-extensions` | Lets `#embed` build in C++. The check refuses each other extension of C23. | Tested with zig 0.17.1. |
+| `-Wno-bit-int-extension` | Lets `_BitInt(N)` build in C++. | Tested with zig 0.17.1. |
+| `-Wno-c99-designator` | Lets nested designators build in C++. `-Wextra` still demands each field. | Tested with zig 0.17.1. |
 
 ## Exceptions
 
