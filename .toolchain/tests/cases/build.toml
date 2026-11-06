@@ -470,16 +470,16 @@ false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-
 
 [[case]]
 name = "2 artifacts that do not wait for each other build at the same time"
-run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/order.py", "{case}/p/log.txt", "a", "b"]
 folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] }
-claims = { status = 0, matches = ["start [ab]\nstart [ab]\n"] }
+claims = { status = 0, line = ["together"] }
 false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] } }
 
 [[case]]
 name = "an artifact waits for the artifact that it links"
-run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/order.py", "{case}/p/log.txt", "a", "b"]
 folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] }
-claims = { status = 0, matches = ["end a\nstart b"] }
+claims = { status = 0, line = ["apart"] }
 false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] } }
 
 [[case]]
