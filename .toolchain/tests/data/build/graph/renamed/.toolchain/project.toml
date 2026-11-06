@@ -1,0 +1,20 @@
+[project]
+name = "p"
+
+[kinds.one]
+output = "{name}.txt"
+steps = [{ run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write(sys.argv[2])", "{output}", "one"] }]
+
+[kinds.two]
+output = "{name}.md"
+steps = [{ run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write(sys.argv[2])", "{output}", "two"] }]
+
+[[artifact]]
+name = "a"
+kind = "one"
+sources = ["a.txt"]
+
+[[artifact]]
+name = "b"
+kind = "two"
+sources = ["a.txt"]

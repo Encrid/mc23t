@@ -476,6 +476,13 @@ claims = { status = 0, line = ["together"] }
 false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] } }
 
 [[case]]
+name = "2 artifacts with 1 name and 2 outputs"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/named/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/named/a.txt"] }
+claims = { status = 0, files = { "{case}/out/{target}/scratch/a.txt" = "one", "{case}/out/{target}/scratch/a.md" = "two" } }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/renamed/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/renamed/a.txt"] } }
+
+[[case]]
 name = "an artifact waits for the artifact that it links"
 run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/order.py", "{case}/p/log.txt", "a", "b"]
 folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] }

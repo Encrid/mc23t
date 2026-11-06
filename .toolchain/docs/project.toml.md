@@ -207,7 +207,7 @@ The steps can use these variables of the artifact:
 | --- | --- |
 | `{name}` | The name of the artifact. |
 | `{output}` | The file of the artifact. |
-| `{work}` | The start of the name of a temporary file. |
+| `{work}` | The start of the name of a temporary file: `{out}/obj/` and the path of `{output}` in `{out}`. Thus 2 artifacts with 1 name have their own files. |
 | `{sources}` | The files that match the patterns of `sources`. |
 | `{defines}` | Each item of `defines`, after `-D`. |
 | `{include}` | Each folder of `include`, after `-I`. |

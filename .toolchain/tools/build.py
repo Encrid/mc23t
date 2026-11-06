@@ -87,7 +87,7 @@ def planned(config, values, artifact, tree=None):
     if not sources:
         die('no file matches the sources of %s' % name)
     output = Path(values['out']) / artifact.get('folder', '') / expand(kind['output'], mine)
-    work = Path(values['out']) / 'obj' / name
+    work = Path(values['out']) / 'obj' / output.relative_to(values['out'])
     mine.update(sources=[moved(source, tree) for source in sources], output=output.as_posix(), work=work.as_posix(),
                 defines=['-D' + define for define in expanded(artifact.get('defines', []), mine)],
                 include=['-I' + moved(folder, tree) for folder in expanded(artifact.get('include', []), mine)],
@@ -146,14 +146,14 @@ def runner(config):
 
 def specified(config, values, artifact, tree=None):
     kind, mine = planned(config, values, artifact, tree)
-    spec = Path(values['out']) / 'obj' / ('%s.json' % mine['name'])
+    spec = Path(mine['work'] + '.json')
     spec.parent.mkdir(parents=True, exist_ok=True)
     Path(mine['output']).parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps({'kind': kind, 'kind_name': artifact['kind'], 'values': mine, 'unset': shared.UNSET,
                        'unstamped': artifact.get('unstamped', False)}, sort_keys=True)
     if not spec.is_file() or spec.read_text(encoding='utf-8') != text:
         spec.write_text(text, encoding='utf-8')
-    spec.with_suffix('.said').unlink(missing_ok=True)
+    Path(mine['work'] + '.said').unlink(missing_ok=True)
     return kind, mine, spec
 
 
@@ -210,7 +210,7 @@ def graphed(config, values, chosen, tree=None):
          '--prefix', out.as_posix(), '-Dgraph=' + graph.as_posix()], values['root'], dict(os.environ, **caches))
     found = []
     for artifact, mine, missing in done:
-        said = out / 'obj' / ('%s.said' % mine['name'])
+        said = Path(mine['work'] + '.said')
         if said.is_file():
             sys.stdout.write(said.read_text(encoding='utf-8'))
         if missing:
@@ -228,7 +228,7 @@ def one(spec, files):
     held = json.loads(Path(spec).read_text(encoding='utf-8'))
     kind, mine = held['kind'], held['values']
     shared.UNSET.update(held['unset'])
-    sys.stdout = open(Path(spec).with_suffix('.said'), 'w', encoding='utf-8')
+    sys.stdout = open(mine['work'] + '.said', 'w', encoding='utf-8')
     count = len(mine['sources']) if 'each' in kind else 0
     linked = 0 if files[-2] == 'unlinked' else len(mine['link'])
     mine.update(objects=files[:count], link=files[count:count + linked], output=files[-1])
