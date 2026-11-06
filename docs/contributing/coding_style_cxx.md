@@ -1358,7 +1358,8 @@ The check refuses an exception that excuses no fault. Thus no exception stays af
 ## Attribution
 
 This style comes from the style of the C code of the project: `docs/contributing/coding_style.md`.
-That style comes from the Epitech C Coding Style, version 3.1, which comes from the Linux Kernel Coding Style and from the book Clean Code of Robert C. Martin.
+That style comes from the Epitech C Coding Style, version 3.1.
+The Epitech style comes from the Linux Kernel Coding Style and from the book Clean Code of Robert C. Martin.
 
 The rules of C++ come from these sources:
 
