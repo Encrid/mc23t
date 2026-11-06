@@ -9,7 +9,7 @@ The words of a sentence of these cases are numbers, for example `1 2 3`, thus a 
 
 | Case | Claim | False variant |
 | --- | --- | --- |
-| the documents of this project | `folders` copies the six files of `docs/contributing` and `.toolchain/docs/prose.py.md` of this project into `{case}`. `prose.py` writes `no fault in 7 files`. | A document `a.md` in `docs` has a sentence of 26 words. |
+| the documents of this project | `folders` copies each guide of `docs/contributing` and each document of `.toolchain/docs` of this project into `{case}`, with an empty name of the project and no readme. `prose.py` writes `no fault in 46 files`. | A document `a.md` in `docs` has a sentence of 26 words. |
 | a sentence of 26 words | `docs/a.md:3: 26 words in a sentence, and 25 is the most`. | 25 words. |
 | a step of 21 words | An item of a numbered list: `docs/a.md:3: 21 words in a sentence, and 20 is the most`. | 20 words. |
 | a span of code | A sentence of 25 words has a span of code with three words in it. The span is one word, thus there is no fault. | The three words are not in a span. |
