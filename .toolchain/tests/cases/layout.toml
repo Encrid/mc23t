@@ -123,6 +123,20 @@ files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include
 claims = { status = 1, line = ["license: the layout needs this file"], lacks = ["video", "mouse"] }
 false = { files = { "{case}/project/docs/intern/mouse/window.c.md" = "# src/video/window.c\n" } }
 
+
+[[case]]
+name = "a part with no readme"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" }
+claims = { status = 1, line = ["docs/extern/a/readme.md: the layout needs this file"] }
+false = { files = { "{case}/project/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+
+[[case]]
+name = "the readme of a part needs no file"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/project/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+claims = { status = 1, lacks = ["no file has this document"] }
+false = { files = { "{case}/project/docs/extern/b/readme.md" = "# B\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
 [[case]]
 name = "an extra document in docs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
