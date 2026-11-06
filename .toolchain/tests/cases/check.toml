@@ -16,6 +16,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/check.py", "--root", "{cas
 "{case}/p/readme.md" = "# p\n\nA project.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n\n## Contributing\n\nSign `cla.md`.\n\n## License\n\nThe licence.\n"
 "{case}/p/docs/contributing/agreement.md" = ""
 "{case}/p/docs/contributing/coding_style.md" = ""
+"{case}/p/docs/contributing/coding_style_cxx.md" = ""
 "{case}/p/docs/contributing/commits.md" = ""
 "{case}/p/docs/contributing/decisions.md" = ""
 "{case}/p/docs/contributing/documentation_style.md" = ""

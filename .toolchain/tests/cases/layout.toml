@@ -1,7 +1,7 @@
 [[case]]
 name = "a full project"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-claims = { status = 0, line = ["no fault in 38 files"] }
+claims = { status = 0, line = ["no fault in 39 files"] }
 false = { files = { "{case}/project/notes.txt" = "" } }
 
 [case.files]
@@ -17,6 +17,7 @@ false = { files = { "{case}/project/notes.txt" = "" } }
 "{case}/project/readme.md" = ""
 "{case}/project/docs/contributing/agreement.md" = ""
 "{case}/project/docs/contributing/coding_style.md" = ""
+"{case}/project/docs/contributing/coding_style_cxx.md" = ""
 "{case}/project/docs/contributing/commits.md" = ""
 "{case}/project/docs/contributing/decisions.md" = ""
 "{case}/project/docs/contributing/documentation_style.md" = ""
@@ -101,6 +102,13 @@ run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/projec
 files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include/a.h" = "" }
 claims = { status = 1, line = ["include/a.h: no document docs/extern/a.h.md"] }
 false = { files = { "{case}/project/docs/extern/a.h.md" = "# include/a.h\n" } }
+
+[[case]]
+name = "a header of C++ without its document"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include/a.hpp" = "" }
+claims = { status = 1, line = ["include/a.hpp: no document docs/extern/a.hpp.md"] }
+false = { files = { "{case}/project/docs/extern/a.hpp.md" = "# include/a.hpp\n" } }
 
 [[case]]
 name = "a document without its file"
