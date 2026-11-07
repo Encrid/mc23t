@@ -1,0 +1,12 @@
+[project]
+name = "nested"
+
+[[artifact]]
+name = "nested"
+kind = "program"
+sources = ["src/*.c"]
+include = ["src"]
+
+[test]
+timeout = 60
+copies = 1
