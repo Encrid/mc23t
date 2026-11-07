@@ -1,0 +1,19 @@
+[[case]]
+name = "one"
+run = ["{out}/loaded{exe}"]
+claims = { status = 0, line = ["one id through a pointer"] }
+false = { fail = { getpid = 1, GetCurrentProcessId = 1 } }
+
+[[case]]
+name = "loaded"
+run = ["{out}/loaded{exe}"]
+fail = { getpid = 1, GetCurrentProcessId = 1 }
+claims = { status = 1, line = ["no id"] }
+false = { fail = {} }
+
+[[case]]
+name = "loader"
+run = ["{out}/loaded{exe}"]
+fail = { GetProcAddress = 1, dlsym = 1 }
+claims = { status = 1, line = ["no id"] }
+false = { fail = {} }

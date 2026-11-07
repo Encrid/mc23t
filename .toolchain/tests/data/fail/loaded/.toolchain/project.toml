@@ -1,0 +1,28 @@
+[project]
+name = "loaded"
+
+[fail.calls]
+GetCurrentProcessId = "0"
+getpid = "-1"
+
+[targets.x86_64-windows-gnu]
+
+[targets.aarch64-windows-gnu]
+
+[targets.x86_64-linux-gnu]
+
+[targets.aarch64-linux-gnu]
+
+[targets.x86_64-macos]
+
+[targets.aarch64-macos]
+
+[[artifact]]
+name = "loaded"
+kind = "program"
+sources = ["src/*.c", "src/{system}/*.c"]
+include = ["src"]
+
+[test]
+timeout = 60
+copies = 1
