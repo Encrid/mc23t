@@ -20,6 +20,8 @@ FETCH = ['curl -fsSL -o "$%(name)s/%(file)s" %(url)s', 'echo "%(digest)s  $%(nam
 UNPACK = '/c/Windows/System32/tar.exe -xf "$(cygpath -w "$%(name)s/%(file)s")" -C "$(cygpath -w "$%(name)s")"%(members)s'
 GL = ['echo "SDL_OPENGL_LIBRARY=$(cygpath -w "$mesa/opengl32.dll")" >> "$GITHUB_ENV"']
 VULKAN = ['echo "VK_DRIVER_FILES=$(cygpath -w "$vulkan/%(icd)s")" >> "$GITHUB_ENV"',
+          'echo "VK_ICD_FILENAMES=$(cygpath -w "$vulkan/%(icd)s")" >> "$GITHUB_ENV"',
+          'echo "VULKAN_LOADER=$(cygpath -w "$vulkan/vulkan-1.dll")" >> "$GITHUB_ENV"',
           'echo "$(cygpath -w "$vulkan")" >> "$GITHUB_PATH"']
 BREW = ['brew install %(packages)s',
         'echo "VK_DRIVER_FILES=$(brew --prefix)/share/vulkan/icd.d/%(icd)s" >> "$GITHUB_ENV"',

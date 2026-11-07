@@ -53,8 +53,10 @@ For `vulkan`, the commands do these steps:
 
 1. They download the archive `lavapipe` of `[runner] mesa.url` into the folder `vulkan` of `$RUNNER_TEMP`. They check its digest from `[runner] mesa.lavapipe`. They unpack it: the driver `vulkan_lvp.dll` and its file of ICD.
 2. They download the archive of `[runner] loader.url`, and check its digest from `[runner] loader`. They unpack its `file`, the loader `vulkan-1.dll`, into the same folder. `--strip-components` drops the folders of the path of `file`.
-3. They write `VK_DRIVER_FILES`, the whole path of the file of ICD from `[runner] icd`, into `$GITHUB_ENV`. Thus the loader finds only lavapipe.
-4. They write the folder into `$GITHUB_PATH`. Thus a program finds `vulkan-1.dll` as on a machine with the runtime of Vulkan.
+3. They write `VK_DRIVER_FILES` and `VK_ICD_FILENAMES`, the whole path of the file of ICD from `[runner] icd`, into `$GITHUB_ENV`. Thus the loader finds only lavapipe. The second name serves the loaders that know no `VK_DRIVER_FILES`.
+4. They write `VULKAN_LOADER`, the whole path of `vulkan-1.dll`, into `$GITHUB_ENV`. A program that names no loader of its own loads the loader at that path.
+   Windows finds the `vulkan-1.dll` of its folder `System32` before the folders of `PATH`. The runner image holds an old loader there.
+5. They write the folder into `$GITHUB_PATH`. Thus a program finds `vulkan-1.dll` as on a machine with the runtime of Vulkan.
 
 ## macOS
 
