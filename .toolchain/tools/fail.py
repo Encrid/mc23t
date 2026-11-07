@@ -12,7 +12,8 @@ PREFIX = 'c23b_f_'
 STAND = 'c23b_ft_'
 POINT = 'c23b_fp_'
 LOADERS = ('GetProcAddress', 'dlsym')
-STATE = r'''#include <stddef.h>
+STATE = r'''#pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 static long long c23b_fget(const char *key)
