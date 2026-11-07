@@ -1,0 +1,29 @@
+[[case]]
+name = "a write into an open pipe"
+run = ["{out}/signals{exe}", "open"]
+claims = { line = ["open wrote 1"] }
+false = { run = ["{out}/signals{exe}"] }
+
+[[case]]
+name = "a write into a closed pipe"
+run = ["{out}/signals{exe}", "closed"]
+claims = { line = ["closed wrote -1"] }
+false = { run = ["{out}/signals{exe}", "open"] }
+
+[[case]]
+name = "a write into a closed pipe with the signal ignored"
+run = ["{out}/signals{exe}", "ignore"]
+claims = { line = ["ignore wrote -1"] }
+false = { run = ["{out}/signals{exe}", "closed"] }
+
+[[case]]
+name = "a write into a closed pipe with the signal left pending"
+run = ["{out}/signals{exe}", "pending"]
+claims = { line = ["pending wrote -1"] }
+false = { run = ["{out}/signals{exe}", "closed"] }
+
+[[case]]
+name = "no argument"
+run = ["{out}/signals{exe}"]
+claims = { line = ["closed wrote -1"] }
+false = { run = ["{out}/signals{exe}", "open"] }

@@ -1,0 +1,31 @@
+[project]
+name = "signals"
+
+[targets.x86_64-windows-gnu]
+probe_defines = []
+
+[targets.aarch64-windows-gnu]
+probe_defines = []
+
+[targets.x86_64-linux-gnu]
+probe_defines = ["-D_GNU_SOURCE"]
+
+[targets.aarch64-linux-gnu]
+probe_defines = ["-D_GNU_SOURCE"]
+
+[targets.x86_64-macos]
+probe_defines = []
+
+[targets.aarch64-macos]
+probe_defines = []
+
+[[artifact]]
+name = "signals"
+kind = "program"
+sources = ["src/main.c", "src/{system}/probe.c"]
+include = ["src"]
+defines = ["{probe_defines}"]
+
+[test]
+timeout = 60
+copies = 1
