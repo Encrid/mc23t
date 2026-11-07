@@ -1,0 +1,29 @@
+[[case]]
+name = "the inner condition is true"
+run = ["{out}/nested{exe}", "1", "1", "0"]
+claims = { status = 0, line = ["waited", "done"] }
+false = { run = ["{out}/nested{exe}", "-1", "1", "0"] }
+
+[[case]]
+name = "the inner condition is false"
+run = ["{out}/nested{exe}", "-1", "1", "0"]
+claims = { status = 0, line = ["done"], lacks = ["waited"] }
+false = { run = ["{out}/nested{exe}", "1", "1", "0"] }
+
+[[case]]
+name = "the outer condition is false"
+run = ["{out}/nested{exe}", "1", "1", "1"]
+claims = { status = 0, line = ["done"], lacks = ["waited"] }
+false = { run = ["{out}/nested{exe}", "1", "1", "0"] }
+
+[[case]]
+name = "the second operand is false"
+run = ["{out}/nested{exe}", "1", "2", "0"]
+claims = { status = 0, line = ["done"], lacks = ["waited"] }
+false = { run = ["{out}/nested{exe}", "1", "1", "0"] }
+
+[[case]]
+name = "no argument"
+run = ["{out}/nested{exe}"]
+claims = { status = 0, line = ["done"], lacks = ["waited"] }
+false = { run = ["{out}/nested{exe}", "1", "1", "0"] }
