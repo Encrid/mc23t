@@ -129,3 +129,21 @@ name = "a failed call takes nothing in test --leaks"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "--leaks", "-k", "second"]
 claims = { status = 0, line = ["second: as written", "leaks: 1 cases, 1 give back what they take"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "--leaks", "-k", "leaky"] }
+
+[[case]]
+name = "a loaded call fails at its number, through its pointer"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loaded"]
+claims = { status = 0, line = ["loaded: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loaded", "--break"] }
+
+[[case]]
+name = "a loader that fails gives no pointer, and the loaded call is not made"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loader"]
+claims = { status = 0, line = ["loader: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loader", "--break"] }
+
+[[case]]
+name = "a loaded call with no number calls its function"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one"]
+claims = { status = 0, line = ["one: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one", "--break"] }
