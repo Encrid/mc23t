@@ -2,18 +2,21 @@
 name = "a write into an open pipe"
 run = ["{out}/signals{exe}", "open"]
 claims = { line = ["open write 0"] }
+alone = true
 false = { run = ["{out}/signals{exe}"] }
 
 [[case]]
 name = "a write into a closed pipe"
 run = ["{out}/signals{exe}", "closed"]
 claims = { line = ["closed write -1"] }
+alone = true
 false = { run = ["{out}/signals{exe}", "open"] }
 
 [[case]]
 name = "a write into a closed pipe with the signal ignored"
 run = ["{out}/signals{exe}", "ignore"]
 claims = { line = ["ignore write -1"] }
+alone = true
 false = { run = ["{out}/signals{exe}", "closed"] }
 
 [[case]]
@@ -44,4 +47,5 @@ false = { run = ["{out}/signals{exe}", "closed", "hoisted"] }
 name = "no argument"
 run = ["{out}/signals{exe}"]
 claims = { line = ["closed write -1"] }
+alone = true
 false = { run = ["{out}/signals{exe}", "open"] }
