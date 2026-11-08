@@ -23,8 +23,7 @@ static void dump_hits(void)
     printf("hits");
     for (size_t i = 0; i < got; i++)
         printf(" %02x", bytes[i]);
-    printf("
-");
+    printf("\n");
 }
 
 int main(int argc, char **argv)
