@@ -8,10 +8,10 @@ probe_defines = []
 probe_defines = []
 
 [targets.x86_64-linux-gnu]
-probe_defines = ["-D_GNU_SOURCE"]
+probe_defines = ["_GNU_SOURCE"]
 
 [targets.aarch64-linux-gnu]
-probe_defines = ["-D_GNU_SOURCE"]
+probe_defines = ["_GNU_SOURCE"]
 
 [targets.x86_64-macos]
 probe_defines = []
