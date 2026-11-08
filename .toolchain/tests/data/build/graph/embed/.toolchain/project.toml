@@ -1,0 +1,16 @@
+[project]
+name = "p"
+
+[variables]
+mark = "mark.py"
+
+[[artifact]]
+name = "word.txt"
+kind = "file"
+sources = ["src/word.txt"]
+
+[[artifact]]
+name = "show"
+kind = "program"
+sources = ["src/show.c"]
+inputs = ["{out}/word.txt"]
