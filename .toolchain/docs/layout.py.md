@@ -23,6 +23,7 @@ The layout allows only the paths of this table.
 | `.gitattributes`, `.gitignore`, `cla.md`, `license` | Needed. |
 | `project.py`, `.toolchain/project.toml`, `readme.md` | Needed. |
 | `architecture.md` | The map of the project. |
+| `.github/workflows/toolchain.yml` | The workflow of the template, which runs the cases of the toolchain. A project does not need it. |
 | `docs/contributing/<name>.md`, for each name of `GUIDES`: `agreement`, `coding_style`, `coding_style_cxx`, `commits`, `decisions`, `documentation_style`, `needs`, `pull_request` and `tests` | Needed. |
 | `docs/contributing/<name>`, for each name of `[check] guides` | A guide of the project. |
 | `docs/extern/<folder>/readme.md`, for the `folder` of each part of `[parts]` | Needed. The readme of the part. |

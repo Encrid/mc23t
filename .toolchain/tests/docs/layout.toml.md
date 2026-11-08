@@ -12,7 +12,7 @@ The project of the case `a full project` has these files, and the document of ea
 
 | Folder | Files |
 | --- | --- |
-| The root, `.github` and `docs/contributing` | Each other file that the layout needs. |
+| The root, `.github` and `docs/contributing` | Each other file that the layout needs, and `.github/workflows/toolchain.yml`, which it allows. |
 | `.toolchain` | `project.toml`, `toolchain.toml`, `header.txt`, `tools/check.py`, `docs/check.py.md`, `runtime/move.c`, `runtime/move.h`, and the case file `tests/cases/Any Name.toml`. |
 | `tools` | `release.py`, with its document `docs/tools/release.py.md`. |
 | `src` | `sample.c` and `net/socket.c`. |
@@ -23,7 +23,7 @@ The project of the case `a full project` has these files, and the document of ea
 
 | Case | Claim | False variant |
 | --- | --- | --- |
-| a full project | `layout.py` writes `no fault in 40 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
+| a full project | `layout.py` writes `no fault in 41 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
 | a path that the layout does not allow | `notes.txt: the layout does not allow this file`. | No `notes.txt`. |
 | a file of the runtime that is no source | `.toolchain/runtime/notes.txt: the layout does not allow this file`: the runtime holds only `.c` and `.h` files. | The runtime holds `notes.c`. |
 | a file that the layout needs | A project with no `license`: `license: the layout needs this file`. | The project has `license`. |
