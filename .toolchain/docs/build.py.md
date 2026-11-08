@@ -105,7 +105,7 @@ The graph has these steps:
 1. For each source of a kind with `each`, the command of `each`. Its input is the source, and its output is `{object}`.
    `{deps}` names the headers of the source, and zig takes them as inputs too.
 2. For each artifact, `python build.py --one <spec>`. Its inputs are the spec, the objects, and the files of `{sources}`, `{link}` and `{runtime}`.
-   Its output is `{output}`. Each folder of `{inputs}` is an input too, and the step gets it as a folder after the prefix that the item of `inputs` holds.
+   Its output is `{output}`. Each folder of `{inputs}` is an input too, after the prefix of the item.
 3. For each artifact, a step that copies its output to its path in `{out}`.
 
 A file of `link` that a different artifact of the build makes is the output of the step of that artifact. Thus the step waits for it.
@@ -125,8 +125,8 @@ The first `zig build` of a version of zig on a machine takes longer, because zig
 3. It stops if no file matches the sources: `no file matches the sources of <name>`.
 4. It sets `{output}`, then `{work}`, `{sources}`, `{defines}`, `{include}`, `{link}` and `{manifest}`, then `{flags}`, which can use them.
    `{flags}` holds the `flags` of the kind, then the `flags` of the artifact.
-   With `inputs`, it also sets `{inputs}`, a folder after `-I` for each file of the key, and stops if the file is not there:
-   `<file> is not there, and <name> reads it`.
+   With `inputs`, it also sets `{inputs}`: a folder after `-I` for each file of the key.
+   A file that is not there stops the build before it: `<file> is not there, and <name> reads it`.
 5. It makes the folder of the output, and the folder `obj`.
 6. With `each`, `compiled` runs the step `each` for each source: *Each source*.
 7. If a file of `link` is not there, it does the `unlinked` steps of the kind.
