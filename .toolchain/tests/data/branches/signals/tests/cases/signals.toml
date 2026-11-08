@@ -1,21 +1,21 @@
 [[case]]
 name = "a write into an open pipe"
 run = ["{out}/signals{exe}", "open"]
-claims = { line = ["open write 0"] }
+claims = { line = ["open write 0"], matches = ["hits([ 0-9a-f]{2,})*"] }
 alone = true
 false = { run = ["{out}/signals{exe}"] }
 
 [[case]]
 name = "a write into a closed pipe"
 run = ["{out}/signals{exe}", "closed"]
-claims = { line = ["closed write -1"] }
+claims = { line = ["closed write -1"], matches = ["hits([ 0-9a-f]{2,})*"] }
 alone = true
 false = { run = ["{out}/signals{exe}", "open"] }
 
 [[case]]
 name = "a write into a closed pipe with the signal ignored"
 run = ["{out}/signals{exe}", "ignore"]
-claims = { line = ["ignore write -1"] }
+claims = { line = ["ignore write -1"], matches = ["hits([ 0-9a-f]{2,})*"] }
 alone = true
 false = { run = ["{out}/signals{exe}", "closed"] }
 
