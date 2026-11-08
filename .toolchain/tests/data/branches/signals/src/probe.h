@@ -7,5 +7,7 @@
     #define PROBE_H
 
 int probe_write(const char *mode);
+int probe_variant(const char *mode);
+int probe_hoisted(const char *mode);
 
 #endif
