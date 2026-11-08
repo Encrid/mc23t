@@ -80,6 +80,12 @@ If the output is not JSON, it stops: `the tree of <path> is not JSON`.
 
 The dump sets `_FORTIFY_SOURCE` to 0. Then a call that the system would fortify, such as `snprintf`, does not read as a macro.
 
+The run builds the files of `inputs` after the dump, so they do not exist yet.
+zig gives an `#embed` of a file that does not exist no bytes and no error, and an empty array is an error of `-pedantic-errors`.
+Thus `stood_in` writes a file of 1 zero byte for each file of `inputs`, into `<work>.inputs`.
+The dump has `--embed-dir=<work>.inputs` in `{inputs}`. The syntax tree needs no byte of an input.
+The build of the copies embeds the files that the run builds.
+
 ## Limits
 
 - A case that crashes, or that stops before its end, writes no line.
@@ -95,6 +101,7 @@ The dump sets `_FORTIFY_SOURCE` to 0. Then a call that the system would fortify,
 | `is_macro(loc)` | Tells if a location comes from a macro. |
 | `owned(loc, root)` | Gives the path of a location in `src` or in `include`, or `None`. |
 | `dumped(command, root)` | Runs the command `dump`, and gives the syntax tree, with the file of each location. |
+| `stood_in(artifact, mine)` | Writes a file of 1 zero byte for each file of `inputs`, and gives the flag `--embed-dir` of their folder, or no flag. |
 | `sources(config, values)` | Gives each file `.c` of `src` that an artifact of this target compiles, with its command `dump`. |
 | `each(config, values, use)` | Gives the result of `use(root, path, tree)` for each file of `sources`, 8 files at the same time. |
 | `copied(root, where)` | Empties `where`, and copies `src` and `include` into it. |

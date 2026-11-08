@@ -7,7 +7,7 @@ mark = "mark.py"
 [[artifact]]
 name = "word.txt"
 kind = "file"
-sources = ["src/word.txt"]
+sources = ["data/word.txt"]
 
 [[artifact]]
 name = "show"

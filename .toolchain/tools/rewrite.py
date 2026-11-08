@@ -130,6 +130,15 @@ def dumped(command, root):
     return found
 
 
+def stood_in(artifact, mine):
+    folder = Path(mine['work'] + '.inputs')
+    names = [Path(file).name for file in build.read(artifact, mine)]
+    for name in names:
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / name).write_bytes(b'\0')
+    return ['--embed-dir=' + folder.as_posix()] if names else []
+
+
 def sources(config, values):
     jobs = {}
     for artifact in build.artifacts(config):
@@ -137,6 +146,7 @@ def sources(config, values):
             continue
         _, mine = build.planned(config, values, artifact)
         Path(mine['work']).parent.mkdir(parents=True, exist_ok=True)
+        mine['inputs'] = stood_in(artifact, mine)
         for source in mine['sources']:
             if source.startswith('src/') and source.endswith('.c') and source not in jobs:
                 jobs[source] = expanded(config['rewrite']['dump'], dict(mine, source=source))

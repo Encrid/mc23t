@@ -1,0 +1,17 @@
+[project]
+name = "embedded"
+
+[[artifact]]
+name = "word.txt"
+kind = "file"
+sources = ["data/word.txt"]
+
+[[artifact]]
+name = "show"
+kind = "program"
+sources = ["src/show.c"]
+inputs = ["{out}/word.txt"]
+
+[test]
+timeout = 60
+copies = 1
