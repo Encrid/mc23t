@@ -35,7 +35,7 @@ int probe_write(const char *mode)
     sigemptyset(&pipe_only);
     sigaddset(&pipe_only, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &pipe_only, &old);
-    if (!strcmp(mode, "ignore"))
+    if (!strcmp(mode, "ignore") || !strcmp(mode, "pending"))
         signal(SIGPIPE, SIG_IGN);
     if (!strcmp(mode, "pending"))
         raise(SIGPIPE);
