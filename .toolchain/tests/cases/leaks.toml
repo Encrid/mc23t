@@ -189,3 +189,15 @@ name = "the tree of a source gets the flags of its kind"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/flagged", "--out", "{case}/out", "--leaks"]
 claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/flagged", "--out", "{case}/out", "--leaks", "--set", "side=none"] }
+
+[[case]]
+name = "a pair through pointer variables that the case gives back"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "whole"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "kept"] }
+
+[[case]]
+name = "a pair through pointer variables that the case keeps"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "kept"]
+claims = { status = 1, line = ["leaks: kept keeps 1 open_thing"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "whole"] }

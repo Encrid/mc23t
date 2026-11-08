@@ -147,3 +147,15 @@ name = "a loaded call with no number calls its function"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one"]
 claims = { status = 0, line = ["one: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one", "--break"] }
+
+[[case]]
+name = "a listed call through a pointer variable fails at its number"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "pointed"]
+claims = { status = 0, line = ["pointed: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "pointed", "--break"] }
+
+[[case]]
+name = "a listed call through a pointer variable with no number calls its function"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole"]
+claims = { status = 0, line = ["whole: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole", "--break"] }
