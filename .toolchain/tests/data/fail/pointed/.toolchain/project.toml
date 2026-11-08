@@ -19,7 +19,7 @@ take_value = "-1"
 [[artifact]]
 name = "pointed"
 kind = "program"
-sources = ["src/*.c"]
+sources = ["src/*.c", "src/{system}/*.c"]
 include = ["src"]
 
 [test]
