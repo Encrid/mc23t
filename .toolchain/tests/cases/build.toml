@@ -498,18 +498,16 @@ false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-
 
 [[case]]
 name = "a program that embeds the file of an input prints it"
-run = ["{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/show.py", "{case}/out/{target}/scratch/show{exe}"]
-folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c", ".toolchain/tests/data/build/graph/embed/src/word.txt"] }
-claims = { status = 0, line = ["found True"] }
+run = ["{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c"], "{case}/p/data" = [".toolchain/tests/data/build/graph/embed/data/word.txt"] }
+claims = { status = 0, line = ["one"] }
 false = { run = ["{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}", "--out", "{case}/out"], stdin = "" }
-
 [[case]]
 name = "a changed input builds the program again"
-run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "{case}/p/src/word.txt", "two\\n", "--", "{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/show.py", "{case}/out/{target}/scratch/show{exe}"]
-folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c", ".toolchain/tests/data/build/graph/embed/src/word.txt"] }
-claims = { status = 0, line = ["found True"] }
-false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "-", "", "--", "{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/show.py", "{case}/out/{target}/scratch/show{exe}"] }
-
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "{case}/p/data/word.txt", "two|N|", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c"], "{case}/p/data" = [".toolchain/tests/data/build/graph/embed/data/word.txt"] }
+claims = { status = 0, line = ["two"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }
 [[case]]
 name = "a changed header builds the artifact again"
 run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/src/h.h", "#define VALUE 2\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]

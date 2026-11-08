@@ -1,0 +1,11 @@
+[[case]]
+name = "word"
+run = ["{out}/show{exe}"]
+claims = { status = 0, line = ["one"] }
+false = { run = ["{out}/show{exe}", "two"] }
+
+[[case]]
+name = "argument"
+run = ["{out}/show{exe}", "two"]
+claims = { status = 0, line = ["two"] }
+false = { run = ["{out}/show{exe}"] }

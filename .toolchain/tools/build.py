@@ -94,7 +94,7 @@ def planned(config, values, artifact, tree=None):
                 include=['-I' + moved(folder, tree) for folder in expanded(artifact.get('include', []), mine)],
                 link=expanded(artifact.get('link', []), mine), manifest=expanded(artifact.get('manifest', []), mine),
                 objects=[])
-    mine['inputs'] = ['-I' + folder for folder in dict.fromkeys(Path(file).parent.as_posix() for file in read(artifact, mine))]
+    mine['inputs'] = ['--embed-dir=' + folder for folder in dict.fromkeys(Path(file).parent.as_posix() for file in read(artifact, mine))]
     mine['flags'] = expanded(kind.get('flags', []) + artifact.get('flags', []), mine)
     return kind, mine
 
@@ -206,7 +206,7 @@ def graphed(config, values, chosen, tree=None):
         if missing:
             print('compiled, not linked: %s: %s is not there' % (name, missing[0]))
         objects, inputs = [], makers_of(artifact, mine, makers, index)
-        marks = dict(mine, inputs=['-I' + INPUT + maker for maker in inputs], **MARKS)
+        marks = dict(mine, inputs=['--embed-dir=' + INPUT + maker for maker in inputs], **MARKS)
         for number, source in enumerate(mine['sources'] if 'each' in kind else []):
             argv = expanded(kind['each']['run'], marks)
             steps.append({'name': 'c%d_%d' % (index, number), 'program': argv[0], 'cwd': root.as_posix(),
@@ -257,7 +257,7 @@ def one(spec, files):
     linked = 0 if files[-2] == 'unlinked' else len(mine['link'])
     folders = files[count + linked:count + linked + held['inputs']]
     mine.update(objects=files[:count], link=files[count:count + linked], output=files[-1],
-                inputs=['-I' + folder for folder in folders])
+                inputs=['--embed-dir=' + folder for folder in folders])
     for step in kind[files[-2]]:
         do(known(step, 'step', held['kind_name']), mine, held['unstamped'])
     if files[-2] == 'steps':

@@ -125,7 +125,7 @@ The first `zig build` of a version of zig on a machine takes longer, because zig
 3. It stops if no file matches the sources: `no file matches the sources of <name>`.
 4. It sets `{output}`, then `{work}`, `{sources}`, `{defines}`, `{include}`, `{link}` and `{manifest}`, then `{flags}`, which can use them.
    `{flags}` holds the `flags` of the kind, then the `flags` of the artifact.
-   With `inputs`, it also sets `{inputs}`: a folder after `-I` for each file of the key.
+   With `inputs`, it also sets `{inputs}`: a folder after `--embed-dir=` for each file of the key.
    A file that is not there stops the build before it: `<file> is not there, and <name> reads it`.
 5. It makes the folder of the output, and the folder `obj`.
 6. With `each`, `compiled` runs the step `each` for each source: *Each source*.
