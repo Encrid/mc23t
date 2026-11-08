@@ -12,6 +12,8 @@ A failure value is a text of C, for example `nullptr`, `-1` or `false`. Each fil
 
 Each function is in the list one time. `listed` stops if a table names a function of the list again: `[fail.calls] lists <name> two times`.
 
+`fail` of a case also fails a call through a pointer variable that `[fail.calls]` lists: `.toolchain/docs/rewrite.py.md`, *The pointer variables*.
+
 ## The layer
 
 `layer` gives the layer of a file `.c` of `src`. The layer can make each listed function that the file uses fail.

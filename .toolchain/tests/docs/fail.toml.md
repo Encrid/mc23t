@@ -68,3 +68,5 @@ Each case writes `a` to the program. The cases `read`, `byte`, `key` and `aligne
 | test --branches reaches the branch of each failed call | `test --branches` writes `branches: 19 outcomes, 19 reached`, and ends with 0. | `-k whole`, thus no call fails. |
 | test --leaks counts the path of a failed call | `test --leaks -k leaky` writes `leaks: leaky keeps 1 memory`, and stops. | The case `second`, which gives back the first block. |
 | a failed call takes nothing in test --leaks | `test --leaks -k second` writes `second: as written` and `leaks: 1 cases, 1 give back what they take`. | The case `leaky`. |
+| a listed call through a pointer variable fails at its number | `test -k pointed` on `pointed` writes `pointed: as written`: `src/table.c` defines the pointer, and `src/pointed.c` calls it and gets -1. | `--break`. |
+| a listed call through a pointer variable with no number calls its function | `test -k whole` on `pointed` writes `whole: as written`: the call through the pointer gives 42. | `--break`. |

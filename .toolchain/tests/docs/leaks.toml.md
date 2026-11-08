@@ -72,3 +72,5 @@ The kind `part` takes at `*2` of `part_new`, at `*2.part` of `sheet_fill`, and a
 | a take at a field counts what the call writes into the field | `test` on `sheets` writes that the case is as written, and that 1 case gives back what it takes. | The case `stub`. |
 | a callback counts what a library gives it | `test` on `lends` writes that the case is as written, and that 1 case gives back what it takes. | The case `stub`. |
 | the tree of a source gets the flags of its kind | `test` on `flagged` reads the tree of `src/main.c`, and writes `leaks: 1 cases, 1 give back what they take`. | `--set side=none`: the tree of `src/main.c` cannot be read. |
+| a pair through pointer variables that the case gives back | `test --leaks -k whole` on `pointed` writes `leaks: 1 cases, 1 give back what they take`: `open_thing` and `close_thing` are pointer variables. | The case `kept`. |
+| a pair through pointer variables that the case keeps | `test --leaks -k kept` on `pointed` writes `leaks: kept keeps 1 open_thing`, and stops. | The case `whole`. |

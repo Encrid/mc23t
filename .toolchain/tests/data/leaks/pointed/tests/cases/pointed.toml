@@ -1,0 +1,11 @@
+[[case]]
+name = "whole"
+run = ["{out}/pointed{exe}"]
+claims = { status = 0, line = ["done"] }
+false = { run = ["{out}/pointed{exe}", "kept"] }
+
+[[case]]
+name = "kept"
+run = ["{out}/pointed{exe}", "kept"]
+claims = { status = 0, line = ["done"] }
+false = { run = ["{out}/pointed{exe}"] }
