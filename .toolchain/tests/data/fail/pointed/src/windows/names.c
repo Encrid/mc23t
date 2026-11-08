@@ -10,5 +10,5 @@
 
 int name_known(void)
 {
-    return (GetProcAddress(GetModuleHandleW(NULL), "take_value") != NULL);
+    return (GetProcAddress(GetModuleHandleW(NULL), "take_value") != nullptr);
 }

@@ -9,5 +9,5 @@
 
 int name_known(void)
 {
-    return (dlsym(RTLD_DEFAULT, "take_value") != NULL);
+    return (dlsym(RTLD_DEFAULT, "take_value") != nullptr);
 }
