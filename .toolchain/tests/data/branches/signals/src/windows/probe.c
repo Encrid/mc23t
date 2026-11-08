@@ -11,7 +11,7 @@ int probe_write(const char *mode)
 {
     if (!strcmp(mode, "open"))
         return (0);
-    if (!strcmp(mode, "pending"))
+    if (!strcmp(mode, "pending") || !strcmp(mode, "bad"))
         return (-1);
     return (12);
 }

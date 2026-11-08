@@ -27,3 +27,9 @@ name = "no argument"
 run = ["{out}/signals{exe}"]
 claims = { line = ["closed write 12"] }
 false = { run = ["{out}/signals{exe}", "open"] }
+
+[[case]]
+name = "a write into a closed descriptor takes no signal"
+run = ["{out}/signals{exe}", "bad"]
+claims = { line = ["bad write -1"] }
+false = { run = ["{out}/signals{exe}", "closed"] }

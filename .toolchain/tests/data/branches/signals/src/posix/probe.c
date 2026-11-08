@@ -32,6 +32,8 @@ int probe_write(const char *mode)
     pipe(ends);
     if (strcmp(mode, "open"))
         close(ends[0]);
+    if (!strcmp(mode, "bad"))
+        close(ends[1]);
     sigemptyset(&pipe_only);
     sigaddset(&pipe_only, SIGPIPE);
     pthread_sigmask(SIG_BLOCK, &pipe_only, &old);
