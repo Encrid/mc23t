@@ -105,7 +105,7 @@ The graph has these steps:
 1. For each source of a kind with `each`, the command of `each`. Its input is the source, and its output is `{object}`.
    `{deps}` names the headers of the source, and zig takes them as inputs too.
 2. For each artifact, `python build.py --one <spec>`. Its inputs are the spec, the objects, and the files of `{sources}`, `{link}` and `{runtime}`.
-   Its output is `{output}`.
+   Its output is `{output}`. Each folder of `{inputs}` is an input too, and the step gets it as a folder after the prefix that the item of `inputs` holds.
 3. For each artifact, a step that copies its output to its path in `{out}`.
 
 A file of `link` that a different artifact of the build makes is the output of the step of that artifact. Thus the step waits for it.
@@ -125,6 +125,8 @@ The first `zig build` of a version of zig on a machine takes longer, because zig
 3. It stops if no file matches the sources: `no file matches the sources of <name>`.
 4. It sets `{output}`, then `{work}`, `{sources}`, `{defines}`, `{include}`, `{link}` and `{manifest}`, then `{flags}`, which can use them.
    `{flags}` holds the `flags` of the kind, then the `flags` of the artifact.
+   With `inputs`, it also sets `{inputs}`, a folder after `-I` for each file of the key, and stops if the file is not there:
+   `<file> is not there, and <name> reads it`.
 5. It makes the folder of the output, and the folder `obj`.
 6. With `each`, `compiled` runs the step `each` for each source: *Each source*.
 7. If a file of `link` is not there, it does the `unlinked` steps of the kind.
@@ -132,6 +134,7 @@ The first `zig build` of a version of zig on a machine takes longer, because zig
 
 The runner `zig` does the steps 6 to 8 in the graph: *The runner zig*.
 There, a file of `link` that a different artifact of the build makes counts as there.
+With `inputs`, each input is an input of the step: `zig build` makes it before, and runs the step again when it changes.
 
 With a tree, step 4 changes each path that is in `src` or in `include`, for the sources and the folders of `include`.
 It gives the copy of the path in the tree.
