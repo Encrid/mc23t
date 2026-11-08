@@ -32,14 +32,11 @@ int main(int argc, char **argv)
     const char *form = argc > 2 ? argv[2] : "write";
 
     if (!strcmp(form, "variant"))
-        printf("%s %s %d
-", mode, form, probe_variant(mode));
+        printf("%s %s %d\n", mode, form, probe_variant(mode));
     else if (!strcmp(form, "hoisted"))
-        printf("%s %s %d
-", mode, form, probe_hoisted(mode));
+        printf("%s %s %d\n", mode, form, probe_hoisted(mode));
     else
-        printf("%s %s %d
-", mode, form, probe_write(mode));
+        printf("%s %s %d\n", mode, form, probe_write(mode));
     dump_hits();
     return (0);
 }
