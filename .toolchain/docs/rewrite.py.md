@@ -64,6 +64,8 @@ It writes to the file that a variable of the environment names. If the variable 
 The line starts with the path of the file. The count gives the rest of the line.
 
 The writer builds each line in a buffer and writes it with one append, so parallel programs do not interleave.
+On Windows, an append is a seek and a write, so 2 programs that end at the same time can write over each other.
+Thus on Windows the writer opens the file with `_SH_DENYRW`, and opens it again while another program holds it.
 It uses the low-level file calls of the system, with no buffer of `stdio`.
 
 On macOS, a `[[gnu::constructor]]` of each file opens its own library again, with `RTLD_NOLOAD` and `RTLD_NODELETE`.

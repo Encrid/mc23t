@@ -26,8 +26,10 @@ RENAME = '''[[maybe_unused]] static typeof(*%(n)s) %(p)s%(n)s;
 WRITER = r'''#include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
+#include <errno.h>
 #include <fcntl.h>
 #include <io.h>
+#include <share.h>
 #include <sys/stat.h>
 #else
 #include <fcntl.h>
@@ -44,7 +46,9 @@ WRITER = r'''#include <stdlib.h>
     if (!%(p)spath)
         return;
 #ifdef _WIN32
-    %(p)sfd = _open(%(p)spath, _O_WRONLY | _O_CREAT | _O_APPEND | _O_BINARY, _S_IREAD | _S_IWRITE);
+    do
+        %(p)sfd = _sopen(%(p)spath, _O_WRONLY | _O_CREAT | _O_APPEND | _O_BINARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
+    while (%(p)sfd < 0 && errno == EACCES);
 #else
     %(p)sfd = open(%(p)spath, O_WRONLY | O_CREAT | O_APPEND, 0644);
 #endif
