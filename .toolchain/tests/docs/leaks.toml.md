@@ -23,7 +23,7 @@ That file names `grab` as a function that takes memory, and the pairs `box_open`
 `grab` and `seize` of `tests/grab.c` take memory with no count. The case `named` frees the result of `grab`, and `foreign` frees the result of `seize`.
 
 `tests/grab.c` also holds a small library that the count does not count. It has notes, and parts that `part_new` writes through its second argument.
-It has tickets, which are handles by value, and texts, which `text_fill` fills through a pointer and `text_join` gives back two at a time.
+It has tickets, which are handles by value, and texts, which `text_fill` fills through a `restrict` pointer and `text_join` gives back two at a time.
 `sheet_fill` writes a part into the field `part` of a sheet, and `part_lend` gives a part to a function of the code as its argument 2.
 `note_hand` calls a function of the code, and deletes the note that the function gives it.
 
