@@ -20,8 +20,8 @@ The words of a sentence of these cases are numbers, for example `1 2 3`, thus a 
 | a tag that is not in the list | `docs/a.md:3: the tag 'python' is not one of pseudo c cpp toml sh text mermaid`. | The tag `sh`. |
 | a tag that the project adds | `[check] tags` adds `python`, and `docs/a.md` holds a block `python`. `prose.py` writes `no fault in 1 files`. | `checks.toml` is empty. |
 | a title that is not the name | `readme.md:1: the title is not # sample`. | The title is `# sample`. |
-| the readme of a part with no section Usage | `docs/extern/a/readme.md:1: no section Usage`. | The readme has the section Usage. |
-| the title of the readme of a part | `docs/extern/a/readme.md:1: the title is not # A`, the name of the part. | The title `# A`. |
+| the readme of a part with no section Usage | `docs/usage/a.md:1: no section Usage`. | The readme has the section Usage. |
+| the title of the readme of a part | `docs/usage/a.md:1: the title is not # A`, the name of the part. | The title `# A`. |
 | a readme with no description | A section follows the title: `readme.md:1: no description after the title`. | A description follows the title. |
 | a description of 120 characters | `readme.md:3: 120 characters in the description, and 119 is the most`. | 119 characters. |
 | sections out of order | `readme.md:9: the section Install must come before Usage`. | Install comes before Usage. |

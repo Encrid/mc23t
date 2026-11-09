@@ -138,15 +138,15 @@ false = { files = { "{case}/project/docs/intern/mouse/window.c.md" = "# src/vide
 name = "a part with no readme"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
 files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" }
-claims = { status = 1, line = ["docs/extern/a/readme.md: the layout needs this file"] }
-false = { files = { "{case}/project/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+claims = { status = 1, line = ["docs/usage/a.md: the layout needs this file"] }
+false = { files = { "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
 
 [[case]]
-name = "the readme of a part needs no file"
+name = "a file of docs outside contributing, extern, intern and tools is allowed"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/project/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
-claims = { status = 1, lacks = ["no file has this document"] }
-false = { files = { "{case}/project/docs/extern/b/readme.md" = "# B\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n", "{case}/project/docs/notes/plan.md" = "# Plan\n", "{case}/project/docs/notes/map.svg" = "<svg/>\n" }
+claims = { status = 1, lacks = ["the layout does not allow this file", "no file has this document"] }
+false = { files = { "{case}/project/docs/contributing/plan.md" = "# Plan\n" } }
 [[case]]
 name = "an extra document in docs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]

@@ -436,7 +436,7 @@ def kept(config, parts):
 def viewed(config, part):
     table = part_table(config, part)
     return dict(kept(config, {part}), project={'name': table['name']}, package=table.get('package', {}),
-                third_party=table['third_party'], readme='docs/extern/%s/readme.md' % table['folder'])
+                third_party=table['third_party'], readme='docs/usage/%s.md' % table['folder'])
 
 
 def views(config, parts):

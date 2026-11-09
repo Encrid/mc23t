@@ -36,8 +36,8 @@ The project of the case `a full project` has these files, and the document of ea
 | a document without its file | `docs/intern/gone.c.md: no file has this document`. | The project has the source `gone.c` in `src`. |
 | a document in the wrong folder | A source has a document in `docs/extern`: `docs/extern/a.c.md: no file has this document`. | The source has no document in `docs/extern`. |
 | the documents of a part are in the folders of the part | The parts `video` and `mouse` each have `window.c`, with its document in the folder of the part. No line names `video` or `mouse`. | The document of the source of `mouse` starts with `# src/video/window.c`. |
-| a part with no readme | A project with the part `a` and no `docs/extern/a/readme.md`: `docs/extern/a/readme.md: the layout needs this file`. | The project has the readme. |
-| the readme of a part needs no file | The readme of the part `a` gives no `no file has this document`. | A readme in `docs/extern/b`, where no part is. |
+| a part with no readme | A project with the part `a` and no `docs/usage/a.md`: `docs/usage/a.md: the layout needs this file`. | The project has the readme. |
+| a file of docs outside contributing, extern, intern and tools is allowed | `docs/usage/a.md`, `docs/notes/plan.md` and `docs/notes/map.svg` give no `the layout does not allow this file`, and no `no file has this document`. | The project also has `docs/contributing/plan.md`, which the layout does not allow. |
 | an extra document in docs | `docs/contributing/notes.md: the layout does not allow this file`. | No `notes.md`. |
 | the first line of a document | The document of a source starts with `# a.c`: `the first line is not # src/a.c`. | The first line is `# src/a.c`. |
 | a name that is not in snake_case | `src/Notes.c: 'Notes.c' is not in snake_case`. | `notes.c` in place of `Notes.c`. |
