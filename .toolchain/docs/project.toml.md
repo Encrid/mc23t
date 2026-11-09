@@ -323,7 +323,7 @@ A project can have parts, for example a family of modules in one repository.
 Each part builds, tests, packs and releases alone, with `--part <part>`: `.toolchain/docs/project.py.md`, *Parts*.
 `[parts.<part>]` states the part `<part>`. The name `<part>` is in snake_case.
 Its key `folder` gives the folder of the part in `src`, `include`, `docs/extern`, `docs/intern`, `tests` and `tests/cases`.
-Each part has a readme, `docs/extern/<folder>/readme.md`, and the release of the part holds it.
+Each part has a readme, `docs/usage/<folder>.md`, and the release of the part holds it as `readme.md`.
 
 | Key | Value |
 | --- | --- |

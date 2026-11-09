@@ -20,6 +20,13 @@ claims = { status = 0 }
 false = { files = { "{case}/p/docs/extern/p.md" = "# p\n\n`the file is there`\n" } }
 
 [[case]]
+name = "a message that a document of docs/usage quotes"
+run = ["{python}", "{root}/.toolchain/tools/said.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[test]\nwriters = [\"say\"]\n", "{case}/p/src/p.c" = "say(\"the file %s is not there\\n\", path);\n", "{case}/out/{target}/scratch/said.txt" = "the file a.txt is not there\n", "{case}/p/docs/usage/p.md" = "# p\n\n`the file <path> is not there`\n" }
+claims = { status = 0 }
+false = { files = { "{case}/p/docs/usage/p.md" = "# p\n\n`the file is there`\n" } }
+
+[[case]]
 name = "a format in two strings"
 run = ["{python}", "{root}/.toolchain/tools/said.py", "--root", "{case}/p", "--out", "{case}/out"]
 files = { "{case}/p/.toolchain/project.toml" = "[test]\nwriters = [\"say\"]\n", "{case}/p/src/p.c" = "say(\"the file \" \"%s is gone\\n\", name(path));\n", "{case}/out/{target}/scratch/said.txt" = "the file a.txt is there\n", "{case}/p/readme.md" = "# p\n\n`the file <path> is gone`\n" }

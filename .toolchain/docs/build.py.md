@@ -227,7 +227,7 @@ The build makes each artifact in the scratch folder `out`. A built binary is not
 
 It also copies `license`, and `license` of each folder of `third_party`, at their paths from the root.
 The deliverable of a part holds only the licences of the folders of its `third_party`.
-The deliverable of a part also holds its readme, `docs/extern/<folder>/readme.md`, as `readme.md` at its top.
+The deliverable of a part also holds its readme, `docs/usage/<folder>.md`, as `readme.md` at its top.
 `composed` stops if such a folder has no licence: `third_party/<folder>/license is not there, and the deliverable needs it`.
 `composed` writes the path of each file of the deliverable.
 `.toolchain/docs/project.toml.md`, *[compose]*, tells the keys `from`, `headers`, `into` and `assets`.

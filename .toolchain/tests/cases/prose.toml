@@ -83,16 +83,16 @@ false = { files = { "{case}/readme.md" = "# sample\n\nA sample.\n\n## Install\n\
 [[case]]
 name = "the readme of a part with no section Usage"
 run = ["{python}", "{root}/.toolchain/tools/prose.py", "--root", "{case}"]
-files = { "{case}/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n" }
-claims = { status = 1, line = ["docs/extern/a/readme.md:1: no section Usage"] }
-false = { files = { "{case}/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+files = { "{case}/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n" }
+claims = { status = 1, line = ["docs/usage/a.md:1: no section Usage"] }
+false = { files = { "{case}/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
 
 [[case]]
 name = "the title of the readme of a part"
 run = ["{python}", "{root}/.toolchain/tools/prose.py", "--root", "{case}"]
-files = { "{case}/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/docs/extern/a/readme.md" = "# B\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
-claims = { status = 1, line = ["docs/extern/a/readme.md:1: the title is not # A"] }
-false = { files = { "{case}/docs/extern/a/readme.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+files = { "{case}/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/docs/usage/a.md" = "# B\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+claims = { status = 1, line = ["docs/usage/a.md:1: the title is not # A"] }
+false = { files = { "{case}/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
 [[case]]
 name = "a readme with no description"
 run = ["{python}", "{root}/.toolchain/tools/prose.py", "--root", "{case}"]
