@@ -11,7 +11,7 @@ The command `check` runs it.
 | `cla.yml` | On each pull request, and on each new comment of a pull request. | It runs `cla`, which asks the author to sign `cla.md`, and sets the status `cla`. |
 | `release.yml` | On each push of a tag `v*` or `*-v*`. | It makes the release of the project or of a part, as *The release* tells. |
 | `warm.yml` | On each push to `dev`. | On each target, it runs `fetch` and `build`, and saves the cache of zig: *The cache of zig*. |
-| `toolchain.yml` | Only in the repository `mc23t`: on each pull request. | On each target, it runs `fetch`, `test --toolchain` and `test --toolchain --break`. |
+| `toolchain.yml` | Only in the repository `mc23t`: on each pull request. | On each target of the toolchain, it runs `fetch --toolchain`, `test --toolchain` and `test --toolchain --break`. |
 
 No workflow runs on the push of a branch. A change reaches `dev` or `main` only through a pull request, and the pull request runs the workflows.
 The step `Runner` of `ci.yml` and of `release.yml` gives the runner what the cases need: `.toolchain/docs/runner.py.md`.
@@ -61,8 +61,12 @@ A workflow with no such line has no matrix, and `main` does not check it.
 
 For a workflow with a matrix, `main` writes these faults:
 
-- `<path>: the matrix does not build <target>`, for each target of `[targets]` that the matrix does not name.
-- `<path>: <name> is not a target of the toolchain`, for each name that `[targets]` does not have.
+- `<path>: the matrix does not build <target>`, for each target of the project that the matrix does not name.
+- `<path>: <name> is not a target of the project`, for each name that `[project] targets` does not have.
+
+The targets of the project are those of `[project] targets`: `.toolchain/docs/project.toml.md`, *[project]*.
+The matrix of `.github/workflows/toolchain.yml` must name each target of `.toolchain/toolchain.toml` instead, because it tests the toolchain on each target.
+Its fault for a name is then `<path>: <name> is not a target of the toolchain`.
 
 Thus a new target of `.toolchain/toolchain.toml` needs a line in each matrix.
 If it finds no fault, `main` writes `no fault in <number> workflows`.
@@ -71,5 +75,5 @@ If it finds no fault, `main` writes `no fault in <number> workflows`.
 
 | Function | Result |
 | --- | --- |
-| `faults(root, paths, targets)` | Gives the faults of the workflows `paths`, with the names of `targets`. |
+| `faults(root, paths, targets, every)` | Gives the faults of the workflows `paths`, with the targets of the project `targets`, and with each target of the toolchain `every` for `toolchain.yml`. |
 | `main()` | Runs the check. |

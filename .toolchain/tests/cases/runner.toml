@@ -2,18 +2,18 @@
 name = "a project with no needs gives no command"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
 claims = { status = 0, matches_not = ["."] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\"]\n" } }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[project]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n"
 [[case]]
 name = "the packages of each need in one install, then the commands of each need"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
 claims = { status = 0, order = ["sudo apt-get update", "sudo apt-get install -y alfa mike zulu", "second --ready", "alpha --ready"] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\"]\n" } }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"second\", \"alpha\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"second\", \"alpha\"]\n"
 [[case]]
 name = "the brews of each need in one install on macOS"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-macos"]
@@ -21,7 +21,7 @@ claims = { status = 0, line = ["brew install alfa zulu"], lacks = ["apt-get", "a
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"] }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\", \"second\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\", \"second\"]\n"
 [[case]]
 name = "an archive for x86_64 of Windows, with the values of the cpu and the folders of the member dropped"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"]
@@ -29,15 +29,15 @@ claims = { status = 0, order = ['beta="$(cygpath -u "$RUNNER_TEMP")/beta"', 'mkd
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"] }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\", \"beta\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\", \"beta\"]\n"
 [[case]]
 name = "an archive for arm64 of Windows takes the other row of values"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"]
 claims = { status = 0, line = ["curl -fsSL -o \"$beta/beta.7z\" https://example.test/beta-arm64.7z", "echo \"bbbb  $beta/beta.7z\" | sha256sum -c"] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\"]\n" } }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"beta\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
 [[case]]
 name = "an archive unpacks with plain tar on Linux"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"]
@@ -45,15 +45,15 @@ claims = { status = 0, order = ['gamma="$RUNNER_TEMP/gamma"', 'mkdir -p "$gamma"
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-macos"] }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"gamma\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"gamma\"]\n"
 [[case]]
 name = "a need that is not declared"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
 claims = { status = 1, has = ["[ci] needs: sound is not a need: alpha beta gamma second"] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\"]\n" } }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"sound\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"sound\"]\n"
 [[case]]
 name = "a placeholder with no text for the cpu of the target"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"]
@@ -61,7 +61,7 @@ claims = { status = 1, matches = ["no variable .part."] }
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"] }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/omit/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"beta\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
 [[case]]
 name = "the members of an archive drop different counts of folders"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"]
@@ -69,7 +69,7 @@ claims = { status = 1, has = ["the members of the archive into beta drop differe
 false = { folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] } }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/sloped/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"beta\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
 [[case]]
 name = "a target that runs on no machine"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "nowhere"]
@@ -77,4 +77,4 @@ claims = { status = 1, has = ["no machine runs the target nowhere"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"] }
 folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
 [case.files]
-"{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"alpha\"]\n"
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n"

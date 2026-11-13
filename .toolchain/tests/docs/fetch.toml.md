@@ -3,7 +3,7 @@
 The group `fetch` checks `.toolchain/tools/fetch.py`.
 Its cases run `fetch.py` or `build.py` on the project in `.toolchain/tests/data/fetch`, with the output in `{case}/out`.
 That project has one source, `sample`: the archive `sample.zip` and the patch `.toolchain/tests/data/fetch/third_party/sample/<patch>.patch`.
-The variable `patch` is `greeting`, and the variable `digest` is the digest of `sample.zip`.
+The variable `patch` is `greeting`, the variable `top` is `sample`, and the variable `digest` is the digest of `sample.zip`.
 
 The archive holds `sample/greeting.txt`. The patch `greeting` changes its line `hello` to `hello, patched`.
 The patch `wrong` has a line of context that the file does not have.
@@ -12,6 +12,7 @@ The patch `wrong` has a line of context that the file does not have.
 | --- | --- | --- |
 | a source, patched | `fetch` patches `greeting.txt`, and the file holds `hello, patched`. | `--set patch=wrong`. |
 | a patch that does not apply | With `--set patch=wrong`, `fetch` stops: `wrong.patch does not apply to greeting.txt`. | No `--set`. |
+| an archive with no folder of its top | With `--set top=missing`, `fetch` stops: `fetch.py: sample: the archive has no folder missing`. | No `--set`: the top `sample` is in the archive. |
 | a source that is not what its maker publishes | With a different digest, `fetch` stops: `sample.zip is not what the maker publishes`. | The digest of `sample.zip`. |
 | a source that is not fetched | `build` stops: `sample is not fetched as project.toml states: run fetch`. | `fetch` in place of `build`. |
 | a source that is fetched already | `fetched.txt` holds the stamp, thus `fetch` keeps `greeting.txt` as it is. | `fetched.txt` holds a different stamp. |

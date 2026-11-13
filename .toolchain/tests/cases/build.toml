@@ -91,9 +91,9 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "a file in a folder of config"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[variables]\nword = \"one\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/.toolchain/config/more/word.toml" = "[variables]\nword = \"two\"\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[variables]\nword = \"one\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/.toolchain/config/more/word.toml" = "[variables]\nword = \"two\"\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["config/more/word.toml states variables.word, and project.toml states it too"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a built-in variable in [variables]"
@@ -129,7 +129,7 @@ false = { run = ["{python}", "-c", "import sys, platform, subprocess, types; sys
 [[case]]
 name = "the SDK of macOS in [variables]"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[variables]\nmacos_sdk = \"here\"\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[variables]\nmacos_sdk = \"here\"\n" }
 claims = { status_not = 0, has = ["[variables] names a built-in variable or a key of a target: macos_sdk"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/copy", "--out", "{case}/out"] }
 [[case]]
@@ -289,51 +289,51 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "an artifact with no part, in a project with parts"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["note states no part, and the project has parts"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 
 [[case]]
 name = "the readme of a part in its deliverable"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n", "{case}/p/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n", "{case}/p/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
 claims = { status = 0, line = ["readme.md"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/q", "--out", "{case}/out"], files = { "{case}/q/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/q/note.txt" = "note\n" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/q", "--out", "{case}/out"], files = { "{case}/q/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/q/note.txt" = "note\n" } }
 [[case]]
 name = "a table of [compose] with no part, in a project with parts"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\nheaders = []\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\nheaders = []\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[compose.headers] states no part, and the project has parts"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\npart = \"a\"\nheaders = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\npart = \"a\"\nheaders = []\n" } }
 
 [[case]]
 name = "an artifact of a part that [parts] does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["note states the part a, and [parts] does not have it"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a part that states no uses"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[parts.a] states no uses"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a part that states no folder"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[parts.a] states no folder"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a key that a part does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nuse = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nuse = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[parts.a]: a part has no key use"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a pack of a part writes the zip of the part"
@@ -350,7 +350,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "a folder of third_party with no licence"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = [\"sample\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = [\"sample\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["third_party/sample/license is not there, and the deliverable needs it"] }
 false = { files = { "{case}/p/third_party/sample/license" = "The licence of sample.\n" } }
 
@@ -405,16 +405,16 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "parts that use each other"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = [\"a\"]\nthird_party = []\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = [\"a\"]\nthird_party = []\n" }
 claims = { status_not = 0, has = ["the uses of the parts make a cycle: "] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = []\nthird_party = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = []\nthird_party = []\n" } }
 
 [[case]]
 name = "a part that uses a part that [parts] does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"nowhere\"]\nthird_party = []\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"nowhere\"]\nthird_party = []\n" }
 claims = { status_not = 0, has = ["no part nowhere; the parts: a"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" } }
 
 [[case]]
 name = "the variable toolchain names the toolchain of the tools"

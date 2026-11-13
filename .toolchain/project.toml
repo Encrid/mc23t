@@ -1,5 +1,6 @@
 [project]
 name = ""
+targets = ["x86_64-windows-gnu", "x86_64-linux-gnu"]
 
 [test]
 timeout = 600

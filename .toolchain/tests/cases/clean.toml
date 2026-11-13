@@ -5,7 +5,7 @@ claims = { status = 0, line = ["build/third_party/s/fetched.txt", ".toolchain/pr
 false = { run = ["{python}", "-c", "import os, subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2]] + sys.argv[3:]); print('\\n'.join(sorted(os.path.relpath(os.path.join(d, f), sys.argv[2]).replace(os.sep, '/') for d, _, fs in os.walk(sys.argv[2]) for f in fs)))", "{root}/.toolchain/tools/clean.py", "{case}/p", "--all"] }
 
 [case.files]
-"{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/third_party/s\"\n"
+"{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/third_party/s\"\n"
 "{case}/p/build/x/a.txt" = "a"
 "{case}/p/build/p-x.zip" = "z"
 "{case}/p/build/third_party/s/fetched.txt" = "0"
@@ -17,20 +17,20 @@ claims = { status = 0, line = [".toolchain/project.toml"], lacks = ["build/x/a.t
 false = { run = ["{python}", "-c", "import os, subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2]] + sys.argv[3:]); print('\\n'.join(sorted(os.path.relpath(os.path.join(d, f), sys.argv[2]).replace(os.sep, '/') for d, _, fs in os.walk(sys.argv[2]) for f in fs)))", "{root}/.toolchain/tools/clean.py", "{case}/p"] }
 
 [case.files]
-"{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/third_party/s\"\n"
+"{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/third_party/s\"\n"
 "{case}/p/build/x/a.txt" = "a"
 "{case}/p/build/third_party/s/fetched.txt" = "0"
 
 [[case]]
 name = "nothing to clean"
 run = ["{python}", "{root}/.toolchain/tools/clean.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 0, has = ["nothing to clean"] }
 false = { files = { "{case}/p/build/a.txt" = "a" } }
 
 [[case]]
 name = "clean removes a read-only file"
 run = ["{python}", "-c", "import os, stat, subprocess, sys; p = sys.argv[2]; f = os.path.join(p, 'build', 'x', 'ro.txt'); os.makedirs(os.path.dirname(f), exist_ok=True); open(f, 'w').close(); os.chmod(f, stat.S_IREAD); subprocess.run([sys.executable, sys.argv[1], '--root', p]); print('gone' if not os.path.exists(f) else 'there'); os.path.exists(f) and os.chmod(f, stat.S_IWRITE)", "{root}/.toolchain/tools/clean.py", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 0, line = ["gone"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/x\"\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[source]]\nname = \"s\"\nurl = \"s.zip\"\nsha256 = \"0\"\ninto = \"build/x\"\n" } }

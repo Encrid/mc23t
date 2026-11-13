@@ -1,5 +1,6 @@
 [project]
 name = "parted"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
 
 [parts.alpha]
 name = "Parted-Alpha"
