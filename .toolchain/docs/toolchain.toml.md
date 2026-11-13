@@ -40,7 +40,7 @@ A host cross-builds each target that is not itself. The cases of such a target c
 | Key | Value |
 | --- | --- |
 | `runs_on` | The system and the processor that Python gives for a machine of the target. An empty list means: build only. |
-| `built_on` | The host that builds and packs the target: `x86_64-windows-gnu` or `x86_64-linux-gnu`. A host builds itself. |
+| `built_on` | The host that builds and packs the target: `x86_64-windows-gnu` or `x86_64-linux-gnu`. A host builds itself. A row with no `built_on`, such as a target that a project adds, builds on itself. |
 | `system` | The family of the system: `posix` or `windows`. It is also the variable `{system}`. |
 | `triple` | The target for zig, with the range of the versions of the system. |
 | `cpu` | The model of the processor. |
