@@ -74,7 +74,10 @@ jobs:
           python project.py ${{ matrix.gate.run }} $(python .toolchain/tools/scope.py --changed "$RUNNER_TEMP/changed.txt" --into "$INTO")
       - name: Pack
         if: matrix.gate.name == 'test'
-        run: python project.py pack --target ${{ matrix.platform.target }}
+        run: |
+          for target in $(python .toolchain/tools/hosts.py --host ${{ matrix.platform.target }}); do
+            python project.py pack --target "$target"
+          done
   check:
     needs: gate
     if: always()

@@ -80,6 +80,14 @@ def picked(whole):
     return {name: row for name, row in whole['targets'].items() if name in names}
 
 
+def hosts(config):
+    return sorted({row['built_on'] for row in config['targets'].values()})
+
+
+def built_by(config, host):
+    return [name for name, row in config['targets'].items() if row['built_on'] == host]
+
+
 def held(path, folder):
     return path == folder or path.startswith(folder + '/')
 

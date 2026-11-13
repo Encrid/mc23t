@@ -1,0 +1,13 @@
+[project]
+name = "hosted"
+targets = ["x86_64-windows-gnu", "aarch64-windows-gnu", "x86_64-linux-gnu", "aarch64-linux-gnu"]
+
+[variables]
+place = "{target}"
+
+[[source]]
+name = "sample"
+url = "../sample.zip"
+sha256 = "75567b2a051f774b98ae9465066ee4c6c574ebdbc1337c8aa584b85b977190d2"
+into = "{build}/third_party/sample/{place}"
+top = "sample"
