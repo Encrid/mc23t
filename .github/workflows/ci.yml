@@ -71,11 +71,13 @@ jobs:
           INTO: ${{ github.base_ref }}
         run: |
           git diff --name-only "$BASE...$HEAD" > "$RUNNER_TEMP/changed.txt"
-          python project.py ${{ matrix.gate.run }} $(python .toolchain/tools/scope.py --changed "$RUNNER_TEMP/changed.txt" --into "$INTO")
+          parts=$(python .toolchain/tools/scope.py --changed "$RUNNER_TEMP/changed.txt" --into "$INTO")
+          python project.py ${{ matrix.gate.run }} $parts
       - name: Pack
         if: matrix.gate.name == 'test'
         run: |
-          for target in $(python .toolchain/tools/hosts.py --host ${{ matrix.platform.target }}); do
+          targets=$(python .toolchain/tools/hosts.py --host ${{ matrix.platform.target }})
+          for target in $targets; do
             python project.py pack --target "$target"
           done
   check:

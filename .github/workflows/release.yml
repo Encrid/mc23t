@@ -61,7 +61,8 @@ jobs:
         run: python project.py fetch
       - name: Pack
         run: |
-          for target in $(python .toolchain/tools/hosts.py --host ${{ matrix.target }}); do
+          targets=$(python .toolchain/tools/hosts.py --host ${{ matrix.target }})
+          for target in $targets; do
             python project.py pack --target "$target" --tag "$TAG"
           done
       - name: Upload

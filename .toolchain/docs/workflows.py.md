@@ -23,6 +23,7 @@ Each such job prepares its runner with `runner.py`, then runs `fetch` and its ga
 
 The gate runs only for the parts that the pull request changes, and for the parts that use them: `.toolchain/docs/scope.py.md`. A pull request into `main` runs it for the whole project.
 `git diff --name-only` of the base and the head of the pull request gives the changed paths. `check` and `pack` always run for the whole project.
+Each step keeps the output of `scope.py` or of `hosts.py` in a variable first. Thus a fault of the tool stops the step, and the step does not run with no parts or with no targets.
 
 The variable `PYTHONUNBUFFERED` makes the runner write each line at once. Thus a job that stops at its limit still shows its last case.
 
