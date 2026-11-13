@@ -18,3 +18,10 @@ run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--
 files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status_not = 0, has = ["aarch64-macos is not a host of the project"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-linux-gnu"] }
+
+[[case]]
+name = "a target that a project adds with no built_on is its own host"
+run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "riscv64-linux-gnu"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"riscv64-linux-gnu\"]\n\n[targets.riscv64-linux-gnu]\nruns_on = [\"Linux\", \"riscv64\"]\n" }
+claims = { status = 0, line = ["riscv64-linux-gnu"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-linux-gnu"] }

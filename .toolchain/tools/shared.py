@@ -81,11 +81,11 @@ def picked(whole):
 
 
 def hosts(config):
-    return sorted({row['built_on'] for row in config['targets'].values()})
+    return sorted({row.get('built_on', name) for name, row in config['targets'].items()})
 
 
 def built_by(config, host):
-    return [name for name, row in config['targets'].items() if row['built_on'] == host]
+    return [name for name, row in config['targets'].items() if row.get('built_on', name) == host]
 
 
 def held(path, folder):
