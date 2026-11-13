@@ -1,0 +1,12 @@
+[[case]]
+name = "core"
+run = ["{out}/core{exe}"]
+claims = { status = 0, line = ["core 1", "core 10", "sign -1 1"] }
+false = { run = ["{out}/app{exe}"] }
+
+[[case]]
+name = "core without memory"
+run = ["{out}/core{exe}"]
+fail = { malloc = 1 }
+claims = { status = 0, line = ["core -1", "core 10"] }
+false = { run = ["{out}/core{exe}"] }
