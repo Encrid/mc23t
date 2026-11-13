@@ -7,7 +7,7 @@ The command `check` runs it.
 
 | Workflow | When it runs | What it does |
 | --- | --- | --- |
-| `ci.yml` | On each pull request. | On each target, it prepares the runner with `runner.py`, then runs `fetch`, the five commands and `pack`. `docs/contributing/pull_request.md`, *Before you open a pull request*, gives the five commands. |
+| `ci.yml` | On each pull request. | On each target, it runs the five commands and `pack`, as *The jobs of ci.yml* tells. `docs/contributing/pull_request.md`, *Before you open a pull request*, gives the five commands. |
 | `cla.yml` | On each pull request, and on each new comment of a pull request. | It runs `cla`, which asks the author to sign `cla.md`, and sets the status `cla`. |
 | `release.yml` | On each push of a tag `v*` or `*-v*`. | It makes the release of the project or of a part, as *The release* tells. |
 | `warm.yml` | On each push to `dev`. | On each target, it runs `fetch` and `build`, and saves the cache of zig: *The cache of zig*. |
@@ -15,6 +15,15 @@ The command `check` runs it.
 
 No workflow runs on the push of a branch. A change reaches `dev` or `main` only through a pull request, and the pull request runs the workflows.
 The step `Runner` of `ci.yml` and of `release.yml` gives the runner what the cases need: `.toolchain/docs/runner.py.md`.
+
+## The jobs of ci.yml
+
+The job `gate` has a job for each target and each gate: `test`, `test --break`, `test --branches` and `test --leaks`. Thus a job runs 1 gate, and stays far under its limit of 60 minutes.
+Each such job prepares its runner with `runner.py`, then runs `fetch` and its gate. The job of `test` also runs `check` before its gate, and `pack` after it.
+The variable `PYTHONUNBUFFERED` makes the runner write each line at once. Thus a job that stops at its limit still shows its last case.
+
+The job `check` has a job for each target, with the name `check (<target>, <runner>, <architecture>)`. The rules of the branches `dev` and `main` ask for these 6 names.
+Each such job waits for all the jobs of `gate`, and passes only if each of them passed.
 
 ## The cache of zig
 
