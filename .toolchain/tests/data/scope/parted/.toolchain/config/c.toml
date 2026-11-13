@@ -1,0 +1,5 @@
+[parts.c]
+name = "Parted-C"
+folder = "c"
+uses = []
+third_party = []
