@@ -1,0 +1,18 @@
+[[case]]
+name = "app one"
+run = ["{out}/app{exe}"]
+claims = { status = 0, line = ["app one", "pick 1"] }
+false = { run = ["{out}/app{exe}", "many"] }
+
+[[case]]
+name = "app many"
+run = ["{out}/app{exe}", "many"]
+claims = { status = 0, line = ["app many"] }
+false = { run = ["{out}/app{exe}"] }
+
+[[case]]
+name = "app without memory"
+run = ["{out}/app{exe}"]
+fail = { malloc = 1 }
+claims = { status = 0, line = ["pick -1"] }
+false = { run = ["{out}/app{exe}"] }
