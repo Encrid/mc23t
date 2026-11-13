@@ -78,28 +78,28 @@ false = { files = { "{case}/p/docs/b.md" = "# b\n\nOne two three four five six s
 [[case]]
 name = "a passage that an exception excuses"
 run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
 claims = { status = 0, line = ["no fault in 2 documents"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/.toolchain/config/checks.toml" = "", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" } }
 
 [[case]]
 name = "a passage of an exception and a third document"
 run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n", "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven eight.\n" }
 claims = { status = 1, has = ["docs/a.md:3, docs/b.md:3, docs/c.md:3: one two three four five six seven eight"] }
 false = { files = { "{case}/p/docs/c.md" = "# c\n\nOne two three four five six seven nine.\n" } }
 
 [[case]]
 name = "an exception that excuses nothing"
 run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven nine.\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven nine.\n" }
 claims = { status = 1, has = ["the exception for 'docs/a.md, docs/b.md' excuses nothing"] }
 false = { files = { "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" } }
 
 [[case]]
 name = "an exception that states no reason"
 run = ["{python}", "{root}/.toolchain/tools/dup.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\n", "{case}/p/docs/a.md" = "# a\n\nOne two three four five six seven eight.\n", "{case}/p/docs/b.md" = "# b\n\nOne two three four five six seven eight.\n" }
 claims = { status = 1, has = ["the exception for 'docs/a.md, docs/b.md' states no reason"] }
 false = { files = { "{case}/p/.toolchain/config/checks.toml" = "[[dup.exception]]\npaths = [\"docs/a.md\", \"docs/b.md\"]\nwhy = \"A reason.\"\n" } }
 

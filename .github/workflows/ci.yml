@@ -20,21 +20,9 @@ jobs:
           - target: x86_64-linux-gnu
             runner: ubuntu-latest
             architecture: x64
-          - target: aarch64-linux-gnu
-            runner: ubuntu-24.04-arm
-            architecture: arm64
-          - target: aarch64-macos
-            runner: macos-latest
-            architecture: arm64
-          - target: x86_64-macos
-            runner: macos-15-intel
-            architecture: x64
           - target: x86_64-windows-gnu
             runner: windows-latest
             architecture: x64
-          - target: aarch64-windows-gnu
-            runner: windows-11-arm
-            architecture: arm64
         gate:
           - name: test
             run: test
@@ -90,21 +78,9 @@ jobs:
           - target: x86_64-linux-gnu
             runner: ubuntu-latest
             architecture: x64
-          - target: aarch64-linux-gnu
-            runner: ubuntu-24.04-arm
-            architecture: arm64
-          - target: aarch64-macos
-            runner: macos-latest
-            architecture: arm64
-          - target: x86_64-macos
-            runner: macos-15-intel
-            architecture: x64
           - target: x86_64-windows-gnu
             runner: windows-latest
             architecture: x64
-          - target: aarch64-windows-gnu
-            runner: windows-11-arm
-            architecture: arm64
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

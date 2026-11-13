@@ -53,7 +53,7 @@ jobs:
           path: build/zig-cache/global
           key: zig-${{ hashFiles('.toolchain/toolchain.toml') }}-${{ matrix.target }}
       - name: Fetch
-        run: python project.py fetch
+        run: python project.py fetch --toolchain
       - name: Toolchain
         run: python project.py test --toolchain
       - name: Break

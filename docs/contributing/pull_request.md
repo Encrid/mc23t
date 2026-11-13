@@ -48,7 +48,7 @@ The workflow `release` then makes the release. `.toolchain/docs/workflows.py.md`
 6. Read the full change, and remove each part that the change does not need.
 7. Make sure that the documents describe the change, and that a case checks each new behavior.
 
-The workflow `ci` runs the five commands again on a machine of each target of `.toolchain/toolchain.toml`.
+The workflow `ci` runs the five commands again on a machine of each target of the project: `[project] targets` of `.toolchain/project.toml`.
 Then it runs `python project.py pack`, which refuses a package that holds a path of the machine that built it.
 
 ## One purpose

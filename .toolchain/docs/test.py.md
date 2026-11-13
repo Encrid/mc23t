@@ -41,6 +41,7 @@ With `--leaks`, `main` runs `tallied`, and nothing else. With `--branches`, it r
 Else `main` does these steps:
 
 1. It builds with `build`, which stops if the target does not run on this machine. With `--toolchain`, it only calls `prepared` of `build.py`, and builds nothing.
+   With `--toolchain`, the configuration has each target of `.toolchain/toolchain.toml`, so a test of the toolchain runs on each target.
 2. It stops if an artifact is not linked: `the cases need what is linked: <names>`.
 3. It reads the groups of `[test] cases` (the default is `tests/cases`). With `--toolchain`, it reads `.toolchain/tests/cases` of the repository `mc23t`.
 4. If there is no case, it writes `no case: <folder> holds no case`, and ends.

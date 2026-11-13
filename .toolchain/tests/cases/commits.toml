@@ -43,7 +43,7 @@ false = { run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "
 [[case]]
 name = "a folder with no repository"
 run = ["{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/plain"]
-files = { "{case}/plain/.toolchain/project.toml" = "" }
+files = { "{case}/plain/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 0, line = ["no fault in 0 commits"] }
 false = { run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "{case}/repo", "fix: correct the sum", "--", "{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/repo"] }
 
