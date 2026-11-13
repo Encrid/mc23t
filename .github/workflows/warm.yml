@@ -43,4 +43,7 @@ jobs:
       - name: Fetch
         run: python project.py fetch
       - name: Build
-        run: python project.py build --target ${{ matrix.target }}
+        run: |
+          for target in $(python .toolchain/tools/hosts.py --host ${{ matrix.target }}); do
+            python project.py build --target "$target"
+          done

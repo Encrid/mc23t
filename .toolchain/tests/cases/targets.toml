@@ -30,7 +30,7 @@ false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\
 name = "a matrix with a target outside the list of the project"
 run = ["{python}", "{root}/.toolchain/tools/workflows.py", "--root", "{case}/p"]
 files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-windows-gnu\", \"x86_64-linux-gnu\"]\n", "{case}/p/.github/workflows/ci.yml" = "jobs:\n  check:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: x86_64-windows-gnu\n          - target: aarch64-macos\n" }
-claims = { status = 1, line = [".github/workflows/ci.yml: aarch64-macos is not a target of the project"] }
+claims = { status = 1, line = [".github/workflows/ci.yml: aarch64-macos is not a host of the project"] }
 false = { files = { "{case}/p/.github/workflows/ci.yml" = "jobs:\n  check:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: x86_64-windows-gnu\n" } }
 
 [[case]]

@@ -1,0 +1,20 @@
+[[case]]
+name = "a host builds itself and each target that names it"
+run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-linux-gnu"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
+claims = { status = 0, order = ["x86_64-linux-gnu", "aarch64-macos", "aarch64-linux-gnu", "x86_64-macos"], lacks = ["windows"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-windows-gnu"] }
+
+[[case]]
+name = "a host of a project with the 2 x64 targets builds only itself"
+run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-windows-gnu"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-windows-gnu\", \"x86_64-linux-gnu\"]\n" }
+claims = { status = 0, line = ["x86_64-windows-gnu"], lacks = ["aarch64"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" } }
+
+[[case]]
+name = "a name that is not a host stops the tool"
+run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "aarch64-macos"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
+claims = { status_not = 0, has = ["aarch64-macos is not a host of the project"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/hosts.py", "--root", "{case}/p", "--host", "x86_64-linux-gnu"] }

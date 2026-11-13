@@ -60,7 +60,10 @@ jobs:
       - name: Fetch
         run: python project.py fetch
       - name: Pack
-        run: python project.py pack --target ${{ matrix.target }} --tag "$TAG"
+        run: |
+          for target in $(python .toolchain/tools/hosts.py --host ${{ matrix.target }}); do
+            python project.py pack --target "$target" --tag "$TAG"
+          done
       - name: Upload
         env:
           GH_TOKEN: ${{ github.token }}
