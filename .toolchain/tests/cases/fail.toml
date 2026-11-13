@@ -159,3 +159,27 @@ name = "a listed call through a pointer variable with no number calls its functi
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole"]
 claims = { status = 0, line = ["whole: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole", "--break"] }
+
+[[case]]
+name = "a full run refuses a call only in the programs of the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "a run of a part gives what a full run gives"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--part", "alpha"]
+claims = { status = 0, line = ["other part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--part", "alpha", "--break"] }
+
+[[case]]
+name = "the run of branches refuses a call only in the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "own", "--branches"] }
+
+[[case]]
+name = "the run of leaks refuses a call only in the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--leaks"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "own", "--leaks"] }
