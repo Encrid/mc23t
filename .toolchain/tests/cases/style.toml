@@ -6,6 +6,7 @@ claims = { status = 1, has = ["src/a.c:1: G1 the file does not start with the le
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 "{case}/p/src/a.c" = ""
 
@@ -26,6 +27,7 @@ claims = { status = 0, has = ["no fault in 0 files"] }
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 "{case}/p/third_party/thing/generated.h" = "int x;"
 
@@ -40,6 +42,7 @@ claims = { status = 0, line = ["no fault in 1 files"] }
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 "{case}/p/src/a.c" = '''
 /*
@@ -64,6 +67,7 @@ claims = { status = 0, line = ["no fault in 1 files"] }
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 
 [[style.exception]]
 rule = "G1"
@@ -75,6 +79,7 @@ why = "The case needs a file with no legal notice."
 [case.false.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 
 [[case]]
@@ -85,6 +90,7 @@ claims = { status = 0, line = ["no fault in 1 files"] }
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 
 [[style.exception]]
 rule = "F4"
@@ -126,6 +132,7 @@ static int long_one(void)
 [case.false.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 
 [[style.exception]]
 rule = "F4"
@@ -141,6 +148,7 @@ claims = { status = 1, has = [".toolchain/project.toml:1: F4 the exception for '
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 
 [[style.exception]]
 rule = "F4"
@@ -196,6 +204,7 @@ claims = { status = 0, line = ["no fault in 0 files"] }
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 "{case}/p/tests/a.c" = ""
 
@@ -210,6 +219,7 @@ claims = { status = 1, has = [".toolchain/project.toml:1: G1 the exception for '
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 
 [[style.exception]]
 rule = "G1"
@@ -235,6 +245,7 @@ claims = { status = 1, line = ["src/a.c:16: L3 no space on both sides of '?'", "
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
 [project]
+targets = ["x86_64-linux-gnu"]
 '''
 "{case}/p/src/a.c" = '''
 /*

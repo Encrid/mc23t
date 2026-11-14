@@ -64,7 +64,7 @@ They also stop if a list variable is a part of a text, and has no separator.
 | Key | Value |
 | --- | --- |
 | `name` | The name of the project. The title of `readme.md`, `package.txt` and the zip of `pack` take it. |
-| `targets` | The targets of the project: a list of names of `[targets]` of `.toolchain/toolchain.toml`, for example `["x86_64-windows-gnu", "x86_64-linux-gnu"]`. |
+| `targets` | The targets of the project: a list of names of `[targets]` of `.toolchain/toolchain.toml`, for example `["x86_64-windows-gnu", "x86_64-linux-gnu"]`. A target that the project adds is named in the list too. |
 
 If `name` is empty, the tools that need it stop: `.toolchain/project.toml: write the name of the project in [project] name`.
 
