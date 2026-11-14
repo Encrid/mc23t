@@ -27,25 +27,39 @@ claims = { status = 0, line = ["--group b/b"] }
 false = { files = { "{case}/changed.txt" = "tests/cases/all.toml\n" } }
 
 [[case]]
+name = "a group of the whole does not run for a changed source"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/b/y.c\n" }
+claims = { status = 0, line = ["--group b/b --group b/more"] }
+false = { files = { "{case}/changed.txt" = ".toolchain/tools/build.py\n" } }
+
+[[case]]
 name = "a group names the code that it tests"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/grouped", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = "src/store/a.c\ntests/store/main.c\n" }
 claims = { status = 0, line = ["--group store"] }
-false = { files = { "{case}/changed.txt" = "src/other/a.c\n" } }
+false = { files = { "{case}/changed.txt" = "tests/cases/whole.toml\n" } }
 
 [[case]]
-name = "a file of the code that no group claims names the groups of the whole"
-run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/grouped", "--changed", "{case}/changed.txt", "--into", "dev"]
-files = { "{case}/changed.txt" = "src/other/a.c\n" }
-claims = { status = 0, line = ["--group whole"] }
-false = { files = { "{case}/changed.txt" = "src/store/a.c\n" } }
+name = "a project of one piece names each group for a changed source"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/x.c\n.toolchain/config/a.toml\n" }
+claims = { status = 0, line = ["--group one --group two"] }
+false = { files = { "{case}/changed.txt" = "readme.md\n" } }
 
 [[case]]
 name = "a file of the toolchain names the groups of the whole"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
-files = { "{case}/changed.txt" = ".toolchain/tools/build.py\n.toolchain/config/checks.toml\n" }
+files = { "{case}/changed.txt" = ".toolchain/tools/build.py\n.toolchain/toolchain.toml\n" }
 claims = { status = 0, line = ["--group all"] }
 false = { files = { "{case}/changed.txt" = ".toolchain/docs/build.py.md\n" } }
+
+[[case]]
+name = "a file of the toolchain names no group in a project with no group of the whole"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/tools/build.py\nproject.py\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { files = { "{case}/changed.txt" = "src/x.c\n" } }
 
 [[case]]
 name = "a document and a workflow name no group"
@@ -62,6 +76,13 @@ claims = { status = 0, line = ["--group all"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }
 
 [[case]]
+name = "a pull request into main names no group in a project with no group of the whole"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "main"]
+files = { "{case}/changed.txt" = "src/x.c\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
 name = "a project with no case group names nothing"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/plain", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = "src/b/y.c\n" }
@@ -76,18 +97,11 @@ claims = { status = 0, matches_not = ["."] }
 false = { files = { "{case}/changed.txt" = "src/b/y.c\n" } }
 
 [[case]]
-name = "a file that no group tests, in a project with no group of the whole"
+name = "a source that no group tests stops the tool"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/owned", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = "src/y/a.c\n" }
 claims = { status = 1, line = ["scope.py: src/y/a.c: no case group tests this file"] }
 false = { files = { "{case}/changed.txt" = "src/x/a.c\n" } }
-
-[[case]]
-name = "a pull request into main of a project with no group of the whole"
-run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/owned", "--changed", "{case}/changed.txt", "--into", "main"]
-files = { "{case}/changed.txt" = "src/x/a.c\n" }
-claims = { status = 1, line = ["scope.py: no case group tests the project as a whole"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/grouped", "--changed", "{case}/changed.txt", "--into", "main"] }
 
 [[case]]
 name = "a code that is no list of patterns"
@@ -95,6 +109,13 @@ run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolch
 files = { "{case}/changed.txt" = "src/x/a.c\n" }
 claims = { status = 1, line = ["scope.py: tests/cases/x.toml: code is a list of patterns"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/owned", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a whole that is not true or false"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/miswhole", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/x/a.c\n" }
+claims = { status = 1, line = ["scope.py: tests/cases/x.toml: whole is true or false"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"] }
 
 [[case]]
 name = "a list that is not there stops the tool"

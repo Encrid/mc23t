@@ -1,3 +1,5 @@
+whole = true
+
 [[case]]
 name = "one"
 run = ["{python}", "-c", "pass"]

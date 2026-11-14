@@ -9,7 +9,8 @@ from shared import arguments, config, die, part_of
 
 TOPS = ('src/', 'include/', 'tests/')
 CONFIG = '.toolchain/config/'
-BUILT = ('src/', 'include/', 'tests/', 'tools/', CONFIG, '.toolchain/tools/', '.toolchain/runtime/')
+CODE = TOPS + ('tools/',)
+BUILT = (CONFIG, '.toolchain/tools/', '.toolchain/runtime/')
 FILES = ('.toolchain/toolchain.toml', '.toolchain/project.toml', '.toolchain/graph.zig', 'project.py')
 
 
@@ -33,51 +34,46 @@ def groups(settings, root):
     found = []
     for path in sorted(folder.rglob('*.toml')):
         table = tomllib.loads(path.read_text(encoding='utf-8'))
-        file, code = path.relative_to(root).as_posix(), table.get('code')
+        file, code, whole = path.relative_to(root).as_posix(), table.get('code'), table.get('whole', False)
         if code is not None and not (isinstance(code, list) and all(isinstance(item, str) for item in code)):
             die('%s: code is a list of patterns' % file)
+        if not isinstance(whole, bool):
+            die('%s: whole is true or false' % file)
         if table.get('case'):
             name = path.relative_to(folder).with_suffix('').as_posix()
-            found.append((name, file, code, part_of(settings, name)))
+            found.append({'name': name, 'file': file, 'code': code, 'whole': whole, 'part': part_of(settings, name)})
     return found
 
 
-def whole(group):
-    return group[2] is None and group[3] is None
-
-
-def tests(settings, root, group, path):
-    _, file, code, part = group
-    if path == file:
-        return True
-    if code is not None:
-        return any(fnmatch.fnmatch(path, pattern) for pattern in code)
-    return part is not None and owner(settings, root, path) == part
+def tests(settings, root, found, group, path):
+    if path in [other['file'] for other in found]:
+        return path == group['file']
+    if group['code'] is not None:
+        return any(fnmatch.fnmatch(path, pattern) for pattern in group['code'])
+    if group['whole']:
+        return False
+    built = path.startswith(CODE + (CONFIG,)) or path == '.toolchain/project.toml'
+    return built and owner(settings, root, path) == group['part']
 
 
 def claimed(settings, root, names):
     found = groups(settings, root)
-    named = [group for group in found if group[0] in names]
-
-    def measured(path):
-        if any(tests(settings, root, group, path) for group in named):
-            return True
-        return any(whole(group) for group in named) and not any(tests(settings, root, group, path) for group in found)
-    return measured
+    named = [group for group in found if group['name'] in names]
+    return lambda path: any(tests(settings, root, found, group, path) for group in named)
 
 
 def scoped(settings, root, paths, into):
     found = groups(settings, root)
-    wholes = [group[0] for group in found if whole(group)]
-    if not found:
-        return []
-    if into == 'main':
-        return wholes or die('no case group tests the project as a whole')
+    wholes = [group['name'] for group in found if group['whole']]
+    if not found or into == 'main':
+        return wholes
     picked = set()
     for path in paths:
-        mine = [group[0] for group in found if tests(settings, root, group, path)]
+        mine = [group['name'] for group in found if tests(settings, root, found, group, path)]
+        if not mine and path.startswith(CODE):
+            die('%s: no case group tests this file' % path)
         if not mine and (path.startswith(BUILT) or path in FILES):
-            mine = wholes or die('%s: no case group tests this file' % path)
+            mine = wholes
         picked.update(mine)
     return sorted(picked)
 

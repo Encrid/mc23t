@@ -40,7 +40,8 @@ For example, the name of the group `tests/cases/<folder>/<name>.toml` is `<folde
 If `tests/cases` holds no case, `test` writes `no case: tests/cases holds no case`.
 In a project with parts, the groups of a part are in `tests/cases/<folder>`, with the folder of the part: `.toolchain/docs/project.toml.md`, *[parts]*.
 
-A group states the code that it tests with the key `code`, a list of patterns at the top of its file. A group with no `code` and in no part tests the project as a whole.
+A group states the code that it tests with the key `code`, a list of patterns at the top of its file. A group with no `code` tests the code of its part, or of its project if the project has no part.
+A group that tests the project as a whole states `whole = true`, and runs when `dev` goes into `main`.
 A change runs only the groups that test a changed file: `.toolchain/docs/scope.py.md`.
 
 ## The keys of a case
