@@ -475,7 +475,7 @@ For example:
 
 ```toml
 [[branches.exception]]
-path = "src/backends/wasm/wasm_own.c"
+path = "src/own.c"
 line = 23
 col = 9
 side = "true"
@@ -516,7 +516,7 @@ takes = { wasmtime_module_new = "*4" }
 gives = { wasmtime_module_delete = "1" }
 ```
 
-A project that uses a package can name the file of the package: `with = ["{bridge_os}/leaks.toml"]`.
+A project that uses a package can name the file of the package: `with = ["{package}/leaks.toml"]`.
 `.toolchain/docs/leaks.py.md` tells what a function of a pair must give and get. `.toolchain/docs/leaks.py.md`, *The places*, tells the places of a kind.
 
 ## [[leaks.exception]]
@@ -555,7 +555,7 @@ For example, a project names two functions of a different project, and the file 
 
 ```toml
 [fail]
-with = ["{bridge_os}/fail.toml"]
+with = ["{package}/fail.toml"]
 
 [fail.calls]
 os_commit = "-1"
