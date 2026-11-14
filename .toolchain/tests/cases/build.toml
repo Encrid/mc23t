@@ -535,3 +535,44 @@ run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", 
 folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
 claims = { status = 0, line = ["one.a"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", "--out", "{case}/out", "--pack", "--target", "x86_64-windows-gnu", "--debug"] }
+
+[[case]]
+name = "a library with a path gets its macro in any folder"
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; [print(line.replace('{', '<').replace('}', '>')) for line in build.path_defines(shared.config(Path(sys.argv[2])))]", "{root}/.toolchain/tools", "{case}/p"]
+claims = { status = 0, line = ['FAR_LIB_PATH="<out>/side/far-lib<library>"', 'BARE_PATH="<out>/bare<library>"'] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+name = "pathed"
+
+[[artifact]]
+name = "far-lib"
+kind = "library"
+folder = "side"
+sources = ["src/far.c"]
+path = true
+
+[[artifact]]
+name = "bare"
+kind = "library"
+sources = ["src/far.c"]
+path = true
+'''
+
+[case.false.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+name = "pathed"
+
+[[artifact]]
+name = "far-lib"
+kind = "library"
+folder = "side"
+sources = ["src/far.c"]
+
+[[artifact]]
+name = "bare"
+kind = "library"
+sources = ["src/far.c"]
+'''
