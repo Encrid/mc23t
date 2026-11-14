@@ -21,9 +21,11 @@ The step `Runner` of `ci.yml` and of `release.yml` gives the runner what the cas
 The job `gate` has a job for each target and each gate: `test`, `test --break`, `test --branches` and `test --leaks`. Thus a job runs 1 gate, and stays far under its limit of 60 minutes.
 Each such job prepares its runner with `runner.py`, then runs `fetch` and its gate. The job of `test` also runs `check` before its gate, and `pack` after it.
 
-The gate runs only for the parts that the pull request changes, and for the parts that use them: `.toolchain/docs/scope.py.md`. A pull request into `main` runs it for the whole project.
+The gate runs only for the groups that `scope.py` gives for the pull request: `.toolchain/docs/scope.py.md`. A pull request into `main` runs it for the groups of the whole project.
+If no group tests the change, the step writes `no case group tests this change`, and runs no case.
+
 `git diff --name-only` of the base and the head of the pull request gives the changed paths. `check` and `pack` always run for the whole project.
-The step keeps the output of `scope.py` in a variable first. Thus a fault of the tool stops the step, and the step does not run with no parts.
+The step keeps the output of `scope.py` in a variable first. Thus a fault of the tool stops the step.
 
 The variable `PYTHONUNBUFFERED` makes the runner write each line at once. Thus a job that stops at its limit still shows its last case.
 

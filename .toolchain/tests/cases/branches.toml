@@ -93,3 +93,15 @@ name = "a run of a part keeps the layer of fail in the files of other parts"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app"]
 claims = { status = 0, line = ["app without memory: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app", "-k", "app one"] }
+
+[[case]]
+name = "a run of a group measures only the code that the group tests"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--group", "app/app"]
+claims = { status = 0, line = ["branches: measured the code of the groups app/app", "branches: 3 outcomes, 3 reached"], lacks = ["src/core"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches"] }
+
+[[case]]
+name = "the cases of a group reach each branch of the code that the group tests"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--group", "app/app", "-k", "app one"]
+claims = { status_not = 0, has = ["outcomes not reached: 1"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--group", "app/app"] }

@@ -1,0 +1,7 @@
+code = ["src/x/**"]
+
+[[case]]
+name = "one"
+run = ["{python}", "-c", "pass"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "raise SystemExit(1)"] }
