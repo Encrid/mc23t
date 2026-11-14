@@ -18,7 +18,7 @@ code = ["src/store/**", "tests/store/**"]
 ```
 
 Each item is a pattern for a path of the project, with `*` for any text.
-A group tests a path that one of its patterns matches. It also tests its own file.
+A group tests a path that one of its patterns matches. It also tests its own file, and no other group tests that file by default.
 
 A group with no `code` has a default:
 

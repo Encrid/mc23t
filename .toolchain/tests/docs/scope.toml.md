@@ -7,7 +7,7 @@ Each case file of the data holds one case, which no case runs.
 
 | Data | Content |
 | --- | --- |
-| `parted` | The parts `a`, `b`, which uses `a`, and `deep`, with the folder `a/deep`. The file `.toolchain/config/c.toml` states the part `c`, and `checks.toml` states no part. Each part has one group in its folder, and the group `all` is in no part. |
+| `parted` | The parts `a`, `b`, which uses `a`, and `deep`, with the folder `a/deep`. The file `.toolchain/config/c.toml` states the part `c`, and `checks.toml` states no part. Each part has one group in its folder, the part `b` has also the group `b/more`, and the group `all` is in no part. |
 | `grouped` | A project with no part. The group `store` states `code = ["src/store/**", "tests/store/**"]`, and the group `whole` states no `code`. |
 | `owned` | A project with no part. Its one group `x` states `code = ["src/x/**"]`. |
 | `miscoded` | A project whose group states `code = "src/x"`. |
@@ -18,7 +18,7 @@ Each case file of the data holds one case, which no case runs.
 | a source of a part names the groups of that part only | `src/a/x.c` gives `--group a/a`, and not the group of `b`, which uses `a`. | `src/b/y.c`. |
 | a nested folder names the groups of its own part | `src/a/deep/x.c` gives `--group a/deep/deep`, the part of the longest folder. | `src/a/x.c`. |
 | the config file of a part names the groups of the part | `.toolchain/config/c.toml` gives `--group c/c`. | `checks.toml`. |
-| a case file names its own group | `tests/cases/b/b.toml` gives `--group b/b`. | The file of the group `all`. |
+| a case file names its own group | `tests/cases/b/b.toml` gives `--group b/b`, and not the group `b/more` of the same part. | The file of the group `all`. |
 | a group names the code that it tests | In `grouped`, `src/store/a.c` and `tests/store/main.c` give `--group store`. | `src/other/a.c`. |
 | a file of the code that no group claims names the groups of the whole | In `grouped`, `src/other/a.c` gives `--group whole`. | `src/store/a.c`. |
 | a file of the toolchain names the groups of the whole | `.toolchain/tools/build.py` and `checks.toml` give `--group all`. | A document of the toolchain. |
