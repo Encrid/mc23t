@@ -227,6 +227,6 @@ false = { files = { "{case}/project/.toolchain/presets/extra_guide.md" = "" } }
 [[case]]
 name = "third_party holds anything"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/third_party/bridge/bridge-host.exe" = "" }
-claims = { status = 1, lacks = ["bridge-host.exe"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/bridge/bridge-host.exe" = "" } }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/third_party/sample/tool.exe" = "" }
+claims = { status = 1, lacks = ["tool.exe"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/sample/tool.exe" = "" } }
