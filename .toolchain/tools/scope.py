@@ -7,7 +7,7 @@ import tomllib
 
 from shared import arguments, config, die, part_of
 
-TOPS = ('src/', 'include/', 'tests/cases/', 'tests/')
+TOPS = ('src/', 'include/', 'tests/')
 CONFIG = '.toolchain/config/'
 BUILT = ('src/', 'include/', 'tests/', 'tools/', CONFIG, '.toolchain/tools/', '.toolchain/runtime/')
 FILES = ('.toolchain/toolchain.toml', '.toolchain/project.toml', '.toolchain/graph.zig', 'project.py')
