@@ -1,0 +1,13 @@
+[project]
+name = "tested"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[[artifact]]
+name = "tested"
+kind = "program"
+sources = ["src/*.c", "tests/*.c"]
+include = ["src"]
+
+[test]
+timeout = 60
+copies = 1

@@ -14,7 +14,7 @@ gives = { note_delete = 1 }
 [[artifact]]
 name = "held"
 kind = "program"
-sources = ["src/*.c", "tests/grab.c"]
+sources = ["src/*.c", "third_party/grab/grab.c"]
 include = ["src"]
 
 [test]

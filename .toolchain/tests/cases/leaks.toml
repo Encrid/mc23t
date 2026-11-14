@@ -201,3 +201,27 @@ name = "a pair through pointer variables that the case keeps"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "kept"]
 claims = { status = 1, line = ["leaks: kept keeps 1 open_thing"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/pointed", "--out", "{case}/out", "--leaks", "-k", "whole"] }
+
+[[case]]
+name = "a test that frees what the code took gives it back"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "frees"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "keeps"] }
+
+[[case]]
+name = "the code that frees what a test took gives it back"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "gives"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "keeps"] }
+
+[[case]]
+name = "a test that keeps memory is a line of the count"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "keeps"]
+claims = { status = 1, line = ["leaks: keeps keeps 1 memory"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "frees"] }
+
+[[case]]
+name = "a failed call is not counted in a test source"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "two"]
+claims = { status = 0, line = ["two: as written", "leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/tested", "--out", "{case}/out", "--leaks", "-k", "keeps"] }
