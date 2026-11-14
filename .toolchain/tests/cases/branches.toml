@@ -105,3 +105,15 @@ name = "the cases of a group reach each branch of the code that the group tests"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--group", "app/app", "-k", "app one"]
 claims = { status_not = 0, has = ["outcomes not reached: 1"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--group", "app/app"] }
+
+[[case]]
+name = "a file is measured only when each group that tests it runs"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one"]
+claims = { status = 0, line = ["branches: 0 outcomes, 0 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one", "--group", "two"] }
+
+[[case]]
+name = "the groups that test a file reach its branches together"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one", "--group", "two"]
+claims = { status = 0, line = ["branches: 3 outcomes, 3 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one", "--group", "two", "-k", "one"] }
