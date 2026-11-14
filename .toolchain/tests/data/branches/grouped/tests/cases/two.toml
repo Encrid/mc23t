@@ -1,0 +1,5 @@
+[[case]]
+name = "two"
+run = ["{out}/main{exe}", "more"]
+claims = { status = 0, line = ["many"] }
+false = { run = ["{out}/main{exe}"] }
