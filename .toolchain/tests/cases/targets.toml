@@ -34,8 +34,8 @@ claims = { status = 1, line = [".github/workflows/ci.yml: aarch64-macos is not a
 false = { files = { "{case}/p/.github/workflows/ci.yml" = "jobs:\n  check:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: x86_64-windows-gnu\n" } }
 
 [[case]]
-name = "the matrix of toolchain.yml names each target of the toolchain"
+name = "the matrix of toolchain.yml names each host of the toolchain"
 run = ["{python}", "{root}/.toolchain/tools/workflows.py", "--root", "{case}/p"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-windows-gnu\", \"x86_64-linux-gnu\"]\n", "{case}/p/.github/workflows/toolchain.yml" = "jobs:\n  toolchain:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: aarch64-linux-gnu\n          - target: aarch64-macos\n          - target: x86_64-macos\n          - target: x86_64-windows-gnu\n          - target: aarch64-windows-gnu\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\"]\n", "{case}/p/.github/workflows/toolchain.yml" = "jobs:\n  toolchain:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: x86_64-windows-gnu\n" }
 claims = { status = 0, line = ["no fault in 1 workflows"] }
-false = { files = { "{case}/p/.github/workflows/toolchain.yml" = "jobs:\n  toolchain:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n          - target: x86_64-windows-gnu\n" } }
+false = { files = { "{case}/p/.github/workflows/toolchain.yml" = "jobs:\n  toolchain:\n    strategy:\n      matrix:\n        include:\n          - target: x86_64-linux-gnu\n" } }
