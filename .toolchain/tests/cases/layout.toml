@@ -218,6 +218,13 @@ claims = { status = 1, lacks = ["native_kinds.toml"] }
 false = { files = { "{case}/project/.toolchain/presets/native_kinds.toml" = "" } }
 
 [[case]]
+name = "a guide of a preset"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/.toolchain/presets/engine/extra_guide.md" = "" }
+claims = { status = 1, lacks = ["extra_guide.md"] }
+false = { files = { "{case}/project/.toolchain/presets/extra_guide.md" = "" } }
+
+[[case]]
 name = "third_party holds anything"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
 files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/third_party/bridge/bridge-host.exe" = "" }
