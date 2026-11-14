@@ -5,7 +5,8 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/leaks`, with its
 
 | Project | Content |
 | --- | --- |
-| `held` | The program `held`, from the files of `src` and `tests/grab.c`. Its first argument picks what it does, and each case of the project gives one argument. The case `silent` runs Python, which writes no line. |
+| `held` | The program `held`, from the files of `src` and `third_party/grab/grab.c`. Its first argument picks what it does, and each case of the project gives one argument. The case `silent` runs Python, which writes no line. |
+| `tested` | The program `tested`, from `src/give.c` and the test sources `tests/main.c` and `tests/modes.h`. `give` of `src` takes memory, and `drop` of `src` frees a block. The 4 cases of the project give the argument `frees`, `gives`, `keeps` or `two`. |
 | `opened` | The library `chunk`, which takes memory in `chunk_make` and frees it in `chunk_drop`, and the test program `loader`. `loader` opens the library, calls it and closes it. |
 | `excused` | The program `keep`, which keeps one block of memory, and an exemption of `project.toml` that excuses it. |
 | `badexempt` | The same program, with an exemption that states no reason and an exemption for a kind that no case keeps. |
@@ -20,9 +21,9 @@ The includes and the code of `src/wrapped.c` are in one `#if`. `src/plain.c` use
 `[leaks] with` of `held` names the file of the variable `counted`, which is `tests/leaks.toml` by default.
 That file names `grab` as a function that takes memory, and the pairs `box_open` and `handle_open`.
 `handle_open` gives a `handle_t`, which is a `typedef` of a pointer.
-`grab` and `seize` of `tests/grab.c` take memory with no count. The case `named` frees the result of `grab`, and `foreign` frees the result of `seize`.
+`grab` and `seize` of `third_party/grab/grab.c` take memory with no count. The case `named` frees the result of `grab`, and `foreign` frees the result of `seize`.
 
-`tests/grab.c` also holds a small library that the count does not count. It has notes, and parts that `part_new` writes through its second argument.
+`third_party/grab/grab.c` also holds a small library that the count does not count. It has notes, and parts that `part_new` writes through its second argument.
 It has tickets, which are handles by value, and texts, which `text_fill` fills through a `restrict` pointer and `text_join` gives back two at a time.
 `sheet_fill` writes a part into the field `part` of a sheet, and `part_lend` gives a part to a function of the code as its argument 2.
 `note_hand` calls a function of the code, and deletes the note that the function gives it.
@@ -74,3 +75,7 @@ The kind `part` takes at `*2` of `part_new`, at `*2.part` of `sheet_fill`, and a
 | the tree of a source gets the flags of its kind | `test` on `flagged` reads the tree of `src/main.c`, and writes `leaks: 1 cases, 1 give back what they take`. | `--set side=none`: the tree of `src/main.c` cannot be read. |
 | a pair through pointer variables that the case gives back | `test --leaks -k whole` on `pointed` writes `leaks: 1 cases, 1 give back what they take`: `open_thing` and `close_thing` are pointer variables. | The case `kept`. |
 | a pair through pointer variables that the case keeps | `test --leaks -k kept` on `pointed` writes `leaks: kept keeps 1 open_thing`, and stops. | The case `whole`. |
+| a test that frees what the code took gives it back | With `frees`, the test source frees the result of `give`: `leaks: 1 cases, 1 give back what they take`. | `keeps`. |
+| the code that frees what a test took gives it back | With `gives`, the test source takes a block and `drop` frees it: the same line. | `keeps`. |
+| a test that keeps memory is a line of the count | With `keeps`, the test source takes a block and never frees it: `leaks: keeps keeps 1 memory`. | `frees`. |
+| a failed call is not counted in a test source | The case `two` states `fail = { malloc = 2 }`. The test source calls `malloc` first, and then `give` 2 times: the second `give` fails, so the case is as written. The layer of `fail` is in the files of `src` only. | `keeps`. |

@@ -1,0 +1,24 @@
+[[case]]
+name = "frees"
+run = ["{out}/tested{exe}", "frees"]
+claims = { status = 0, line = ["frees"] }
+false = { run = ["{out}/tested{exe}", "gives"] }
+
+[[case]]
+name = "gives"
+run = ["{out}/tested{exe}", "gives"]
+claims = { status = 0, line = ["gives"] }
+false = { run = ["{out}/tested{exe}", "frees"] }
+
+[[case]]
+name = "keeps"
+run = ["{out}/tested{exe}", "keeps"]
+claims = { status = 0, line = ["keeps"] }
+false = { run = ["{out}/tested{exe}", "frees"] }
+
+[[case]]
+name = "two"
+run = ["{out}/tested{exe}", "two"]
+fail = { malloc = 2 }
+claims = { status = 0, line = ["made none"] }
+false = { fail = { malloc = 1 } }
