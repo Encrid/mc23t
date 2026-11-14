@@ -75,11 +75,7 @@ jobs:
           python project.py ${{ matrix.gate.run }} $parts
       - name: Pack
         if: matrix.gate.name == 'test'
-        run: |
-          targets=$(python .toolchain/tools/hosts.py --host ${{ matrix.platform.target }})
-          for target in $targets; do
-            python project.py pack --target "$target"
-          done
+        run: python project.py pack --target ${{ matrix.platform.target }}
   check:
     needs: gate
     if: always()
