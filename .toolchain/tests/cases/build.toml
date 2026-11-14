@@ -220,9 +220,9 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 
 [[case]]
 name = "the cache of zig is a path from the folder of the project"
-run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}"]
+run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None, toolchain=True), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}"]
 claims = { status = 0, line = ["build/zig-cache/local"] }
-false = { run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/built"] }
+false = { run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None, toolchain=True), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/built"] }
 
 [[case]]
 name = "an archive of a release holds no path of its machine"
