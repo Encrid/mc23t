@@ -545,6 +545,7 @@ claims = { status = 0, line = ['FAR_LIB_PATH="<out>/side/far-lib<library>"', 'BA
 "{case}/p/.toolchain/project.toml" = '''
 [project]
 name = "pathed"
+targets = ["x86_64-linux-gnu"]
 
 [[artifact]]
 name = "far-lib"
@@ -564,6 +565,7 @@ path = true
 "{case}/p/.toolchain/project.toml" = '''
 [project]
 name = "pathed"
+targets = ["x86_64-linux-gnu"]
 
 [[artifact]]
 name = "far-lib"
