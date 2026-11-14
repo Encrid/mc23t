@@ -1,37 +1,63 @@
 # .toolchain/tools/scope.py
 
-`scope.py` gives the parts that a pull request changes, and each part that uses them. The step `Gate` of `ci.yml` runs each gate only for these parts: `.toolchain/docs/workflows.py.md`, *The jobs of ci.yml*.
+`scope.py` gives the case groups that test the files that a pull request changes. The step `Gate` of `ci.yml` runs each gate only for these groups: `.toolchain/docs/workflows.py.md`, *The jobs of ci.yml*.
 
 ```sh
 python .toolchain/tools/scope.py --changed <file> --into <branch>
 ```
 
 `--changed` names a file with one changed path on each line, as `git diff --name-only` writes them. `--into` names the branch that the pull request goes into.
-The tool writes one line with `--part <part>` for each part, in the order of the names. For the whole project, it writes nothing.
+The tool writes one line with `--group <group>` for each group, in the order of the names. If no group tests the change, it writes nothing.
 
-## The part of a path
+## The code of a group
 
-A file of a part is in the folder of the part, or is its readme or its config file.
+A test belongs to the code that it tests. A group states that code with the key `code`, at the top of its file:
 
-1. A path under `src/`, `include/`, `docs/extern/`, `docs/intern/`, `tests/cases/` or `tests/` loses that prefix. The first prefix that matches wins.
-2. `docs/usage/<folder>.md` gives the folder of the readme.
-3. `part_of` of `shared.py` then gives the part whose folder holds the rest of the path, the longest folder first.
-4. A file of `.toolchain/config` belongs to the part whose table `[parts.<part>]` it states. A file with no such table, or with more than one, belongs to no part.
+```toml
+code = ["src/store/**", "tests/store/**"]
+```
+
+Each item is a pattern for a path of the project, with `*` for any text.
+A group tests a path that one of its patterns matches. It also tests its own file.
+
+A group with no `code` has a default:
+
+1. In the folder of a part, it tests the files of that part.
+2. In no part, it tests the project as a whole.
+
+The files of a part are its sources, its headers, its tests and its config file. Its documents do not count.
+A config file belongs to the part whose table `[parts.<part>]` it states alone.
 
 ## The scope
 
-1. A part that uses a changed part joins. Then a part that uses a joined part joins, until no part joins.
-2. The tool writes nothing for a project with no part, a path of no part, or an empty list.
-3. It writes nothing with `--into main` too, since each test command runs for the whole project when `dev` goes into `main`.
+For a pull request into a different branch than `main`, each changed path gives the groups that test it.
+A path of the build that no group tests gives the groups of the whole, since only the whole tests it.
+The paths of the build are the files of `src`, `include`, `tests` and `tools`, the files of `.toolchain/config`, and the copy of the toolchain.
+Each other path gives no group: a document and a workflow change no code.
 
-The messages are `name the list of the changed paths with --changed` and `cannot read the list <path>`.
+A part that uses a changed part gives no group. Its groups test its own code.
+
+For a pull request into `main`, the tool gives the groups of the whole.
+
+The tool stops with these faults:
+
+- `name the list of the changed paths with --changed`.
+- `cannot read the list <path>`.
+- `<group file>: code is a list of patterns`.
+- `<path>: no case group tests this file`, for a path of the build in a project where each group states its code.
+- `no case group tests the project as a whole`, for a pull request into `main` of such a project.
+
+A project with no case group gives nothing.
 
 ## Functions
 
 | Function | Result |
 | --- | --- |
 | `main()` | Reads the options and the list, and writes the line. |
-| `scoped(settings, root, paths, into)` | Gives the sorted parts of the scope, or no part for the whole project. |
+| `scoped(settings, root, paths, into)` | Gives the sorted names of the groups of the scope. |
+| `groups(settings, root)` | Gives each group of `[test] cases` that has a case: its name, its file, its `code` and its part. |
+| `whole(group)` | Tells if a group tests the project as a whole. |
+| `tests(settings, root, group, path)` | Tells if a group tests a path. |
+| `claimed(settings, root, names)` | Gives the function that tells if the named groups measure a file: `.toolchain/docs/branches.py.md`, *The files of the named groups*. |
 | `owner(settings, root, path)` | Gives the part of one path, or `None`. |
 | `stated(root, path)` | Gives the part that a config file states alone, or `None`. |
-| `users(settings, named)` | Gives the changed parts, and the parts whose `uses` lead to them at any depth. |
