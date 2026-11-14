@@ -20,7 +20,7 @@ KEYS = {'step': {'run', 'cwd', 'section', 'text', 'contains', 'copy', 'rename'},
         'helper': {'run', 'wait', 'stdin', 'claims'},
         'script': {'wait', 'put', 'remove', 'type', 'close', 'signal', 'pause'},
         'claims': {'status', 'status_not', 'line', 'has', 'lacks', 'matches', 'matches_not', 'order', 'output', 'files'},
-        'source': {'name', 'url', 'sha256', 'into', 'top', 'patches'},
+        'source': {'name', 'url', 'sha256', 'into', 'top', 'patches', 'host'},
         'part': {'name', 'folder', 'uses', 'third_party', 'package'},
         'kind': {'takes', 'gives'}}
 SIDES = {'include': 'docs/extern', 'src': 'docs/intern', 'tools': 'docs/tools'}

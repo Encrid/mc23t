@@ -14,6 +14,7 @@ Then it takes the dependencies with `take.py`.
 | `fetch_zig(zig, home)` | Downloads the pinned zig for the target of this machine. |
 | `hunks(part)` | Gives each hunk of the part of a patch: its first line, its old lines and its new lines. |
 | `patched(tree, patch)` | Applies a patch to the files of a folder. |
+| `homed(config, values, source)` | Gives the variables that the keys of a source get: those of the target of this machine for a source of the host, else `values`. |
 | `sources(config, values, fetching)` | Fetches each source, or checks that each source is fetched. |
 | `main()` | Runs the command `fetch`. |
 
@@ -31,6 +32,11 @@ The targets that this machine builds are those whose `built_on` is the target of
 A machine that is no host builds only its own target.
 A source whose `url` or `into` names `{target}` thus gets one archive for each such target. A source that is the same for each target is fetched one time, since its `fetched.txt` holds the same digests.
 A source with one `into` and a `top` that names `{target}` gets its patches only in the `top` of the first target.
+
+A source with `host = true` is a source of the host: the build runs it, for example a tool.
+For each target that the machine builds, `homed` gives its keys the variables of `{home}`: `.toolchain/docs/project.toml.md`, *[[source]]*. Thus it gets one archive, and the variable `{<name>}` names the same folder in each build.
+`homed` stops if `host` is not `true` or `false`: `<name>: host is true or false`.
+It stops if this machine is no target of the project: `<name>: a source of the host needs a machine of a target`.
 
 ## zig
 

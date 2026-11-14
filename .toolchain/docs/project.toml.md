@@ -108,6 +108,7 @@ Put the patches of a source and its licence into `third_party/<source>`.
 | `into` | The folder that gets the files, for example `{build}/third_party/<source>`. |
 | `top` | Optional. The folder of the archive that holds the files. It can hold variables, for example `{target}`. |
 | `patches` | Optional. The patches, as files of the project, in the order that `fetch` applies them. |
+| `host` | Optional. `true` for a source that the build runs, for example a tool. Each key of such a source gets the variables of `{home}`, the target of this machine, also in a build for a different target. Thus the tool runs on the machine that builds. |
 
 For example:
 

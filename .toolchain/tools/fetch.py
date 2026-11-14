@@ -80,21 +80,32 @@ def patched(tree, patch):
         (tree / name).write_bytes('\n'.join(lines).encode('utf-8'))
 
 
+def homed(config, values, source):
+    if not isinstance(source.get('host', False), bool):
+        die('%s: host is true or false' % source['name'])
+    if not source.get('host'):
+        return values
+    if values['home'] not in config['targets']:
+        die('%s: a source of the host needs a machine of a target' % source['name'])
+    return dict(values, **config['targets'][values['home']], target=values['home'])
+
+
 def sources(config, values, fetching):
     for source in config.get('source', []):
         shared.known(source, 'source', 'a source')
-        into, patches = located(source['into'], values), [located(p, values) for p in source.get('patches', [])]
-        tree, stamp = into / expand(source.get('top', ''), values), expand(source['sha256'], values)
+        mine = homed(config, values, source)
+        into, patches = located(source['into'], mine), [located(p, mine) for p in source.get('patches', [])]
+        tree, stamp = into / expand(source.get('top', ''), mine), expand(source['sha256'], mine)
         values[source['name']] = tree.as_posix()
         stamp = ' '.join([stamp] + [shared.sha256(patch.read_bytes()) for patch in patches])
         if (into / 'fetched.txt').is_file() and (into / 'fetched.txt').read_text(encoding='utf-8') == stamp:
             continue
         if not fetching:
             die('%s is not fetched as project.toml states: run fetch' % source['name'])
-        url = expand(source['url'], values)
-        fetched(url if '://' in url else located(url, values).as_uri(), stamp.split(' ')[0], into)
+        url = expand(source['url'], mine)
+        fetched(url if '://' in url else located(url, mine).as_uri(), stamp.split(' ')[0], into)
         if 'top' in source and not tree.is_dir():
-            die('%s: the archive has no folder %s' % (source['name'], expand(source['top'], values)))
+            die('%s: the archive has no folder %s' % (source['name'], expand(source['top'], mine)))
         for patch in patches:
             patched(tree, patch)
         (into / 'fetched.txt').write_text(stamp, encoding='utf-8')
