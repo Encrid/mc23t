@@ -1,0 +1,12 @@
+[project]
+name = "p"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[variables]
+mark = "mark.py"
+
+[[artifact]]
+name = "show"
+kind = "program"
+sources = ["src/a.c"]
+include = ["src"]

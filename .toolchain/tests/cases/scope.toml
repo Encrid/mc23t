@@ -1,0 +1,76 @@
+[[case]]
+name = "a source of a part names the part and each part that uses it"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/a/x.c\n" }
+claims = { status = 0, line = ["--part a --part b"] }
+false = { files = { "{case}/changed.txt" = "src/b/y.c\n" } }
+
+[[case]]
+name = "a source of a part that no part uses names only that part"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/b/y.c\n" }
+claims = { status = 0, line = ["--part b"] }
+false = { files = { "{case}/changed.txt" = "src/a/x.c\n" } }
+
+[[case]]
+name = "a nested folder names its own part"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/a/deep/x.c\n" }
+claims = { status = 0, line = ["--part deep"] }
+false = { files = { "{case}/changed.txt" = "src/a/x.c\n" } }
+
+[[case]]
+name = "the readme and the config file of a part name the part"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "docs/usage/c.md\n.toolchain/config/c.toml\n" }
+claims = { status = 0, line = ["--part c"] }
+false = { files = { "{case}/changed.txt" = "docs/usage/c.md\nsrc/b/y.c\n" } }
+
+[[case]]
+name = "a case group and a document of a part name the part"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "tests/cases/b/x.toml\ndocs/intern/b/y.c.md\ninclude/b/y.h\n" }
+claims = { status = 0, line = ["--part b"] }
+false = { files = { "{case}/changed.txt" = "tests/cases/x.toml\n" } }
+
+[[case]]
+name = "a file of no part gives the whole project"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/b/y.c\nreadme.md\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { files = { "{case}/changed.txt" = "src/b/y.c\n" } }
+
+[[case]]
+name = "a config file of no part gives the whole project"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/config/checks.toml\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { files = { "{case}/changed.txt" = ".toolchain/config/c.toml\n" } }
+
+[[case]]
+name = "a pull request into main gives the whole project"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "main"]
+files = { "{case}/changed.txt" = "src/b/y.c\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a project with no part gives the whole project"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/plain", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/b/y.c\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "an empty list gives the whole project"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "" }
+claims = { status = 0, matches_not = ["."] }
+false = { files = { "{case}/changed.txt" = "src/b/y.c\n" } }
+
+[[case]]
+name = "a list that is not there stops the tool"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/gone.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/b/y.c\n" }
+claims = { status_not = 0, has = ["cannot read the list"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }

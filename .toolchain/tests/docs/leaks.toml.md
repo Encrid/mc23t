@@ -23,7 +23,7 @@ That file names `grab` as a function that takes memory, and the pairs `box_open`
 `grab` and `seize` of `tests/grab.c` take memory with no count. The case `named` frees the result of `grab`, and `foreign` frees the result of `seize`.
 
 `tests/grab.c` also holds a small library that the count does not count. It has notes, and parts that `part_new` writes through its second argument.
-It has tickets, which are handles by value, and texts, which `text_fill` fills through a pointer and `text_join` gives back two at a time.
+It has tickets, which are handles by value, and texts, which `text_fill` fills through a `restrict` pointer and `text_join` gives back two at a time.
 `sheet_fill` writes a part into the field `part` of a sheet, and `part_lend` gives a part to a function of the code as its argument 2.
 `note_hand` calls a function of the code, and deletes the note that the function gives it.
 
@@ -72,3 +72,5 @@ The kind `part` takes at `*2` of `part_new`, at `*2.part` of `sheet_fill`, and a
 | a take at a field counts what the call writes into the field | `test` on `sheets` writes that the case is as written, and that 1 case gives back what it takes. | The case `stub`. |
 | a callback counts what a library gives it | `test` on `lends` writes that the case is as written, and that 1 case gives back what it takes. | The case `stub`. |
 | the tree of a source gets the flags of its kind | `test` on `flagged` reads the tree of `src/main.c`, and writes `leaks: 1 cases, 1 give back what they take`. | `--set side=none`: the tree of `src/main.c` cannot be read. |
+| a pair through pointer variables that the case gives back | `test --leaks -k whole` on `pointed` writes `leaks: 1 cases, 1 give back what they take`: `open_thing` and `close_thing` are pointer variables. | The case `kept`. |
+| a pair through pointer variables that the case keeps | `test --leaks -k kept` on `pointed` writes `leaks: kept keeps 1 open_thing`, and stops. | The case `whole`. |

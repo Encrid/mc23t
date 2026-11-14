@@ -38,7 +38,7 @@ A group is a file of cases in `tests/cases`, or in a folder of `tests/cases`.
 The name of a group is the path of the file in `tests/cases`, without `.toml`.
 For example, the name of the group `tests/cases/<folder>/<name>.toml` is `<folder>/<name>`.
 If `tests/cases` holds no case, `test` writes `no case: tests/cases holds no case`.
-In a project with parts, the groups of a part are in `tests/cases/<part>`: `.toolchain/docs/project.toml.md`, *[parts]*.
+In a project with parts, the groups of a part are in `tests/cases/<folder>`, with the folder of the part: `.toolchain/docs/project.toml.md`, *[parts]*.
 
 ## The keys of a case
 
@@ -49,6 +49,7 @@ In a project with parts, the groups of a part are in `tests/cases/<part>`: `.too
 | `env` | Changes to the environment of the command. The key is the name of a variable. The value is a text, or `false` to remove the variable. |
 | `stdin` | The text that `test` writes to the command, after the script of the case. |
 | `script` | The steps that `test` does while the command runs. |
+| `ignore` | `["interrupt"]` if the command starts with the interrupt ignored: *Scripts*. |
 | `helper` | A second command that runs at the same time. |
 | `files` | The text files that `test` writes before the command starts. The key is the path, and the value is the text. |
 | `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to copy into the folder. |
@@ -97,14 +98,26 @@ Each key of `[variables]` of `.toolchain/project.toml` is a variable too.
 
 ## Scripts
 
-Each step of a `script` waits for a line of the output that contains the text `wait`.
-Then the step does these actions, in this order:
+Each step of a `script` does these actions, in this order:
 
-1. `put` copies files. The key is the path, and the value is an artifact or a file.
-2. `remove` removes the files of the list.
-3. `type` writes this line to the command.
+1. `wait` waits for a line of the output that contains its text. A step with no `wait` does its actions at once.
+2. `put` copies files. The key is the path, and the value is an artifact or a file.
+3. `remove` removes the files of the list.
+4. `type` writes this line to the command.
+5. `close` closes the output of the command. Its only value is `"output"`. After it, a write of the command to its output fails.
+6. `signal` sends a signal to the command: `interrupt`, `termination` or `hang-up`.
+7. `pause` waits this number of seconds.
 
-If the output ends before the text comes, `test` stops the steps.
+If the output ends before the text of `wait` comes, `test` stops the steps.
+
+On Linux and on macOS, the signals are `SIGINT`, `SIGTERM` and `SIGHUP`.
+On Windows, a command that gets a signal runs on a console of its own. The signals are ctrl-c, ctrl-break and the close of the console.
+Thus `test` refuses 2 scripts on each system:
+
+- A script with an interrupt and a termination. On Windows, ctrl-break needs a process group of its own, and such a group ignores ctrl-c.
+- A script with a signal after a hang-up. On Windows, the hang-up closes the console.
+
+With `ignore`, the command starts with the interrupt ignored. `.toolchain/docs/signals.py.md` tells how `test` starts the command and sends the signals.
 
 ## Helpers
 
@@ -178,12 +191,19 @@ claims = { status = 1, line = ["greet: no memory"] }
 false = { fail = {} }
 ```
 
-`malloc`, `calloc` and `realloc` can always fail. `fail.toml` of `.toolchain/config` names more functions, each with the value that a failed call gives.
+`malloc`, `calloc` and `realloc` can always fail, and so can the two loaders `GetProcAddress` and `dlsym`, with `nullptr`.
+`fail.toml` of `.toolchain/config` names more functions, each with the value that a failed call gives.
 `.toolchain/docs/project.toml.md`, *[fail]*, gives its keys. Only the calls of the code of `src` count, and the files of one program share one count.
+
+A case refuses the calls only in the programs of its part, in each run. A case in no part refuses them in each program.
 The false variant states no `fail`, or a different number.
 
 `test` runs each case that states `fail` on a copy of the code in which these calls can fail. It judges the claims of the case.
 `test --branches` and `test --leaks` make the calls fail too. Thus a case reaches each `if (!p)`, and gives back what the code took on that path.
+
+A call through a pointer of a loader can fail too.
+A listed function that the file only names in a text fails by its own name with its own value.
+For example, `"socket"` is a text of a call of `GetProcAddress`, and `fail = { socket = 1 }` fails that call.
 `.toolchain/docs/fail.py.md` tells how a call fails.
 
 ## Run the tests
@@ -195,7 +215,7 @@ The false variant states no `fail`, or a different number.
 | `python project.py test --branches` | Runs each case one time on a build with probes. Each branch must run. |
 | `python project.py test --leaks` | Runs each case one time on a build with counts. Each case must give back what the code takes. |
 | `python project.py test -k <text>` | Runs only the cases whose name contains `<text>`. |
-| `python project.py test --part <part>` | Builds the part and the parts that it uses, then runs only the groups in `tests/cases/<part>`. |
+| `python project.py test --part <part>` | Builds the part and the parts that it uses, then runs only the groups in `tests/cases/<folder>`, with the folder of the part. |
 | `python project.py test --copies <number>` | Runs this number of copies of each case at the same time. Each copy must pass. |
 | `python project.py test --rounds <number>` | Runs all the cases this number of times, one round after the other. |
 

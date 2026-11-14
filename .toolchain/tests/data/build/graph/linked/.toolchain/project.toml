@@ -1,0 +1,22 @@
+[project]
+name = "p"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[variables]
+mark = "mark.py"
+
+[kinds.marked]
+output = "{name}.txt"
+steps = [{ run = ["{python}", "{mark}", "{root}/log.txt", "{name}", "1", "{sources}", "{output}"] }]
+
+[[artifact]]
+name = "a"
+kind = "marked"
+sources = ["a.txt"]
+
+[[artifact]]
+name = "b"
+kind = "marked"
+sources = ["b.txt"]
+link = ["{out}/a.txt"]
+

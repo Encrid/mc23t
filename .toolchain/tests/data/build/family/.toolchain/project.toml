@@ -1,16 +1,19 @@
 [project]
 name = "family"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
 
 [variables]
 place = "include"
 
 [parts.alpha]
 name = "Family-Alpha"
+folder = "alpha"
 uses = []
 third_party = ["sample"]
 
 [parts.beta]
 name = "Family-Beta"
+folder = "beta"
 uses = ["alpha"]
 third_party = []
 
@@ -19,6 +22,7 @@ proof = "tests/beta/package/proof.c"
 
 [parts.gamma]
 name = "Family-Gamma"
+folder = "gamma"
 uses = ["beta"]
 third_party = []
 

@@ -1,0 +1,8 @@
+[need.beta.windows]
+values.AMD64 = { part = "x64", digest = "aaaa" }
+
+[[need.beta.windows.archive]]
+file = "beta.7z"
+url = "https://example.test/beta-{part}.7z"
+sha256 = "{digest}"
+members = ["beta/tool.dll"]

@@ -1,0 +1,12 @@
+[[case]]
+name = "pointed"
+run = ["{out}/pointed{exe}"]
+fail = { take_value = 1 }
+claims = { status = 1, line = ["no value"] }
+false = { fail = {} }
+
+[[case]]
+name = "whole"
+run = ["{out}/pointed{exe}"]
+claims = { status = 0, line = ["value 42"] }
+false = { fail = { take_value = 1 } }

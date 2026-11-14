@@ -33,6 +33,11 @@ The result of `fread` is a `size_t`, and the compiler spells it `__size_t`. The 
 The declaration of `bsearch` on Windows writes `__cdecl` in the type of its callback. The declaration of `aligned_alloc` checks its alignment.
 Each case writes `a` to the program. The cases `read`, `byte`, `key` and `aligned` each make one of these calls fail, and their false variants state no `fail`.
 
+The project `parted` has the parts `alpha` and `beta`, and `alpha` uses `beta`. The program `beta` calls `malloc` once, and writes `made` or `no memory`.
+The case `other part` of the group `alpha/alpha` runs `beta` with `fail = { malloc = 1 }`, and claims `made`. Its false variant runs `alpha`.
+The case `own part` of the group `beta/beta` runs `beta` with the same `fail`, and claims `no memory`. Its false variant states no `fail`.
+The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
+
 | Case of the project | `fail` | Claim | False variant |
 | --- | --- | --- | --- |
 | `whole` | None. | `a door, opened and shut`, and the status 0. | The first call of `malloc` fails. |
@@ -68,3 +73,9 @@ Each case writes `a` to the program. The cases `read`, `byte`, `key` and `aligne
 | test --branches reaches the branch of each failed call | `test --branches` writes `branches: 19 outcomes, 19 reached`, and ends with 0. | `-k whole`, thus no call fails. |
 | test --leaks counts the path of a failed call | `test --leaks -k leaky` writes `leaks: leaky keeps 1 memory`, and stops. | The case `second`, which gives back the first block. |
 | a failed call takes nothing in test --leaks | `test --leaks -k second` writes `second: as written` and `leaks: 1 cases, 1 give back what they take`. | The case `leaky`. |
+| a listed call through a pointer variable fails at its number | `test -k pointed` on `pointed` writes `pointed: as written`: `src/table.c` defines the pointer, and `src/pointed.c` calls it and gets -1. | `--break`. |
+| a listed call through a pointer variable with no number calls its function | `test -k whole` on `pointed` writes `whole: as written`: the call through the pointer gives 42. | `--break`. |
+| a full run refuses a call only in the programs of the part of the case | `test` on `parted` writes `other part: as written` and `own part: as written`. | `--break`. |
+| a run of a part gives what a full run gives | `test --part alpha` on `parted` writes `other part: as written`. | `--break`. |
+| the run of branches refuses a call only in the part of the case | `test --branches` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |
+| the run of leaks refuses a call only in the part of the case | `test --leaks` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |

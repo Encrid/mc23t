@@ -12,7 +12,7 @@ The project of the case `a full project` has these files, and the document of ea
 
 | Folder | Files |
 | --- | --- |
-| The root, `.github` and `docs/contributing` | Each other file that the layout needs. |
+| The root, `.github` and `docs/contributing` | Each other file that the layout needs, and `.github/workflows/toolchain.yml`, which it allows. |
 | `.toolchain` | `project.toml`, `toolchain.toml`, `header.txt`, `tools/check.py`, `docs/check.py.md`, `runtime/move.c`, `runtime/move.h`, and the case file `tests/cases/Any Name.toml`. |
 | `tools` | `release.py`, with its document `docs/tools/release.py.md`. |
 | `src` | `sample.c` and `net/socket.c`. |
@@ -23,7 +23,7 @@ The project of the case `a full project` has these files, and the document of ea
 
 | Case | Claim | False variant |
 | --- | --- | --- |
-| a full project | `layout.py` writes `no fault in 38 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
+| a full project | `layout.py` writes `no fault in 41 files`, and ends with 0. `ours` leaves out the files of `tests` and of `.toolchain/tests`. | The project also has `notes.txt`. |
 | a path that the layout does not allow | `notes.txt: the layout does not allow this file`. | No `notes.txt`. |
 | a file of the runtime that is no source | `.toolchain/runtime/notes.txt: the layout does not allow this file`: the runtime holds only `.c` and `.h` files. | The runtime holds `notes.c`. |
 | a file that the layout needs | A project with no `license`: `license: the layout needs this file`. | The project has `license`. |
@@ -32,9 +32,12 @@ The project of the case `a full project` has these files, and the document of ea
 | the folder that the layout needs | A project with no file in `.toolchain/tools`: `.toolchain/tools/: the layout needs this folder`. No line names `src/`. | The project has a file in `.toolchain/tools`. |
 | a source without its document | `src/a.c: no document docs/intern/a.c.md`. | The project has the document. |
 | a header without its document | `include/a.h: no document docs/extern/a.h.md`. | The project has the document. |
+| a header of C++ without its document | `include/a.hpp: no document docs/extern/a.hpp.md`. The layout allows the header. | The project has the document. |
 | a document without its file | `docs/intern/gone.c.md: no file has this document`. | The project has the source `gone.c` in `src`. |
 | a document in the wrong folder | A source has a document in `docs/extern`: `docs/extern/a.c.md: no file has this document`. | The source has no document in `docs/extern`. |
 | the documents of a part are in the folders of the part | The parts `video` and `mouse` each have `window.c`, with its document in the folder of the part. No line names `video` or `mouse`. | The document of the source of `mouse` starts with `# src/video/window.c`. |
+| a part with no readme | A project with the part `a` and no `docs/usage/a.md`: `docs/usage/a.md: the layout needs this file`. | The project has the readme. |
+| a file of docs outside contributing, extern, intern and tools is allowed | `docs/usage/a.md`, `docs/notes/plan.md` and `docs/notes/map.svg` give no `the layout does not allow this file`, and no `no file has this document`. | The project also has `docs/contributing/plan.md`, which the layout does not allow. |
 | an extra document in docs | `docs/contributing/notes.md: the layout does not allow this file`. | No `notes.md`. |
 | the first line of a document | The document of a source starts with `# a.c`: `the first line is not # src/a.c`. | The first line is `# src/a.c`. |
 | a name that is not in snake_case | `src/Notes.c: 'Notes.c' is not in snake_case`. | `notes.c` in place of `Notes.c`. |
@@ -45,4 +48,5 @@ The project of the case `a full project` has these files, and the document of ea
 | a document of a tool that is not there | `docs/tools/gone.py.md` has no file: `docs/tools/gone.py.md: no file has this document`. | `tools/gone.py` is there. |
 | a guide that [check] guides names | `[check] guides` names `timings.md`, so the layout allows `docs/contributing/timings.md`. The output does not name it. | `.toolchain/project.toml` is empty. |
 | a file of a preset | A file in a folder of `.toolchain/presets` makes no fault. No line names `native_kinds.toml`. | The file is in `.toolchain/presets`, not in a folder of a preset. |
+| a guide of a preset | A guide in a folder of `.toolchain/presets` makes no fault. No line names `extra_guide.md`. | The guide is in `.toolchain/presets`, not in a folder of a preset. |
 | third_party holds anything | A compiled file under `third_party` makes no fault. No line names `bridge-host.exe`. | The file is in `bridge`, not under `third_party`. |

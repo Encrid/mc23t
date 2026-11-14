@@ -65,7 +65,7 @@ void ticket_drop(ticket_t ticket)
     (void)ticket;
 }
 
-void text_fill(text_t *text)
+void text_fill(text_t *restrict text)
 {
     text->size = 4;
     text->data = malloc(4);
@@ -79,7 +79,7 @@ void text_delete(text_t *text)
     *text = (text_t){};
 }
 
-void text_join(text_t *one, text_t *two)
+void text_join(text_t *restrict one, text_t *restrict two)
 {
     text_delete(one);
     text_delete(two);

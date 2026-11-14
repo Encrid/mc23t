@@ -1,0 +1,18 @@
+[project]
+name = "embedded"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[[artifact]]
+name = "word.txt"
+kind = "file"
+sources = ["data/word.txt"]
+
+[[artifact]]
+name = "show"
+kind = "program"
+sources = ["src/show.c"]
+inputs = ["{out}/word.txt"]
+
+[test]
+timeout = 60
+copies = 1

@@ -31,11 +31,16 @@ It is the same in each project, and a project does not change it.
 
 ## [targets.\<target\>]
 
-There are six targets: three operating systems on two types of processor.
+There are six targets: three operating systems on two types of processor. Each project picks its targets with `[project] targets`: `.toolchain/docs/project.toml.md`, *[project]*.
+
+A host is a target whose machines build the projects: the runners of the workflows. The two hosts are `x86_64-windows-gnu` and `x86_64-linux-gnu`.
+The Windows host builds the 2 targets of Windows. The Linux host builds the 2 targets of Linux and the 2 targets of macOS.
+A host cross-builds each target that is not itself. The cases of such a target cannot run on the host.
 
 | Key | Value |
 | --- | --- |
 | `runs_on` | The system and the processor that Python gives for a machine of the target. An empty list means: build only. |
+| `built_on` | The host that builds and packs the target: `x86_64-windows-gnu` or `x86_64-linux-gnu`. A host builds itself. A row with no `built_on`, such as a target that a project adds, builds on itself. |
 | `system` | The family of the system: `posix` or `windows`. It is also the variable `{system}`. |
 | `triple` | The target for zig, with the range of the versions of the system. |
 | `cpu` | The model of the processor. |
@@ -55,9 +60,12 @@ There are six targets: three operating systems on two types of processor.
 
 | Kind | Output | Steps |
 | --- | --- | --- |
-| `program` | `{name}{exe}` | `zig cc` compiles the sources, and links them with the files of `link`. |
-| `library` | `{name}{library}` | `zig cc -shared` compiles the sources and `runtime` into a shared library. A program gets no `runtime`. |
-| `archive` | `{name}.a` | `zig build-lib -static` compiles the sources into a static library. It does not report a flag that it does not use. zig does not read the flags after `-cflags`, thus `{strip}` tells it the mode of the build. Without `-fstrip`, zig asks the compiler for CodeView, and each object of a Windows archive holds its own path. |
+| `program` | `{name}{exe}` | `each`: `zig cc -c` compiles one source. Then `zig cc` links the objects with the files of `link`. |
+| `library` | `{name}{library}` | `each`: `zig cc -c` compiles one source, with `{pic}`. Then `zig cc -shared` links the objects, and compiles `runtime`, into a shared library. A program gets no `runtime`. |
+| `archive` | `{name}.a` | `each`: `zig cc -c` compiles one source. Then `zig build-lib -static` puts the objects into a static library, with `{strip}`. Without `-fstrip`, zig asks the compiler for CodeView, and each object of a Windows archive holds its own path. |
+
+Each step `each` passes `-MD -MF {deps}`, so zig knows the headers of each source.
+It also passes `-Wno-unused-command-line-argument`, because `-c` uses no flag of the linker, for example `-s`.
 | `file` | `{name}` | It copies the one source to the output. |
 
 ## [rewrite]
@@ -85,11 +93,31 @@ These keys are the limits of the style of the code. The check of the style reads
 
 ## [prose]
 
-These keys are the limits of the documents. The check of the documents, `.toolchain/tools/prose.py`, reads them.
+These keys are the tags and the limits of the documents. The check of the documents, `.toolchain/tools/prose.py`, reads them.
 
 | Key | Value |
 | --- | --- |
+| `tags` | The tags that a block of code can have. `[check] tags` of the configuration adds more. |
 | `sentence` | The maximum number of words in a sentence. |
 | `step` | The maximum number of words in a sentence of an item of a numbered list. |
 | `paragraph` | The maximum number of sentences in a paragraph, in an item of a list and in a cell of a table. |
 | `description` | The maximum number of characters in the description of the readme. Standard Readme asks for fewer than 120. |
+
+## [dup]
+
+| Key | Value |
+| --- | --- |
+| `words` | The minimum number of words of a passage that `.toolchain/tools/dup.py` reports. |
+
+## [said]
+
+| Key | Value |
+| --- | --- |
+| `own` | The minimum number of own characters of a format that `.toolchain/tools/said.py` checks. |
+
+## [commits]
+
+| Key | Value |
+| --- | --- |
+| `types` | The types that the line of a commit can have, for `.toolchain/tools/commits.py`. |
+| `words` | The maximum number of words in the description of a commit. |

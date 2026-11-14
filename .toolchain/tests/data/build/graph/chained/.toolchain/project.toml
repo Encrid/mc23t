@@ -1,0 +1,19 @@
+[project]
+name = "p"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[variables]
+mark = "mark.py"
+
+[kinds.chained]
+output = "{name}.bin"
+steps = [
+    { run = ["{python}", "-c", "import shutil, sys; shutil.copyfile(sys.argv[1], sys.argv[2])", "{sources}", "{work}.raw"] },
+    { run = ["{python}", "-c", "import shutil, sys; shutil.copyfile(sys.argv[1], sys.argv[2])", "{work}.raw", "{output}"] },
+    { section = "x", text = "y" },
+]
+
+[[artifact]]
+name = "note"
+kind = "chained"
+sources = ["note.txt"]

@@ -1,22 +1,25 @@
 [[case]]
 name = "a full project"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-claims = { status = 0, line = ["no fault in 38 files"] }
+claims = { status = 0, line = ["no fault in 41 files"] }
 false = { files = { "{case}/project/notes.txt" = "" } }
 
 [case.files]
 "{case}/project/.github/workflows/ci.yml" = ""
 "{case}/project/.github/workflows/release.yml" = ""
+"{case}/project/.github/workflows/warm.yml" = ""
 "{case}/project/.github/workflows/cla.yml" = ""
+"{case}/project/.github/workflows/toolchain.yml" = ""
 "{case}/project/.gitattributes" = ""
 "{case}/project/.gitignore" = ""
 "{case}/project/cla.md" = ""
 "{case}/project/license" = ""
 "{case}/project/project.py" = ""
-"{case}/project/.toolchain/project.toml" = ""
+"{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n"
 "{case}/project/readme.md" = ""
 "{case}/project/docs/contributing/agreement.md" = ""
 "{case}/project/docs/contributing/coding_style.md" = ""
+"{case}/project/docs/contributing/coding_style_cxx.md" = ""
 "{case}/project/docs/contributing/commits.md" = ""
 "{case}/project/docs/contributing/decisions.md" = ""
 "{case}/project/docs/contributing/documentation_style.md" = ""
@@ -49,153 +52,181 @@ false = { files = { "{case}/project/notes.txt" = "" } }
 [[case]]
 name = "a path that the layout does not allow"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/notes.txt" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/notes.txt" = "" }
 claims = { status = 1, line = ["notes.txt: the layout does not allow this file"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" } }
 
 [[case]]
 name = "a file of the runtime that is no source"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/.toolchain/runtime/notes.txt" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/.toolchain/runtime/notes.txt" = "" }
 claims = { status = 1, line = [".toolchain/runtime/notes.txt: the layout does not allow this file"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/.toolchain/runtime/notes.c" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/.toolchain/runtime/notes.c" = "" } }
 
 [[case]]
 name = "a file that the layout needs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 1, line = ["license: the layout needs this file"] }
 false = { files = { "{case}/project/license" = "" } }
 
 [[case]]
 name = "the guide of the needs that the layout needs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 1, line = ["docs/contributing/needs.md: the layout needs this file"] }
 false = { files = { "{case}/project/docs/contributing/needs.md" = "" } }
 
 [[case]]
 name = "the guide of the decisions that the layout needs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 1, line = ["docs/contributing/decisions.md: the layout needs this file"] }
 false = { files = { "{case}/project/docs/contributing/decisions.md" = "" } }
 
 [[case]]
 name = "the folder that the layout needs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" }
 claims = { status = 1, line = [".toolchain/tools/: the layout needs this folder"], lacks = ["src/: the layout needs this folder"] }
 false = { files = { "{case}/project/.toolchain/tools/a.py" = "" } }
 
 [[case]]
 name = "a source without its document"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/src/a.c" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/src/a.c" = "" }
 claims = { status = 1, line = ["src/a.c: no document docs/intern/a.c.md"] }
 false = { files = { "{case}/project/docs/intern/a.c.md" = "# src/a.c\n" } }
 
 [[case]]
 name = "a header without its document"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include/a.h" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/include/a.h" = "" }
 claims = { status = 1, line = ["include/a.h: no document docs/extern/a.h.md"] }
 false = { files = { "{case}/project/docs/extern/a.h.md" = "# include/a.h\n" } }
 
 [[case]]
+name = "a header of C++ without its document"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/include/a.hpp" = "" }
+claims = { status = 1, line = ["include/a.hpp: no document docs/extern/a.hpp.md"] }
+false = { files = { "{case}/project/docs/extern/a.hpp.md" = "# include/a.hpp\n" } }
+
+[[case]]
 name = "a document without its file"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/docs/intern/gone.c.md" = "# src/gone.c\n" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/docs/intern/gone.c.md" = "# src/gone.c\n" }
 claims = { status = 1, line = ["docs/intern/gone.c.md: no file has this document"] }
 false = { files = { "{case}/project/src/gone.c" = "" } }
 
 [[case]]
 name = "a document in the wrong folder"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/src/a.c" = "", "{case}/project/docs/intern/a.c.md" = "# src/a.c\n", "{case}/project/docs/extern/a.c.md" = "# src/a.c\n" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/src/a.c" = "", "{case}/project/docs/intern/a.c.md" = "# src/a.c\n", "{case}/project/docs/extern/a.c.md" = "# src/a.c\n" }
 claims = { status = 1, line = ["docs/extern/a.c.md: no file has this document"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/src/a.c" = "", "{case}/fixed/docs/intern/a.c.md" = "# src/a.c\n" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/src/a.c" = "", "{case}/fixed/docs/intern/a.c.md" = "# src/a.c\n" } }
 
 [[case]]
 name = "the documents of a part are in the folders of the part"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include/video/video.h" = "", "{case}/project/docs/extern/video/video.h.md" = "# include/video/video.h\n", "{case}/project/src/video/window.c" = "", "{case}/project/docs/intern/video/window.c.md" = "# src/video/window.c\n", "{case}/project/src/mouse/window.c" = "", "{case}/project/docs/intern/mouse/window.c.md" = "# src/mouse/window.c\n" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/include/video/video.h" = "", "{case}/project/docs/extern/video/video.h.md" = "# include/video/video.h\n", "{case}/project/src/video/window.c" = "", "{case}/project/docs/intern/video/window.c.md" = "# src/video/window.c\n", "{case}/project/src/mouse/window.c" = "", "{case}/project/docs/intern/mouse/window.c.md" = "# src/mouse/window.c\n" }
 claims = { status = 1, line = ["license: the layout needs this file"], lacks = ["video", "mouse"] }
 false = { files = { "{case}/project/docs/intern/mouse/window.c.md" = "# src/video/window.c\n" } }
 
+
+[[case]]
+name = "a part with no readme"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" }
+claims = { status = 1, line = ["docs/usage/a.md: the layout needs this file"] }
+false = { files = { "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
+
+[[case]]
+name = "a file of docs outside contributing, extern, intern and tools is allowed"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n", "{case}/project/docs/notes/plan.md" = "# Plan\n", "{case}/project/docs/notes/map.svg" = "<svg/>\n" }
+claims = { status = 1, lacks = ["the layout does not allow this file", "no file has this document"] }
+false = { files = { "{case}/project/docs/contributing/plan.md" = "# Plan\n" } }
 [[case]]
 name = "an extra document in docs"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/docs/contributing/notes.md" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/docs/contributing/notes.md" = "" }
 claims = { status = 1, line = ["docs/contributing/notes.md: the layout does not allow this file"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" } }
 
 [[case]]
 name = "the first line of a document"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/src/a.c" = "", "{case}/project/docs/intern/a.c.md" = "# a.c\n" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/src/a.c" = "", "{case}/project/docs/intern/a.c.md" = "# a.c\n" }
 claims = { status = 1, line = ["docs/intern/a.c.md: the first line is not # src/a.c"] }
 false = { files = { "{case}/project/docs/intern/a.c.md" = "# src/a.c\n" } }
 
 [[case]]
 name = "a name that is not in snake_case"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/src/Notes.c" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/src/Notes.c" = "" }
 claims = { status = 1, line = ["src/Notes.c: 'Notes.c' is not in snake_case"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/src/notes.c" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/src/notes.c" = "" } }
 
 [[case]]
 name = "a compiled file"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/src/sample.o" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/src/sample.o" = "" }
 claims = { status = 1, line = ["src/sample.o: a compiled or temporary file"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/src/sample.c" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/src/sample.c" = "" } }
 
 [[case]]
 name = "an empty folder"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/include/.gitkeep" = "", "{case}/project/src/.gitkeep" = "", "{case}/project/tools/.gitkeep" = "", "{case}/project/docs/extern/.gitkeep" = "", "{case}/project/docs/intern/.gitkeep" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/include/.gitkeep" = "", "{case}/project/src/.gitkeep" = "", "{case}/project/tools/.gitkeep" = "", "{case}/project/docs/extern/.gitkeep" = "", "{case}/project/docs/intern/.gitkeep" = "" }
 claims = { status = 1, lacks = [".gitkeep"] }
 false = { files = { "{case}/project/notes/.gitkeep" = "" } }
 
 [[case]]
 name = "a file of tests"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/tests/Any Name.txt" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/tests/Any Name.txt" = "" }
 claims = { status = 1, lacks = ["Any Name.txt"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/src/Any Name.txt" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/src/Any Name.txt" = "" } }
 
 [[case]]
 name = "a tool without its document"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/tools/a.py" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/tools/a.py" = "" }
 claims = { status = 1, line = ["tools/a.py: no document docs/tools/a.py.md"] }
 false = { files = { "{case}/project/docs/tools/a.py.md" = "# tools/a.py\n" } }
 
 [[case]]
 name = "a document of a tool that is not there"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/docs/tools/gone.py.md" = "# tools/gone.py\n" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/docs/tools/gone.py.md" = "# tools/gone.py\n" }
 claims = { status = 1, line = ["docs/tools/gone.py.md: no file has this document"] }
 false = { files = { "{case}/project/tools/gone.py" = "" } }
 
 [[case]]
 name = "a guide that [check] guides names"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "[check]\nguides = [\"timings.md\"]\n", "{case}/project/docs/contributing/timings.md" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[check]\nguides = [\"timings.md\"]\n", "{case}/project/docs/contributing/timings.md" = "" }
 claims = { status = 1, lacks = ["docs/contributing/timings.md"] }
-false = { files = { "{case}/project/.toolchain/project.toml" = "" } }
+false = { files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n" } }
 
 [[case]]
 name = "a file of a preset"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/.toolchain/presets/native_module/native_kinds.toml" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/.toolchain/presets/native_module/native_kinds.toml" = "" }
 claims = { status = 1, lacks = ["native_kinds.toml"] }
 false = { files = { "{case}/project/.toolchain/presets/native_kinds.toml" = "" } }
 
 [[case]]
+name = "a guide of a preset"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/.toolchain/presets/engine/extra_guide.md" = "" }
+claims = { status = 1, lacks = ["extra_guide.md"] }
+false = { files = { "{case}/project/.toolchain/presets/extra_guide.md" = "" } }
+
+[[case]]
 name = "third_party holds anything"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
-files = { "{case}/project/.toolchain/project.toml" = "", "{case}/project/third_party/bridge/bridge-host.exe" = "" }
+files = { "{case}/project/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/project/third_party/bridge/bridge-host.exe" = "" }
 claims = { status = 1, lacks = ["bridge-host.exe"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "", "{case}/fixed/bridge/bridge-host.exe" = "" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/fixed"], files = { "{case}/fixed/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/fixed/bridge/bridge-host.exe" = "" } }

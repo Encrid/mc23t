@@ -1,5 +1,6 @@
 [project]
 name = "probe"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
 
 [variables]
 bridge = "{root}/headers"
@@ -12,4 +13,4 @@ section = ".bridge"
 name = "probe"
 kind = "native_module"
 sources = ["src/probe.c"]
-manifest = ["test:probe@1.0.0", "abi=3", "config=none", "pinned=false", "reloadable=false"]
+manifest = ["test:probe@1.0.0", "abi=1", "config=none", "pinned=false", "reloadable=false"]

@@ -57,3 +57,39 @@ name = "a probe holds each call of a macro in full"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/expanded", "--out", "{case}/out", "--branches"]
 claims = { status = 1, line = ["src/macros.c:28:14: this condition is in a macro, and is not measured", "src/macros.c:30:9: this condition is in a macro, and is not measured", "src/macros.c:32:5: this condition is in a macro, and is not measured", "branches: 17 outcomes, 17 reached"], has = ["outcomes not reached: 0; branches not measured: 3"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/expanded", "--out", "{case}/out", "--branches", "-k", "none"] }
+
+[[case]]
+name = "a condition in a nested if after 3 operands"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/nested", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["branches: 16 outcomes, 16 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/nested", "--out", "{case}/out"] }
+
+[[case]]
+name = "a program that embeds an input is measured"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/embedded", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["branches: 3 outcomes, 3 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/embedded", "--out", "{case}/out", "--branches", "-k", "word"] }
+
+[[case]]
+name = "a run of a part measures only the files of its part"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app"]
+claims = { status = 0, line = ["branches: measured parts app", "branches: 3 outcomes, 3 reached"], lacks = ["src/core"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches"] }
+
+[[case]]
+name = "a run of a part with no use measures its own files"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "core"]
+claims = { status = 0, line = ["branches: measured parts core", "branches: 9 outcomes, 9 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app"] }
+
+[[case]]
+name = "a full run measures the files of each part"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["branches: 12 outcomes, 12 reached"], lacks = ["measured parts"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app"] }
+
+[[case]]
+name = "a run of a part keeps the layer of fail in the files of other parts"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app"]
+claims = { status = 0, line = ["app without memory: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/shared", "--out", "{case}/out", "--branches", "--part", "app", "-k", "app one"] }

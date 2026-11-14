@@ -7,5 +7,7 @@
 
 int plain(int number)
 {
-    return (number + 1);
+    int free = number + 1;
+
+    return (free);
 }

@@ -89,11 +89,49 @@ claims = { status_not = 0, has = ["config/two.toml states variables.word, and co
 false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/copy", "--out", "{case}/out"] }
 
 [[case]]
+name = "a file in a folder of config"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[variables]\nword = \"one\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/.toolchain/config/more/word.toml" = "[variables]\nword = \"two\"\n", "{case}/p/note.txt" = "note\n" }
+claims = { status_not = 0, has = ["config/more/word.toml states variables.word, and project.toml states it too"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
+
+[[case]]
 name = "a built-in variable in [variables]"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/builtin", "--out", "{case}/out"]
 claims = { status_not = 0, has = ["[variables] names a built-in variable or a key of a target: root"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/copy", "--out", "{case}/out"] }
 
+
+[[case]]
+name = "a text with the SDK of macOS on a host that is not a Mac"
+run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "linux"]
+claims = { status_not = 0, matches = ["[{]macos_sdk[}] needs a macOS host with xcrun: this host is not a Mac"] }
+false = { run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "ok"] }
+
+[[case]]
+name = "the SDK of macOS that xcrun gives"
+run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "ok"]
+claims = { status = 0, line = ["/fake/MacOSX.sdk"] }
+false = { run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "fail"] }
+
+[[case]]
+name = "an xcrun that gives no path"
+run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "fail"]
+claims = { status_not = 0, matches = ["[{]macos_sdk[}] needs a macOS host with xcrun: xcrun gave no path"] }
+false = { run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "ok"] }
+
+[[case]]
+name = "an xcrun that does not start"
+run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "missing"]
+claims = { status_not = 0, matches = ["[{]macos_sdk[}] needs a macOS host with xcrun: xcrun did not start"] }
+false = { run = ["{python}", "-c", "import sys, platform, subprocess, types; sys.path.insert(0, sys.argv[1]); kind = sys.argv[4]; real = subprocess.run; platform.system = lambda: 'Linux' if kind == 'linux' else 'Darwin'; fake = lambda: types.SimpleNamespace(returncode=0 if kind == 'ok' else 1, stdout='/fake/MacOSX.sdk' if kind == 'ok' else ''); gone = lambda: (_ for _ in ()).throw(FileNotFoundError('xcrun')); subprocess.run = lambda a, **k: (gone() if kind == 'missing' else fake()) if a[0] == 'xcrun' else real(a, **k); import build; sys.argv = ['build.py', '--root', sys.argv[2], '--out', sys.argv[3], '--target', 'x86_64-linux-gnu']; build.main()", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/sdk", "{case}/out", "ok"] }
+
+[[case]]
+name = "the SDK of macOS in [variables]"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[variables]\nmacos_sdk = \"here\"\n" }
+claims = { status_not = 0, has = ["[variables] names a built-in variable or a key of a target: macos_sdk"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/copy", "--out", "{case}/out"] }
 [[case]]
 name = "a target that the toolchain does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/copy", "--out", "{case}/out", "--target", "nowhere"]
@@ -182,16 +220,16 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 
 [[case]]
 name = "the cache of zig is a path from the folder of the project"
-run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}"]
+run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None, toolchain=True), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}"]
 claims = { status = 0, line = ["build/zig-cache/local"] }
-false = { run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/built"] }
+false = { run = ["{python}", "-c", "import argparse, os, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build; build.prepared(argparse.Namespace(root=Path(sys.argv[2]), target=None, debug=False, out=None, set=[], part=None, toolchain=True), True); print(Path(os.environ['ZIG_LOCAL_CACHE_DIR']).as_posix())", "{root}/.toolchain/tools", "{root}/.toolchain/tests/data/build/built"] }
 
 [[case]]
 name = "an archive of a release holds no path of its machine"
-folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
-run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/build/archived/.toolchain/config/build.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root, every=False: (whole := read(root, every)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu"]
 claims = { status = 0, line = ["{case}/proj/build/archived-x86_64-windows-gnu.zip", "one.a"] }
-false = { run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu", "--debug"] }
+false = { run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root, every=False: (whole := read(root, every)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2], '--pack'] + sys.argv[3:]; build.main()", "{root}/.toolchain/tools", "{case}/proj", "--target", "x86_64-windows-gnu", "--debug"] }
 
 [[case]]
 name = "a program of a release holds no path of its machine"
@@ -219,8 +257,8 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 
 [[case]]
 name = "a step that runs in a folder gets the caches of zig as whole paths"
-run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root: (whole := read(root)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2]]; build.build(shared.arguments())", "{root}/.toolchain/tools", "{case}/proj"]
-folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/cached/.toolchain/project.toml"] }
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; read = shared.config; shared.config = lambda root, every=False: (whole := read(root, every)) | {'build': whole['build'] | {'cache': (Path(root) / whole['build']['cache']).as_posix()}}; sys.argv = ['build.py', '--root', sys.argv[2]]; build.build(shared.arguments())", "{root}/.toolchain/tools", "{case}/proj"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/cached/.toolchain/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/build/cached/.toolchain/config/build.toml"] }
 claims = { status = 0, line = ["{case}/proj/build/zig-cache/local"] }
 false = { run = ["{python}", "-c", "import sys; sys.path.insert(0, sys.argv[1]); import build, shared; sys.argv = ['build.py', '--root', sys.argv[2]]; build.build(shared.arguments())", "{root}/.toolchain/tools", "{case}/proj"] }
 
@@ -251,37 +289,51 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "an artifact with no part, in a project with parts"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["note states no part, and the project has parts"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
+
+[[case]]
+name = "the readme of a part in its deliverable"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n", "{case}/p/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+claims = { status = 0, line = ["readme.md"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/q", "--out", "{case}/out"], files = { "{case}/q/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/q/note.txt" = "note\n" } }
 [[case]]
 name = "a table of [compose] with no part, in a project with parts"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[compose.headers]\nheaders = []\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\nheaders = []\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[compose.headers] states no part, and the project has parts"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[compose.headers]\npart = \"a\"\nheaders = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[compose.headers]\npart = \"a\"\nheaders = []\n" } }
 
 [[case]]
 name = "an artifact of a part that [parts] does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["note states the part a, and [parts] does not have it"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a part that states no uses"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[parts.a] states no uses"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+
+[[case]]
+name = "a part that states no folder"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+claims = { status_not = 0, has = ["[parts.a] states no folder"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a key that a part does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nuse = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nuse = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["[parts.a]: a part has no key use"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n" } }
 
 [[case]]
 name = "a pack of a part writes the zip of the part"
@@ -298,7 +350,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "a folder of third_party with no licence"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = [\"sample\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = [\"sample\"]\n\n[[artifact]]\nname = \"note\"\nkind = \"file\"\npart = \"a\"\nsources = [\"note.txt\"]\n", "{case}/p/note.txt" = "note\n" }
 claims = { status_not = 0, has = ["third_party/sample/license is not there, and the deliverable needs it"] }
 false = { files = { "{case}/p/third_party/sample/license" = "The licence of sample.\n" } }
 
@@ -353,16 +405,16 @@ false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{roo
 [[case]]
 name = "parts that use each other"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nuses = [\"a\"]\nthird_party = []\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = [\"a\"]\nthird_party = []\n" }
 claims = { status_not = 0, has = ["the uses of the parts make a cycle: "] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nuses = []\nthird_party = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"b\"]\nthird_party = []\n\n[parts.b]\nname = \"B\"\nfolder = \"b\"\nuses = []\nthird_party = []\n" } }
 
 [[case]]
 name = "a part that uses a part that [parts] does not have"
 run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
-files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = [\"nowhere\"]\nthird_party = []\n" }
+files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"nowhere\"]\nthird_party = []\n" }
 claims = { status_not = 0, has = ["no part nowhere; the parts: a"] }
-false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\n\n[parts.a]\nname = \"A\"\nuses = []\nthird_party = []\n" } }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" } }
 
 [[case]]
 name = "the variable toolchain names the toolchain of the tools"
@@ -387,3 +439,142 @@ name = "a library moves, fills, compares and counts each byte, and touches no by
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/runtime", "--out", "{case}/out"]
 claims = { status = 0, line = ["checker: 1 cases: 1 as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/runtime", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "an unchanged artifact does not build again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] }
+claims = { status = 0, matches = ["end note\n"], matches_not = ["end note\nstart note"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/note.txt", "changed", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"] }
+
+[[case]]
+name = "the runner mpbt builds each artifact each time"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/mpbt/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/mpbt/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/mpbt/note.txt"] }
+claims = { status = 0, matches = ["end note\nstart note"] }
+false = { files = { "{case}/p/.toolchain/config/build.toml" = "[build]\nrunner = \"zig\"\n" } }
+
+[[case]]
+name = "a runner that is not a runner"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/wrong/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/wrong/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/wrong/note.txt"] }
+claims = { status_not = 0, has = ["[build] runner: make is not a runner: mpbt zig"] }
+false = { files = { "{case}/p/.toolchain/config/build.toml" = "[build]\nrunner = \"zig\"\n" } }
+
+[[case]]
+name = "a change of a value of a step builds the artifact again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/.toolchain/config/word.toml", "[variables]\\nword = \"two\"\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/flagged/.toolchain/config/word.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/flagged/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/flagged/note.txt"] }
+claims = { status = 0, matches = ["end note\nstart note"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; print(open(sys.argv[1]).read(), end='')", "{case}/p/log.txt"] }
+
+[[case]]
+name = "2 artifacts that do not wait for each other build at the same time"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/order.py", "{case}/p/log.txt", "a", "b"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] }
+claims = { status = 0, line = ["together"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] } }
+
+[[case]]
+name = "2 artifacts with 1 name and 2 outputs"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/named/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/named/a.txt"] }
+claims = { status = 0, files = { "{case}/out/{target}/scratch/a.txt" = "one", "{case}/out/{target}/scratch/a.md" = "two" } }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/renamed/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/renamed/a.txt"] } }
+
+[[case]]
+name = "an artifact waits for the artifact that it links"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "{root}/.toolchain/tests/data/build/order.py", "{case}/p/log.txt", "a", "b"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/linked/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/linked/a.txt", ".toolchain/tests/data/build/graph/linked/b.txt"] }
+claims = { status = 0, line = ["apart"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/together/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/together/a.txt", ".toolchain/tests/data/build/graph/together/b.txt"] } }
+
+[[case]]
+name = "a kind that passes a file between its steps, with a section"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/note.txt", "new", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; d = open(sys.argv[1], 'rb').read(); print(d[:3].decode(), d.endswith(b'y'))", "{case}/out/{target}/scratch/note.bin"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/chained/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/chained/note.txt"] }
+claims = { status = 0, line = ["new True"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{python}", "-c", "import sys; d = open(sys.argv[1], 'rb').read(); print(d[:3].decode(), d.endswith(b'y'))", "{case}/out/{target}/scratch/note.bin"] }
+
+[[case]]
+name = "a program that embeds the file of an input prints it"
+run = ["{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c"], "{case}/p/data" = [".toolchain/tests/data/build/graph/embed/data/word.txt"] }
+claims = { status = 0, line = ["one"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/embed.py", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}", "--out", "{case}/out"], stdin = "" }
+[[case]]
+name = "a changed input builds the program again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "{case}/p/data/word.txt", "two|N|", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/embed/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/embed/src/show.c"], "{case}/p/data" = [".toolchain/tests/data/build/graph/embed/data/word.txt"] }
+claims = { status = 0, line = ["two"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt2.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }
+[[case]]
+name = "a changed header builds the artifact again"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/src/h.h", "#define VALUE 2\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/header/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/header/src/a.c", ".toolchain/tests/data/build/graph/header/src/h.h"] }
+claims = { status = 0, line = ["2"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }
+
+[[case]]
+name = "the runner mpbt compiles each source"
+run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "{case}/p/src/h.h", "#define VALUE 2\\n", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"]
+folders = { "{case}/p/.toolchain/config" = [".toolchain/tests/data/build/graph/header_mpbt/.toolchain/config/build.toml"], "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/header_mpbt/.toolchain/project.toml"], "{case}/p/src" = [".toolchain/tests/data/build/graph/header_mpbt/src/a.c", ".toolchain/tests/data/build/graph/header_mpbt/src/h.h"] }
+claims = { status = 0, line = ["2"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/build/rebuilt.py", "-", "", "--", "{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py", "++", "{case}/out/{target}/scratch/show{exe}"] }
+
+[[case]]
+name = "the steps of a kind that write no output"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/silent/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/silent/note.txt"] }
+claims = { status_not = 0, has = ["the steps of note wrote no note.txt"] }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] } }
+
+[[case]]
+name = "an archive that the runner zig makes holds no path of its machine"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", "--out", "{case}/out", "--pack", "--target", "x86_64-windows-gnu"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/build/archived/.toolchain/project.toml"], "{case}/proj/src" = [".toolchain/tests/data/build/archived/src/one.c"] }
+claims = { status = 0, line = ["one.a"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/proj", "--out", "{case}/out", "--pack", "--target", "x86_64-windows-gnu", "--debug"] }
+
+[[case]]
+name = "a library with a path gets its macro in any folder"
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import build, shared; [print(line.replace('{', '<').replace('}', '>')) for line in build.path_defines(shared.config(Path(sys.argv[2])))]", "{root}/.toolchain/tools", "{case}/p"]
+claims = { status = 0, line = ['FAR_LIB_PATH="<out>/side/far-lib<library>"', 'BARE_PATH="<out>/bare<library>"'] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+name = "pathed"
+targets = ["x86_64-linux-gnu"]
+
+[[artifact]]
+name = "far-lib"
+kind = "library"
+folder = "side"
+sources = ["src/far.c"]
+path = true
+
+[[artifact]]
+name = "bare"
+kind = "library"
+sources = ["src/far.c"]
+path = true
+'''
+
+[case.false.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+name = "pathed"
+targets = ["x86_64-linux-gnu"]
+
+[[artifact]]
+name = "far-lib"
+kind = "library"
+folder = "side"
+sources = ["src/far.c"]
+
+[[artifact]]
+name = "bare"
+kind = "library"
+sources = ["src/far.c"]
+'''

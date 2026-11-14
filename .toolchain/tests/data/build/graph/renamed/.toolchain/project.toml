@@ -1,0 +1,21 @@
+[project]
+name = "p"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[kinds.one]
+output = "{name}.txt"
+steps = [{ run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write(sys.argv[2])", "{output}", "one"] }]
+
+[kinds.two]
+output = "{name}.md"
+steps = [{ run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write(sys.argv[2])", "{output}", "two"] }]
+
+[[artifact]]
+name = "a"
+kind = "one"
+sources = ["a.txt"]
+
+[[artifact]]
+name = "b"
+kind = "two"
+sources = ["a.txt"]

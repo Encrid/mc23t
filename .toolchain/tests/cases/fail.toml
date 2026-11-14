@@ -129,3 +129,57 @@ name = "a failed call takes nothing in test --leaks"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "--leaks", "-k", "second"]
 claims = { status = 0, line = ["second: as written", "leaks: 1 cases, 1 give back what they take"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/failed", "--out", "{case}/out", "--leaks", "-k", "leaky"] }
+
+[[case]]
+name = "a loaded call fails at its number, through its pointer"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loaded"]
+claims = { status = 0, line = ["loaded: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loaded", "--break"] }
+
+[[case]]
+name = "a loader that fails gives no pointer, and the loaded call is not made"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loader"]
+claims = { status = 0, line = ["loader: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "loader", "--break"] }
+
+[[case]]
+name = "a loaded call with no number calls its function"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one"]
+claims = { status = 0, line = ["one: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/loaded", "--out", "{case}/out", "-k", "one", "--break"] }
+
+[[case]]
+name = "a listed call through a pointer variable fails at its number"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "pointed"]
+claims = { status = 0, line = ["pointed: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "pointed", "--break"] }
+
+[[case]]
+name = "a listed call through a pointer variable with no number calls its function"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole"]
+claims = { status = 0, line = ["whole: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/pointed", "--out", "{case}/out", "-k", "whole", "--break"] }
+
+[[case]]
+name = "a full run refuses a call only in the programs of the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "a run of a part gives what a full run gives"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--part", "alpha"]
+claims = { status = 0, line = ["other part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--part", "alpha", "--break"] }
+
+[[case]]
+name = "the run of branches refuses a call only in the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "own", "--branches"] }
+
+[[case]]
+name = "the run of leaks refuses a call only in the part of the case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--leaks"]
+claims = { status = 0, line = ["other part: as written", "own part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "own", "--leaks"] }

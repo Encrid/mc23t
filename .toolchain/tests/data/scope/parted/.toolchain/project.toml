@@ -1,0 +1,21 @@
+[project]
+name = "parted"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[parts.a]
+name = "Parted-A"
+folder = "a"
+uses = []
+third_party = []
+
+[parts.b]
+name = "Parted-B"
+folder = "b"
+uses = ["a"]
+third_party = []
+
+[parts.deep]
+name = "Parted-Deep"
+folder = "a/deep"
+uses = []
+third_party = []

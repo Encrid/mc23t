@@ -1,13 +1,16 @@
 [project]
 name = "parted"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
 
 [parts.alpha]
 name = "Parted-Alpha"
+folder = "alpha"
 uses = []
 third_party = []
 
 [parts.beta]
 name = "Parted-Beta"
+folder = "deep/beta"
 uses = []
 third_party = []
 
@@ -21,10 +24,10 @@ sources = ["src/alpha/alpha.c"]
 name = "beta"
 kind = "program"
 part = "beta"
-sources = ["src/beta/beta.c"]
+sources = ["src/deep/beta/beta.c"]
 
 [[branches.exception]]
-path = "src/beta/beta.c"
+path = "src/deep/beta/beta.c"
 line = 11
 col = 9
 side = "true"

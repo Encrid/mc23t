@@ -40,3 +40,15 @@ name = "a source with a folder for each target"
 run = ["{python}", "-c", "import subprocess, sys; fetch, build, root, out, *more = sys.argv[1:]; subprocess.run([sys.executable, fetch, '--root', root, '--out', out] + more, check=True); [subprocess.run([sys.executable, build, '--root', root, '--out', out, '--target', target] + more, check=True) for target in ('aarch64-macos', 'x86_64-linux-gnu')]", "{root}/.toolchain/tools/fetch.py", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/fetch/everywhere", "{case}/out"]
 claims = { status = 0, files = { "{case}/out/aarch64-macos/scratch/name.txt" = "aarch64-macos", "{case}/out/x86_64-linux-gnu/scratch/name.txt" = "x86_64-linux-gnu" } }
 false = { run = ["{python}", "-c", "import subprocess, sys; fetch, build, root, out, *more = sys.argv[1:]; subprocess.run([sys.executable, fetch, '--root', root, '--out', out] + more, check=True); [subprocess.run([sys.executable, build, '--root', root, '--out', out, '--target', target] + more, check=True) for target in ('aarch64-macos', 'x86_64-linux-gnu')]", "{root}/.toolchain/tools/fetch.py", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/fetch/everywhere", "{case}/out", "--set", "place=aarch64-macos"] }
+
+[[case]]
+name = "an archive with no folder of its top"
+run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/fetch", "--out", "{case}/out", "--set", "top=missing"]
+claims = { status = 1, line = ["fetch.py: sample: the archive has no folder missing"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/fetch", "--out", "{case}/out"] }
+
+[[case]]
+name = "a host fetches a source for each target that it builds"
+run = ["{python}", "-c", "import subprocess, sys; from pathlib import Path; fetch, root, out, *more = sys.argv[1:]; subprocess.run([sys.executable, fetch, '--root', root, '--out', out] + more, check=True); print('fetched %d' % len(list(Path(out, 'third_party', 'sample').glob('*/fetched.txt'))))", "{root}/.toolchain/tools/fetch.py", "{root}/.toolchain/tests/data/fetch/hosted", "{case}/out"]
+claims = { status = 0, line = ["fetched 2"] }
+false = { run = ["{python}", "-c", "import subprocess, sys; from pathlib import Path; fetch, root, out, *more = sys.argv[1:]; subprocess.run([sys.executable, fetch, '--root', root, '--out', out] + more, check=True); print('fetched %d' % len(list(Path(out, 'third_party', 'sample').glob('*/fetched.txt'))))", "{root}/.toolchain/tools/fetch.py", "{root}/.toolchain/tests/data/fetch/hosted", "{case}/out", "--set", "place=one"] }

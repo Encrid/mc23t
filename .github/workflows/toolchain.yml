@@ -1,8 +1,6 @@
 name: toolchain
 
 on:
-  push:
-    branches: [main]
   pull_request:
 
 permissions:
@@ -21,21 +19,9 @@ jobs:
           - target: x86_64-linux-gnu
             runner: ubuntu-latest
             architecture: x64
-          - target: aarch64-linux-gnu
-            runner: ubuntu-24.04-arm
-            architecture: arm64
-          - target: aarch64-macos
-            runner: macos-latest
-            architecture: arm64
-          - target: x86_64-macos
-            runner: macos-15-intel
-            architecture: x64
           - target: x86_64-windows-gnu
             runner: windows-latest
             architecture: x64
-          - target: aarch64-windows-gnu
-            runner: windows-11-arm
-            architecture: arm64
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     defaults:
@@ -50,8 +36,12 @@ jobs:
         with:
           python-version: '3.13'
           architecture: ${{ matrix.architecture }}
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: build/zig-cache/global
+          key: zig-${{ hashFiles('.toolchain/toolchain.toml') }}-${{ matrix.target }}
       - name: Fetch
-        run: python project.py fetch
+        run: python project.py fetch --toolchain
       - name: Toolchain
         run: python project.py test --toolchain
       - name: Break

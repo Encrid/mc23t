@@ -21,12 +21,16 @@ Then it takes the dependencies with `take.py`.
 
 `main` does these steps:
 
-1. It reads the options and the configuration.
-2. It stops if no target runs on this machine: `fetch runs on a machine of a target`.
+1. It reads the options and the configuration. With `--toolchain`, it fetches for each target of the toolchain: `.toolchain/docs/project.toml.md`, *[project]*.
+2. It stops if no target of the project runs on this machine: `fetch runs on a machine of a target`.
 3. If the pinned zig is not there, it downloads zig. Then it writes the path of zig.
-4. It makes the variables, with the target of this machine.
-5. It fetches each source.
-6. It takes the dependencies with `take.py`.
+4. For each target that this machine builds, it makes the variables of the target, and fetches each source.
+5. It takes the dependencies with `take.py`, for the target of this machine.
+
+The targets that this machine builds are those whose `built_on` is the target of this machine: `built_by` of `shared.py`.
+A machine that is no host builds only its own target.
+A source whose `url` or `into` names `{target}` thus gets one archive for each such target. A source that is the same for each target is fetched one time, since its `fetched.txt` holds the same digests.
+A source with one `into` and a `top` that names `{target}` gets its patches only in the `top` of the first target.
 
 ## zig
 
@@ -46,6 +50,9 @@ It stops if the archive does not hold the pinned zig: `the archive holds no zig 
 2. It downloads the archive into the folder.
 3. If the archive has a different digest, it removes it and stops: `<archive> is not what the maker publishes`.
 4. It unpacks the archive with `unpacked`, and removes the archive.
+
+After `fetched`, `sources` stops if the source states a `top` whose folder the archive does not have: `<source>: the archive has no folder <top>`.
+Thus a release with no folder for a target stops the fetch, and not the build later.
 
 `unpacked` gives an archive that is not a zip to `shutil.unpack_archive` of Python, which keeps the execute bits of its files.
 Python keeps no mode of the files of a zip. Thus `unpacked` unpacks each file of a zip, then adds the execute bits that the zip records for it.

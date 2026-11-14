@@ -1,0 +1,31 @@
+[project]
+name = "parted"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[parts.alpha]
+name = "Parted-Alpha"
+folder = "alpha"
+uses = ["beta"]
+third_party = []
+
+[parts.beta]
+name = "Parted-Beta"
+folder = "beta"
+uses = []
+third_party = []
+
+[[artifact]]
+name = "alpha"
+kind = "program"
+part = "alpha"
+sources = ["src/alpha/alpha.c"]
+
+[[artifact]]
+name = "beta"
+kind = "program"
+part = "beta"
+sources = ["src/beta/beta.c"]
+
+[test]
+timeout = 60
+copies = 1

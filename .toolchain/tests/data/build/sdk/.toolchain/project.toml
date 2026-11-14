@@ -1,0 +1,14 @@
+[project]
+name = "sdk"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[kinds.noted]
+output = "{name}.txt"
+steps = [
+    { run = ["{python}", "-c", "import sys; print(sys.argv[1]); open(sys.argv[2], 'w').write(sys.argv[1])", "{macos_sdk}", "{output}"] },
+]
+
+[[artifact]]
+name = "noted"
+kind = "noted"
+sources = [".toolchain/project.toml"]

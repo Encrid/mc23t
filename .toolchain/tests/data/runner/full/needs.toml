@@ -1,0 +1,34 @@
+[need.alpha.linux]
+packages = ["zulu", "alfa"]
+commands = ["alpha --ready"]
+
+[need.alpha.darwin]
+brews = ["zulu"]
+
+[need.second.linux]
+packages = ["mike"]
+commands = ["second --ready"]
+
+[need.second.darwin]
+brews = ["alfa"]
+
+[need.beta.windows]
+values.AMD64 = { part = "x64", digest = "aaaa" }
+values.ARM64 = { part = "arm64", digest = "bbbb" }
+commands = ['echo "ALPHA=$beta/tool.dll" >> "$GITHUB_ENV"']
+
+[[need.beta.windows.archive]]
+file = "beta.7z"
+url = "https://example.test/beta-{part}.7z"
+sha256 = "{digest}"
+members = ["beta/tool.dll"]
+
+[[need.beta.windows.archive]]
+url = "https://example.test/extra.zip"
+sha256 = "cccc"
+
+[need.gamma.linux]
+
+[[need.gamma.linux.archive]]
+url = "https://example.test/gamma.tgz"
+sha256 = "dddd"

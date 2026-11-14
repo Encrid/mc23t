@@ -1,69 +1,80 @@
 [[case]]
 name = "a project with no needs gives no command"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[project]\n" }
 claims = { status = 0, matches_not = ["."] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"vulkan\"]\n" } }
-
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n"
 [[case]]
-name = "the display on Linux"
+name = "the packages of each need in one install, then the commands of each need"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"display\"]\n" }
-claims = { status = 0, order = ["sudo apt-get update", "sudo apt-get install -y openbox weston xvfb", "Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &", "timeout 10 sh -c 'until [ -S /tmp/.X11-unix/X99 ]; do sleep 0.1; done'", "DISPLAY=:99 openbox > /dev/null 2>&1 &", "mkdir -p -m 700 \"$RUNNER_TEMP/wayland\"", "XDG_RUNTIME_DIR=\"$RUNNER_TEMP/wayland\" weston --backend=headless --renderer=pixman --socket=wayland-1 --no-config > /dev/null 2>&1 &", "timeout 10 sh -c 'until [ -S \"$RUNNER_TEMP/wayland/wayland-1\" ]; do sleep 0.1; done'", "echo \"DISPLAY=:99\" >> \"$GITHUB_ENV\"", "echo \"WAYLAND_DISPLAY=wayland-1\" >> \"$GITHUB_ENV\"", "echo \"XDG_RUNTIME_DIR=$RUNNER_TEMP/wayland\" >> \"$GITHUB_ENV\""] }
-false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"] }
-
+claims = { status = 0, order = ["sudo apt-get update", "sudo apt-get install -y alfa mike zulu", "second --ready", "alpha --ready"] }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"second\", \"alpha\"]\n"
 [[case]]
-name = "Vulkan on Linux"
-run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"vulkan\"]\n" }
-claims = { status = 0, line = ["sudo apt-get update", "sudo apt-get install -y libvulkan1 mesa-vulkan-drivers"], lacks = ["Xvfb"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-macos"] }
-
-[[case]]
-name = "OpenGL on Linux"
-run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"gl\"]\n" }
-claims = { status = 0, line = ["sudo apt-get install -y libgl1 libgl1-mesa-dri libglx-mesa0"] }
-false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-macos"] }
-
-[[case]]
-name = "the packages of each need in one install"
-run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"vulkan\", \"gl\", \"display\"]\n" }
-claims = { status = 0, line = ["sudo apt-get install -y libgl1 libgl1-mesa-dri libglx-mesa0 libvulkan1 mesa-vulkan-drivers openbox weston xvfb"] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"vulkan\"]\n" } }
-
-[[case]]
-name = "OpenGL on Windows for x86_64"
-run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"gl\"]\n" }
-claims = { status = 0, order = ["mesa=\"$(cygpath -u \"$RUNNER_TEMP\")/mesa\"", "mkdir -p \"$mesa\"", "curl -fsSL -o \"$mesa/mesa.7z\" https://github.com/mmozeiko/build-mesa/releases/download/26.2.5/mesa-llvmpipe-x64-26.2.5.7z", "echo \"d1b713ca2a7fba47a50c058099f13c435ddb76a16a422c334e4d787f9755a31d  $mesa/mesa.7z\" | sha256sum -c", "/c/Windows/System32/tar.exe -xf \"$(cygpath -w \"$mesa/mesa.7z\")\" -C \"$(cygpath -w \"$mesa\")\" opengl32.dll", "echo \"SDL_OPENGL_LIBRARY=$(cygpath -w \"$mesa/opengl32.dll\")\" >> \"$GITHUB_ENV\""] }
-false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"] }
-
-[[case]]
-name = "OpenGL on Windows for arm64"
-run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"gl\"]\n" }
-claims = { status = 0, order = ["mesa=\"$(cygpath -u \"$RUNNER_TEMP\")/mesa\"", "mkdir -p \"$mesa\"", "curl -fsSL -o \"$mesa/mesa.7z\" https://github.com/mmozeiko/build-mesa/releases/download/26.2.5/mesa-llvmpipe-arm64-26.2.5.7z", "echo \"e7df75398d50e07a68bbffa5cff2ece4c85e5f8ef8bda497f560dd04fe60cbbd  $mesa/mesa.7z\" | sha256sum -c", "/c/Windows/System32/tar.exe -xf \"$(cygpath -w \"$mesa/mesa.7z\")\" -C \"$(cygpath -w \"$mesa\")\" opengl32.dll", "echo \"SDL_OPENGL_LIBRARY=$(cygpath -w \"$mesa/opengl32.dll\")\" >> \"$GITHUB_ENV\""] }
-false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"] }
-
-[[case]]
-name = "no command on macOS"
+name = "the brews of each need in one install on macOS"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-macos"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"display\", \"vulkan\", \"gl\"]\n" }
-claims = { status = 0, matches_not = ["."] }
+claims = { status = 0, line = ["brew install alfa zulu"], lacks = ["apt-get", "alpha --ready"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"] }
-
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\", \"second\"]\n"
 [[case]]
-name = "a need that is not a need"
+name = "an archive for x86_64 of Windows, with the values of the cpu and the folders of the member dropped"
+run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"]
+claims = { status = 0, order = ['beta="$(cygpath -u "$RUNNER_TEMP")/beta"', 'mkdir -p "$beta"', "curl -fsSL -o \"$beta/beta.7z\" https://example.test/beta-x64.7z", "echo \"aaaa  $beta/beta.7z\" | sha256sum -c", "/c/Windows/System32/tar.exe -xf \"$(cygpath -w \"$beta/beta.7z\")\" -C \"$(cygpath -w \"$beta\")\" --strip-components=1 beta/tool.dll", "curl -fsSL -o \"$beta/extra.zip\" https://example.test/extra.zip", "echo \"cccc  $beta/extra.zip\" | sha256sum -c", "/c/Windows/System32/tar.exe -xf \"$(cygpath -w \"$beta/extra.zip\")\" -C \"$(cygpath -w \"$beta\")\"", "echo \"ALPHA=$beta/tool.dll\" >> \"$GITHUB_ENV\""], lacks = ["apt-get", "brew install"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"] }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\", \"beta\"]\n"
+[[case]]
+name = "an archive for arm64 of Windows takes the other row of values"
+run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"]
+claims = { status = 0, line = ["curl -fsSL -o \"$beta/beta.7z\" https://example.test/beta-arm64.7z", "echo \"bbbb  $beta/beta.7z\" | sha256sum -c"] }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
+[[case]]
+name = "an archive unpacks with plain tar on Linux"
+run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-linux-gnu"]
+claims = { status = 0, order = ['gamma="$RUNNER_TEMP/gamma"', 'mkdir -p "$gamma"', "curl -fsSL -o \"$gamma/gamma.tgz\" https://example.test/gamma.tgz", "echo \"dddd  $gamma/gamma.tgz\" | sha256sum -c", "tar -xf \"$gamma/gamma.tgz\" -C \"$gamma\""] }
+false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-macos"] }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"gamma\"]\n"
+[[case]]
+name = "a need that is not declared"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"sound\"]\n" }
-claims = { status = 1, has = ["[ci] needs: sound is not a need: display gl vulkan"] }
-false = { files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"display\"]\n" } }
-
+claims = { status = 1, has = ["[ci] needs: sound is not a need: alpha beta gamma second"] }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n" } }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"sound\"]\n"
+[[case]]
+name = "a placeholder with no text for the cpu of the target"
+run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "aarch64-windows-gnu"]
+claims = { status = 1, matches = ["no variable .part."] }
+false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"] }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/omit/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
+[[case]]
+name = "the members of an archive drop different counts of folders"
+run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-windows-gnu"]
+claims = { status = 1, has = ["the members of the archive into beta drop different counts of folders"] }
+false = { folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] } }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/sloped/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"beta\"]\n"
 [[case]]
 name = "a target that runs on no machine"
 run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "nowhere"]
-files = { "{case}/.toolchain/project.toml" = "[ci]\nneeds = [\"display\"]\n" }
 claims = { status = 1, has = ["no machine runs the target nowhere"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/runner.py", "--root", "{case}", "--target", "x86_64-linux-gnu"] }
+folders = { "{case}/.toolchain/config" = [".toolchain/tests/data/runner/full/needs.toml"] }
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[ci]\nneeds = [\"alpha\"]\n"

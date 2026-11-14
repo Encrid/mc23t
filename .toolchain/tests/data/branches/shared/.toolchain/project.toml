@@ -1,0 +1,33 @@
+[project]
+name = "shared"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[parts.core]
+name = "Shared-Core"
+folder = "core"
+uses = []
+third_party = []
+
+[parts.app]
+name = "Shared-App"
+folder = "app"
+uses = ["core"]
+third_party = []
+
+[[artifact]]
+name = "core"
+kind = "program"
+part = "core"
+sources = ["src/core/core.c", "src/core/core_main.c"]
+include = ["src"]
+
+[[artifact]]
+name = "app"
+kind = "program"
+part = "app"
+sources = ["src/app/app.c", "src/core/core.c"]
+include = ["src"]
+
+[test]
+timeout = 60
+copies = 1

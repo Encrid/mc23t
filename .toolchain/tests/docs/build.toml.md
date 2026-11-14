@@ -10,6 +10,7 @@ The cases of the options, of the report and of the files of a project run a shor
 | `copy` | The artifact `copy.txt` of the kind `file`. The variables `tool`, `source` and `linked` give its tool, its source and its link. |
 | `twice` | `[variables] language`, a key that `.toolchain/toolchain.toml` also gives. |
 | `builtin` | `[variables] root`, the name of a variable that the tools give. |
+| `sdk` | The artifact `noted`, whose step writes `{macos_sdk}`. Its cases replace the system of the host and `xcrun` in a short Python program, so they run on each machine. |
 | `unknown` | An artifact with the name `{named}`. The variable `named` is `{nothing}`, which has no value. |
 | `listed` | An artifact with the name `{named}`. The variable `named` is `{language}`, a list in a text. |
 | `targeted` | The artifact `near-{target}.txt`, and its variant `far-{target}.txt` with the target `nowhere`. The project adds `nowhere`, whose `runs_on` is empty. |
@@ -75,12 +76,19 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the proof links the files of [package] link | `build --pack` writes `package proof: built ran`. The proof calls `outside`, and only the linked `outside.c` gives it. | `--set outside={case}/none.c`, a file that is not there. Thus `build` stops before the proof links. |
 | the proof includes the folders of [package] include | `build --pack` writes `package proof: built ran`. The proof includes `outside.h`, and only the folder that `[package] include` names holds it. | `--set outside_include={case}/none`, a folder that is not there. Thus the proof does not compile. |
 | a module over the defaults, with a path | `build` on `module` builds `mod` from the default sources, `two` and its variant `three`, and `pathcheck` with their `*_PATH` macros. | `build` on `copy`. |
+| a library with a path gets its macro in any folder | The library `far-lib` of the folder `side` and the library `bare` of no folder have `path = true`. `path_defines` gives `FAR_LIB_PATH` with `side/far-lib`, and `BARE_PATH` with `bare`. The case writes each `{` as `<` and each `}` as `>`. | No library has `path = true`. |
 | the files of config merge | `build` on `config` makes `thing`, whose `[[artifact]]` is in a file of `.toolchain/config`, not `project.toml`. | `build` on `copy`. |
 | a variable that [variables] does not have | `--set nowhere=1` stops `build`: `--set nowhere=1: [variables] has no nowhere`. | No `--set`. |
 | a key in project.toml and in toolchain.toml | `build` on `twice` stops: `project.toml states variables.language, and toolchain.toml states it too`. | `build` on `copy`. |
 | a list of tables in two files | `build` on `joined` makes `alpha` and `beta`. | `build` on `config`. |
 | a key in two files of config | `build` on `clash` stops: `config/two.toml states variables.word, and config/one.toml states it too`. | `build` on `copy`. |
+| a file in a folder of config | `project.toml` and `config/more/word.toml` both state `[variables] word`: `config/more/word.toml states variables.word, and project.toml states it too`. | `project.toml` states no `word`. |
 | a built-in variable in [variables] | `build` on `builtin` stops: `[variables] names a built-in variable or a key of a target: root`. | `build` on `copy`. |
+| a text with the SDK of macOS on a host that is not a Mac | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: this host is not a Mac`. | A macOS host whose `xcrun` gives a path. |
+| the SDK of macOS that xcrun gives | On a macOS host, the step writes `/fake/MacOSX.sdk`, the path of `xcrun`. | An `xcrun` that fails. |
+| an xcrun that gives no path | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: xcrun gave no path`. | An `xcrun` that gives a path. |
+| an xcrun that does not start | `build` on `sdk` stops: `{macos_sdk} needs a macOS host with xcrun: xcrun did not start`. | An `xcrun` that gives a path. |
+| the SDK of macOS in [variables] | `build` stops: `[variables] names a built-in variable or a key of a target: macos_sdk`. | `build` on `copy`. |
 | a target that the toolchain does not have | `--target nowhere` stops `build`: `no target nowhere; the targets:`. | No `--target`. |
 | a tool that is not there | `--set tool=nowhere` stops `build`: `the tool interpreter is not at nowhere`. | No `--set`. |
 | sources that match no file | `--set source=none.txt` stops `build`: `no file matches the sources of copy.txt`. | No `--set`. |
@@ -95,20 +103,22 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the files of a project, from git | The program makes `{case}/g` a repository of git, and `shared.repository` writes `True`. `shared.ours` gives `a.txt` and `.gitignore`, but not `tests` or a file that git ignores. | `{case}/g/src/b.txt` is also there. |
 | a package that holds a path of its machine is refused | `build --pack` on `leaky` stops: `stamped.txt` holds the folder of the project. | `--set stamp=leaky`: `stamped.txt` holds no folder, thus `pack` writes the zip. |
 | the cache of zig is a path from the folder of the project | `build.prepared` on the template, which holds the cache, sets `ZIG_LOCAL_CACHE_DIR` to `build/zig-cache/local`. | `build.prepared` on `built`, which does not hold the cache: a whole path. |
-| an archive of a release holds no path of its machine | `build --pack --target x86_64-windows-gnu` on the copy of `archived` writes its zip, thus `one.a` holds no folder of the machine. Without `-fstrip`, each object of `one.a` holds its own path. | `--debug`: the debug information of `one.a` holds the folder of the project, thus `pack` stops. |
+| an archive of a release holds no path of its machine | With the runner `mpbt`, `build --pack --target x86_64-windows-gnu` on the copy of `archived` writes its zip, thus `one.a` holds no folder of the machine. Without `-fstrip`, each object of `one.a` holds its own path. | `--debug`: the debug information of `one.a` holds the folder of the project, thus `pack` stops. |
 | a program of a release holds no path of its machine | `build --pack --target x86_64-linux-gnu` on `started` writes its zip, thus `sizer` holds no folder of the machine. `sizer` links objects that zig builds for glibc, with their debug information. Without `-s`, `sizer` keeps it. | `--debug`: the debug information of `sizer` holds the folder of the project, thus `pack` stops. |
 | the headers of a table start from its folder | `build` on `composed` writes `include/kept.h`, and `{case}/out/{target}/include/kept.h` holds the header of `kept`. | `--set place=.`: the folder of the project has no `include/kept.h`. |
 | a step that runs in a folder | `build` on `placed` builds `placed{exe}`: from the folder `side`, the step finds `side.c`, `src/main.c` and `include/placed.h`. | `--set side=.`: the folder of the project has no `side.c`. |
 | a step that runs in a folder that is not there | With `--set side=nowhere`, `build` stops: `<folder>/nowhere is not there, and a step of placed runs in it`. | No `--set`. |
-| a step that runs in a folder gets the caches of zig as whole paths | A short Python program puts `[build] cache` in `{case}/proj`, as the case of an archive does, and builds `cached`. The step writes `{case}/proj/build/zig-cache/local`, a whole path. | The program does not move the cache, so the step writes the cache of this project. |
+| a step that runs in a folder gets the caches of zig as whole paths | A short Python program puts `[build] cache` in `{case}/proj`, as the case of an archive does, and builds `cached` with the runner `mpbt`. The step writes `{case}/proj/build/zig-cache/local`, a whole path. | The program does not move the cache, so the step writes the cache of this project. |
 | a program of a package keeps its execute bits | A short Python program runs `build --pack` on `built`, and writes `True`: the zip records an execute bit for `greeter{exe}`. On Windows, the name `greeter.exe` gives the bit. | The program reads the mode of `include/greet.h`, a header with no execute bit. |
 | a build of a part makes the parts that it uses, and their uses | `build --part gamma` on `family` builds `alpha.txt`, `beta.txt` and `gamma.txt`. | `--part beta`, which does not build `gamma.txt`. |
 | a build of a part makes no other part | `build --part alpha` on `family` builds `alpha.txt`, and not `beta.txt` or `gamma.txt`. | No `--part`. |
 | a part that the project does not have | `build --part nowhere` on `family` stops: `no part nowhere; the parts: alpha beta gamma`. | `--part alpha`. |
 | an artifact with no part, in a project with parts | The artifact `note` states no part: `note states no part, and the project has parts`. | `note` states the part `a`. |
+| the readme of a part in its deliverable | `build` writes `readme.md`, the readme of the part `a`, among the files of the deliverable. | A project with no readme of the part. |
 | a table of [compose] with no part, in a project with parts | `[compose.headers]` states no part: `[compose.headers] states no part, and the project has parts`. | The table states the part `a`. |
 | an artifact of a part that [parts] does not have | In a project with no `[parts]`, `note` states the part `a`: `note states the part a, and [parts] does not have it`. | `note` states no part. |
 | a part that states no uses | `[parts.a]` has no `uses`: `[parts.a] states no uses`. | `uses = []`. |
+| a part that states no folder | `[parts.a]` has no `folder`: `[parts.a] states no folder`. | `folder = "a"`. |
 | a key that a part does not have | `[parts.a]` has the key `use`: `[parts.a]: a part has no key use`. | No `use`. |
 | a pack of a part writes the zip of the part | `pack --part beta` on `family` writes `Family-Beta-{target}.zip` with `beta.txt`, `include/beta.h` and `license`, and runs the proof of `beta`. The zip holds no `alpha.txt` and no licence of `third_party`. | `--part alpha`. |
 | the zip of a part holds the licences of its third_party | `pack --part alpha` on `family` writes `Family-Alpha-{target}.zip` with `third_party/sample/license`. | `--part gamma`. |
@@ -127,5 +137,19 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a library of x86_64-windows-gnu links no compiler_rt | `inspect.py size` writes `small.dll: under 16 KB`. | `bare.dll`, which links compiler_rt: `16 KB or more`. |
 | a library of x86_64-windows-gnu takes its moves and its fills from Windows | `inspect.py imports` writes `KERNEL32.dll: RtlMoveMemory` and `KERNEL32.dll: RtlFillMemory` for `small.dll`. | `bare.dll`, which imports neither. |
 | a library moves, fills, compares and counts each byte, and touches no byte outside its buffers | `test` on `runtime` builds for the target of the machine, and the case `checker` writes `bad 0`: `checker: 1 cases: 1 as written`. | `--break`: `checker` gets the argument `wrong`, and writes `bad 1`. |
+| an unchanged artifact does not build again | 2 builds with no change: the step of `note` runs one time, so `log.txt` holds 1 start and 1 end. | `note.txt` changes between the 2 builds. |
+| the runner mpbt builds each artifact each time | `[build] runner = "mpbt"`: the step runs in each of the 2 builds. | The runner `zig`. |
+| a runner that is not a runner | `[build] runner = "make"`: `[build] runner: make is not a runner: mpbt zig`. | The runner `zig`. |
+| a change of a value of a step builds the artifact again | `word` changes from `one` to `two` between the 2 builds, so the command of the step changes, and it runs 2 times. | `word` does not change. |
+| 2 artifacts that do not wait for each other build at the same time | The steps of `a` and `b` take 1 second each. Each one starts before the other one ends, so `order.py` writes `together`. | `b` links the output of `a`. |
+| 2 artifacts with 1 name and 2 outputs | The artifacts `a` of the kinds `one` and `two` write `a.txt` and `a.md`, each with its own spec. | The second artifact is `b`, so no `a.md` is there. |
+| an artifact waits for the artifact that it links | `b` links `{out}/a.txt`, so `b` starts after `a` ends, and `order.py` writes `apart`. | `b` links nothing. |
+| a kind that passes a file between its steps, with a section | `note.txt` changes from `old` to `new` between the 2 builds. The output starts with `new` and ends with the section. | `note.txt` does not change. |
+| a program that embeds the file of an input prints it | `show` has `inputs = ["{out}/word.txt"]`, and embeds `word.txt` with `#embed`. The program writes `one`. The source is `data/word.txt`, so `#embed` finds only the file that the build makes. | The root of the build holds no project, so `build` stops. |
+| a changed input builds the program again | `data/word.txt` changes from `one` to `two` between the 2 builds, and the program writes `two`. | The input does not change, so `rebuilt2.py` stops. |
+| a changed header builds the artifact again | `src/h.h` changes from `VALUE 1` to `VALUE 2` between the 2 builds, and the program writes `2`. | The header does not change. |
+| the runner mpbt compiles each source | The same, with `[build] runner = "mpbt"`: the step `each` of `program` compiles the source, and the program writes `2`. | The header does not change. |
+| the steps of a kind that write no output | The step of `silent` prints `1` and writes no `{output}`: `the steps of note wrote no note.txt`. | The kind `marked`, which writes its output. |
+| an archive that the runner zig makes holds no path of its machine | With the runner `zig` and the cache of zig outside the project, `--pack` of `archived` for `x86_64-windows-gnu` passes the check of the paths. | `--debug`: the debug data holds the folder of the project. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.

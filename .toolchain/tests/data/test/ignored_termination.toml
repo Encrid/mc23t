@@ -1,0 +1,6 @@
+[[case]]
+name = "deaf"
+run = ["{python}", "-c", ""]
+ignore = ["termination"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
