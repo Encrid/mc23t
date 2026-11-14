@@ -332,3 +332,15 @@ name = "a changed run makes each part after the parts that it uses"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/ordered", "--out", "{case}/out", "--branches"]
 claims = { status = 0, line = ["branches: 0 outcomes, 0 reached"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/unordered", "--out", "{case}/out", "--branches"] }
+
+[[case]]
+name = "a named group runs alone"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--group", "deep/beta/beta"]
+claims = { status = 0, line = ["deep/beta/beta: 1 cases: 1 as written"], lacks = ["alpha/alpha"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--group", "alpha/alpha"] }
+
+[[case]]
+name = "a named group that is not there"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--group", "nowhere"]
+claims = { status = 1, line = ["test.py: no case group nowhere"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/test/parted", "--out", "{case}/out", "--group", "alpha/alpha"] }

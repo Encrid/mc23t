@@ -34,3 +34,5 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/branches`, with 
 | a run of a part with no use measures its own files | `test --part core` on `shared` writes `branches: measured parts core` and `branches: 9 outcomes, 9 reached`. | `--part app`. |
 | a full run measures the files of each part | `test` on `shared` writes `branches: 12 outcomes, 12 reached`, and names no measured parts. | `--part app`, thus 3 outcomes. |
 | a run of a part keeps the layer of fail in the files of other parts | `test --part app` on `shared` writes `app without memory: as written`. `core.c` has no probes, but it keeps the layer that makes `malloc` fail. | `-k "app one"`, thus that case does not run. |
+| a run of a group measures only the code that the group tests | `test --branches --group app/app` on `shared` writes `branches: measured the code of the groups app/app` and `branches: 3 outcomes, 3 reached`, and names no file of `src/core`. | No `--group`. |
+| the cases of a group reach each branch of the code that the group tests | With `-k "app one"`, the group `app/app` does not reach one outcome of `app.c`, and the run fails: `outcomes not reached: 1`. | No `-k`. |
