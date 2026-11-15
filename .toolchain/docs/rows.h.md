@@ -38,7 +38,7 @@ A row can start with marks. A mark begins with `+`, and `rows_run` does not give
 The mark `+refuse` takes more than one function, with a comma between them: `+refuse malloc=1,write=1`.
 A system that has no call of a function of the list refuses no call of it.
 
-A row has 61 words at most, and a line 4095 characters at most.
+A row has 61 words at most, and a line 16383 characters at most. For a longer line, the program writes `a row is too long`, and ends with the status 1.
 
 ## Functions
 
