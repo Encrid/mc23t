@@ -33,6 +33,7 @@
 | `owner(config, group)` | Gives the part of a group from `part_of` of `shared.py`, with a space before and after it, or `False`. |
 | `picked(config, groups, args)` | Gives only the groups of the parts of `--part` and the groups of `--group`, as *Groups* tells, then only the cases of `-k`, with `chosen`. |
 | `rowed(case, path)` | Checks the rows of a table, and stops at a fault: *A table*. |
+| `ruled(path, cases)` | Stops for a group that breaks a rule of `[test] tables`: `docs/contributing/tests.md`, *Its own process*. |
 | `groups_of(config, values, folder)` | Reads and checks the groups of a folder: `tests/cases`, or `.toolchain/tests/cases` of the repository `mc23t`. |
 | `changed(args, run, write, prepared)` | Does the steps of a changed run, as *A changed run* tells. It gives the config, the variables, what `write` gave, the artifacts and the groups. |
 | `scoped(args, entries, key, names)` | Gives the exemptions whose `key` matches one of the names, with `*`. With no `--part` and no `--group`, it gives all the exemptions. |
@@ -84,7 +85,10 @@ A file with no case gives no group.
 - holds a step or a value of `ignore` that `allowed` of `signals.py` refuses, also in its false variant: `.toolchain/docs/signals.py.md`, *The checks*,
 - claims nothing: `<path>: the case <name> claims nothing`,
 - has no false variant: `<path>: the case <name> has no false variant`,
+- states a `process` that is no reason: `<path>: the case <name> states the process <word>, and a process is status, signal, helper, command, state`,
 - states a call in `fail`, also in its false variant, that `listed` of `fail.py` does not give: `<path>: the case <name> makes <call> fail, and [fail.calls] does not list it`.
+
+With `tables = true` in `[test]`, `groups_of` then gives the cases of each file to `ruled`.
 
 ## A case
 

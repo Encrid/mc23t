@@ -1,0 +1,24 @@
+[[case]]
+name = "refused 1"
+run = ["{python}", "-c", ""]
+process = "state"
+fail = { malloc = 1 }
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[[case]]
+name = "refused 2"
+run = ["{python}", "-c", ""]
+process = "state"
+fail = { malloc = 2 }
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[[case]]
+name = "refused 3"
+run = ["{python}", "-c", ""]
+process = "state"
+fail = { malloc = 3 }
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+

@@ -22,6 +22,11 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `table_status.toml` | A table whose first row claims `status`. |
 | `table_mute.toml` | A table whose first row has `claims = {}`. |
 | `table_silent.toml` | The table of `table.toml` with no `claims` for its run. |
+| `tabled/project.toml` | The project of `project.toml`, with `tables = true` in `[test]`. |
+| `own_stated.toml` | The case `stated`, which passes and states `process = "status"`. |
+| `own_word.toml` | The case `worded`, which states `process = "speed"`. |
+| `table_own.toml` | The table of `table.toml`, which also states `process`. |
+| `swept_by_hand.toml` | 3 cases with one command. Each one states `process`, and makes one call of `malloc` fail: the first, the second, the third. |
 | `alone.toml` | The case `alone`, which has no false variant. |
 | `silent.toml` | The case `silent`, which claims nothing. |
 | `colour.toml` | The case `colour`, which has the key `colour`. |
@@ -107,3 +112,8 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a row that claims nothing | `test` stops: `the row greet writes the name that it gets claims nothing`. | `passes.toml`. |
 | a table that claims nothing for its run | `test` stops: `the case greet claims nothing`. | `passes.toml`. |
 | -k chooses the rows of a table | `test -k second` runs 1 row of `table.toml`: `table: 1 cases: 1 as written`. | `-k greet`, which runs the 3 rows. |
+| a case with no reason for its own process, in a project with tables | `test` stops: `the case passes has its own process and states no reason`. | The project with no `tables`. |
+| a case that states the reason of its own process | With `tables`, `stated: as written`. | `passes.toml`, which states no `process`. |
+| a process that is no reason | `test` stops, also with no `tables`: `the case worded states the process speed`. | `own_stated.toml`. |
+| a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
+| 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |

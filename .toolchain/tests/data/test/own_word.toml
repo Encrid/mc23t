@@ -1,0 +1,6 @@
+[[case]]
+name = "worded"
+run = ["{python}", "-c", ""]
+process = "speed"
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

@@ -299,6 +299,26 @@ def rowed(case, path):
             die('%s: the row %s claims nothing' % (path, row['name']))
 
 
+PROCESS = ('status', 'signal', 'helper', 'command', 'state')
+
+
+def ruled(path, cases):
+    by_hand = {}
+    for case in cases:
+        if 'rows' in case and 'process' in case:
+            die('%s: the table %s states process, and only a case with no rows has its own process'
+                % (path, case['name']))
+        if 'rows' not in case and 'process' not in case:
+            die('%s: the case %s has its own process and states no reason: write process, or make it a row of a table'
+                % (path, case['name']))
+        if len(case.get('fail', {})) == 1:
+            by_hand.setdefault((tuple(case['run']), *case['fail']), []).append(case['name'])
+    for (_, call), names in by_hand.items():
+        if len(names) > 2:
+            die('%s: %d cases refuse the calls of %s one after the other, from the case %s: write a sweep'
+                % (path, len(names), call, names[0]))
+
+
 def groups_of(config, values, folder):
     root, found, calls = Path(values['root']), [], fail.listed(config, values)
     for path in files(root, [folder + '/**/*.toml']):
@@ -315,9 +335,14 @@ def groups_of(config, values, folder):
                 rowed(case, path)
             elif 'false' not in case:
                 die('%s: the case %s has no false variant' % (path, case['name']))
+            if case.get('process', PROCESS[0]) not in PROCESS:
+                die('%s: the case %s states the process %s, and a process is %s'
+                    % (path, case['name'], case['process'], ', '.join(PROCESS)))
             for call in [*case.get('fail', {}), *case.get('false', {}).get('fail', {}), *case.get('sweep', [])]:
                 if call not in calls:
                     die('%s: the case %s makes %s fail, and [fail.calls] does not list it' % (path, case['name'], call))
+        if config.get('test', {}).get('tables'):
+            ruled(path, cases)
         found.append((Path(path).relative_to(folder).with_suffix('').as_posix(), cases))
     return [(group, cases) for group, cases in found if cases]
 
