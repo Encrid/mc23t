@@ -115,6 +115,7 @@ The build of the copies embeds the files that the run builds.
 | `marked(node, state)` | Gives each location of a syntax tree the file that it is in. The dump writes a file only when it changes. |
 | `is_macro(loc)` | Tells if a location comes from a macro. |
 | `owned(loc, root, tops)` | Gives the path of a location in `src` or in `include`, or `None`. With `tops` at `None`, it gives the path of a location in any folder of the project. |
+| `held(path)` | Reads a file in parts of 64 MiB, and gives its bytes. One read of a larger file fails on Windows. |
 | `dumped(command, root)` | Runs the command `dump`, and gives the syntax tree, with the file of each location. |
 | `stood_in(artifact, mine)` | Writes a file of 1 zero byte for each file of `inputs`, and gives the flag `--embed-dir` of their folder, or no flag. |
 | `sources(config, values, tests)` | Gives each file `.c` of `src` that an artifact of this target compiles, with its command `dump` and the set of its parts. With `tests`, it gives the test sources too: *The test sources*. |

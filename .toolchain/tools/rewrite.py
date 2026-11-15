@@ -122,6 +122,14 @@ def owned(loc, root, tops=TOPS):
     return path if tops is None or path.startswith(tops) else None
 
 
+def held(path):
+    whole = bytearray()
+    with open(path, 'rb') as file:
+        for part in iter(lambda: file.read(1 << 26), b''):
+            whole += part
+    return whole
+
+
 def dumped(command, root):
     folder = (Path(root) / command[command.index('-o') + 1]).parent
     folder.mkdir(parents=True, exist_ok=True)
@@ -130,10 +138,10 @@ def dumped(command, root):
     tree = Path(out.name)
     errors = [line for line in done.stderr.decode('utf-8', 'replace').splitlines()
               if ' error: ' in line and not line.endswith('FileNotFound')]
-    if errors:
-        die('the tree of %s cannot be read:\n%s' % (command[-1], '\n'.join(errors)))
     try:
-        found = json.loads(tree.read_bytes())
+        if errors:
+            die('the tree of %s cannot be read:\n%s' % (command[-1], '\n'.join(errors)))
+        found = json.loads(held(tree))
         marked(found, [None])
     except ValueError:
         die('the tree of %s is not JSON' % command[-1])
