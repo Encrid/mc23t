@@ -578,3 +578,10 @@ name = "bare"
 kind = "library"
 sources = ["src/far.c"]
 '''
+
+[[case]]
+name = "the step of an artifact takes its sources as inputs, and not as arguments"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--out", "{case}/out", "--set", "mark={root}/.toolchain/tests/data/build/mark.py"]
+folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] }
+claims = { status = 0, files = { "{case}/out/{target}/scratch/obj/graph.json" = '"kind": "input"' } }
+false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
