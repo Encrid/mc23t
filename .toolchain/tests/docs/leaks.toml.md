@@ -6,7 +6,7 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/leaks`, with its
 | Project | Content |
 | --- | --- |
 | `held` | The program `held`, from the files of `src` and `third_party/grab/grab.c`. Its first argument picks what it does, and each case of the project gives one argument. The case `silent` runs Python, which writes no line. |
-| `tested` | The program `tested`, from `src/give.c` and the test sources `tests/main.c` and `tests/modes.h`. `give` of `src` takes memory, and `drop` of `src` frees a block. The 4 cases of the project give the argument `frees`, `gives`, `keeps` or `two`. |
+| `tested` | The program `tested`, from `src/give.c` and the test sources `tests/main.c` and `tests/modes.h`. `give` of `src` takes memory, and `drop` of `src` frees a block. The 4 cases of the project give the argument `frees`, `gives`, `keeps` or `two`. The test source writes its answer with `sprintf`, which the headers of macOS declare as deprecated when `_FORTIFY_SOURCE` is 0: the dump must still read its tree. |
 | `opened` | The library `chunk`, which takes memory in `chunk_make` and frees it in `chunk_drop`, and the test program `loader`. `loader` opens the library, calls it and closes it. |
 | `excused` | The program `keep`, which keeps one block of memory, and an exemption of `project.toml` that excuses it. |
 | `badexempt` | The same program, with an exemption that states no reason and an exemption for a kind that no case keeps. |
