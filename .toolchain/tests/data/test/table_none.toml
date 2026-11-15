@@ -1,0 +1,5 @@
+[[case]]
+name = "greet"
+run = ["{python}", "-c", "import sys\nfor line in sys.stdin:\n    name = line.strip()\n    print('hello, ' + name if name else 'no name')\n    print()"]
+claims = { status = 0 }
+rows = []

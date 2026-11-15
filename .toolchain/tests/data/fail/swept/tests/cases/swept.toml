@@ -1,0 +1,6 @@
+[[case]]
+name = "each refused malloc of take_two gives nothing"
+run = ["{out}/swept{exe}"]
+sweep = ["malloc"]
+claims = { status = 0, order = ["malloc 1 refused: nothing taken", "malloc 2 refused: nothing taken", "2 refused calls, then taken"] }
+false = { run = ["{out}/swept{exe}", "one"] }

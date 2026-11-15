@@ -10,6 +10,23 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `note.txt` | The line `written at the prompt`. |
 | `passes.toml` | The case `passes`, which passes. |
 | `fails.toml` | The case `fails`, which ends with the status 1. |
+| `table.toml` | The table `greet` with 3 rows, which claims the status 0. Its command answers each name with `hello, <name>`, and an empty line with `no name`. |
+| `table_still.toml` | The same table. The false input of its first row is the input of the row. |
+| `table_ends.toml` | The same table. Its command ends at the name `Bob`, which the second row gives. |
+| `table_many.toml` | The same table. Its command writes 2 answers for each row. |
+| `table_state.toml` | A table of 2 rows. Its command writes the number of each line before the name. |
+| `table_exit.toml` | The same table as `table.toml`. Its command ends with the status 1. |
+| `table_none.toml` | A table with `rows = []`. |
+| `table_false.toml` | A table that also states `false`. |
+| `table_short.toml` | A table whose first row has no `false`. |
+| `table_status.toml` | A table whose first row claims `status`. |
+| `table_mute.toml` | A table whose first row has `claims = {}`. |
+| `table_silent.toml` | The table of `table.toml` with no `claims` for its run. |
+| `tabled/project.toml` | The project of `project.toml`, with `tables = true` in `[test]`. |
+| `own_stated.toml` | The case `stated`, which passes and states `process = "status"`. |
+| `own_word.toml` | The case `worded`, which states `process = "speed"`. |
+| `table_own.toml` | The table of `table.toml`, which also states `process`. |
+| `swept_by_hand.toml` | 3 cases with one command. Each one states `process`, and makes one call of `malloc` fail: the first, the second, the third. |
 | `alone.toml` | The case `alone`, which has no false variant. |
 | `silent.toml` | The case `silent`, which claims nothing. |
 | `colour.toml` | The case `colour`, which has the key `colour`. |
@@ -81,3 +98,22 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a changed run makes each part after the parts that it uses | `test --branches` on `.toolchain/tests/data/build/ordered` builds `zeta.txt` before `alpha.txt`, and writes `branches: 0 outcomes, 0 reached`. | `unordered`: the link of `alpha.txt` is not there. |
 | a named group runs alone | `test --group deep/beta/beta` on `parted` runs that group, and not `alpha/alpha`. | `--group alpha/alpha`. |
 | a named group that is not there | `test --group nowhere` on `parted` stops: `no case group nowhere`. | `--group alpha/alpha`. |
+| a table gives a verdict for each row | It writes `<row>: as written` for each of the 3 rows, and then `table: 3 cases: 3 as written`. | `table_ends.toml`. |
+| the break run gives each row its false input | `test --break` writes `<row>, made false: fails, as it must` for each of the 3 rows. | `table_still.toml`. |
+| a row whose false input still holds | `test --break` stops, and names the row. | `table.toml`. |
+| a table whose command ends before its last row | The row at which the command ended, and the row after it, fail. `test` names the first one. | `table.toml`. |
+| a table whose command gives more answers than rows | Each row fails: `is one of 3 rows, and the command gave 6 answers`. | `table.toml`. |
+| a table whose rows need their order | The table passes in its order, and fails in the reverse order: `differs in the reverse order`. | `table.toml`. |
+| a table whose command ends with another status | Each row fails: `is in a run that differs`. | `table.toml`. |
+| a table with no row | `test` stops: `the table greet has no row`. | `passes.toml`. |
+| a table with a false variant | `test` stops: `the table greet has rows, and a table has no key false`. | `passes.toml`. |
+| a row with no false input | `test` stops: `a row of the table greet has no key false`. | `passes.toml`. |
+| a row that claims a status | `test` stops: `a claim of a row has no key status`. | `passes.toml`. |
+| a row that claims nothing | `test` stops: `the row greet writes the name that it gets claims nothing`. | `passes.toml`. |
+| a table that claims nothing for its run | `test` stops: `the case greet claims nothing`. | `passes.toml`. |
+| -k chooses the rows of a table | `test -k second` runs 1 row of `table.toml`: `table: 1 cases: 1 as written`. | `-k greet`, which runs the 3 rows. |
+| a case with no reason for its own process, in a project with tables | `test` stops: `the case passes has its own process and states no reason`. | The project with no `tables`. |
+| a case that states the reason of its own process | With `tables`, `stated: as written`. | `passes.toml`, which states no `process`. |
+| a process that is no reason | `test` stops, also with no `tables`: `the case worded states the process speed`. | `own_stated.toml`. |
+| a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
+| 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |
