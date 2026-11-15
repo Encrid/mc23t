@@ -1,0 +1,6 @@
+[[case]]
+name = "a sweep of a call that no list has"
+run = ["{out}/swept{exe}"]
+sweep = ["take_one"]
+claims = { status = 0 }
+false = { run = ["{out}/swept{exe}", "one"] }

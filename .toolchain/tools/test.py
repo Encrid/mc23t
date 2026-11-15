@@ -168,7 +168,7 @@ def typed_rows(use, broken, order, values):
 
 def tried(config, values, outputs, where, case, broken, counted=False, failing=None, part=False, order=None):
     use = made_false(case) if broken else case
-    values, outputs = failing if failing and use.get('fail') else (values, outputs)
+    values, outputs = failing if failing and (use.get('fail') or use.get('sweep')) else (values, outputs)
     folder = Path(values['out']) / 'cases' / where
     shutil.rmtree(folder, ignore_errors=True)
     folder.mkdir(parents=True, exist_ok=True)
@@ -183,7 +183,8 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
     if helper:
         waited(beside, expand(helper['wait'], mine))
     running = started(expanded(use['run'], mine), root, timeout,
-                      environment({**counting, 'C23_FAIL': plan, 'C23_FAIL_PART': plan and part, **use.get('env', {})},
+                      environment({**counting, 'C23_FAIL': plan, 'C23_FAIL_PART': bool(plan or use.get('sweep')) and part,
+                                   **use.get('env', {})},
                                   mine), use)
     scripted(running, use.get('script', []), outputs, mine)
     typing = expand(use.get('stdin', ''), mine) if order is None else typed_rows(use, broken, order, mine)
@@ -314,7 +315,7 @@ def groups_of(config, values, folder):
                 rowed(case, path)
             elif 'false' not in case:
                 die('%s: the case %s has no false variant' % (path, case['name']))
-            for call in {**case.get('fail', {}), **case.get('false', {}).get('fail', {})}:
+            for call in [*case.get('fail', {}), *case.get('false', {}).get('fail', {}), *case.get('sweep', [])]:
                 if call not in calls:
                     die('%s: the case %s makes %s fail, and [fail.calls] does not list it' % (path, case['name'], call))
         found.append((Path(path).relative_to(folder).with_suffix('').as_posix(), cases))
@@ -424,7 +425,8 @@ def main():
     own = not (args.broken or args.toolchain or args.k or args.part or args.group)
     rounds = args.rounds or 1
     failing = None
-    if any((made_false(case) if args.broken else case).get('fail') for _, cases in groups for case in cases):
+    if any(use.get('fail') or use.get('sweep') for use in ((made_false(case) if args.broken else case)
+                                                            for _, cases in groups for case in cases)):
         _, mine, _, outputs, _ = changed(args, 'fail', fail.failed, (config, values))
         failing = mine, outputs
     for done in range(rounds):

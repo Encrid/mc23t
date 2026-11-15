@@ -183,3 +183,28 @@ name = "the run of leaks refuses a call only in the part of the case"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "--leaks"]
 claims = { status = 0, line = ["other part: as written", "own part: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "own", "--leaks"] }
+
+[[case]]
+name = "a sweep refuses each call in turn, in 1 run of the command"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out"]
+claims = { status = 0, line = ["each refused malloc of take_two gives nothing: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "the break run of a sweep runs its false variant on the build that can fail"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out", "--break"]
+claims = { status = 0, line = ["each refused malloc of take_two gives nothing, made false: fails, as it must"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out"] }
+
+[[case]]
+name = "a sweep gives back what the code takes in each turn"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out", "--leaks"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/swept", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "a sweep of a call that no list has"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/swept/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/swept/src/take.c", ".toolchain/tests/data/fail/swept/src/take.h"], "{case}/tests" = [".toolchain/tests/data/fail/swept/tests/main.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/swept/tests/unlisted.toml"] }
+claims = { status_not = 0, has = ["the case a sweep of a call that no list has makes take_one fail, and [fail.calls] does not list it"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/swept/tests/cases/swept.toml"] } }
