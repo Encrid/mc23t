@@ -32,6 +32,36 @@ With `Bob`, the output has no line `hello, Ada`. Thus the claims of the false va
 - The false variant runs the code that does the behavior, with one input changed. A command that the program refuses before that code runs is not a false variant, for example an unknown name.
 - A case writes its files only into its folder, `{case}`.
 
+## Tables
+
+A case can hold a table: the key `rows`. Each row is one behavior. `test` starts the command 1 time for the whole table.
+
+For example, the program `greet` reads one name on each line, and answers each one:
+
+```toml
+[[case]]
+name = "greet"
+run = ["{out}/greet{exe}"]
+claims = { status = 0 }
+rows = [
+    { name = "greet writes the name that it gets", in = "Ada", claims = { line = ["hello, Ada"] }, false = "Bob" },
+    { name = "greet refuses an empty name", in = "", claims = { line = ["greet: no name"] }, false = "Ada" },
+]
+```
+
+- A row has a name, its input `in`, its claims, and its false input `false`. A row needs each one.
+- `test` writes the input of each row on one line of the standard input of the command, in the order of the table. Thus an input is one line.
+- The program answers each line with one line or more, and then writes one empty line. Thus an answer holds no empty line. The program ends when its input ends.
+- `test` judges the claims of a row on the answer to that row. A row claims `line`, `has`, `lacks`, `matches`, `matches_not` or `order`.
+- The claims of the case are for the whole run. A table needs them, as each case does.
+- `test --break` starts the command 1 time with the false input of each row. Each row must then fail.
+- `test` then runs the table in the reverse order. A row must answer the same in each order. A row that needs the state that a different row left fails: `differs in the reverse order`.
+- If the program ends before it answers each row, the first row with no answer fails, and each row after it. `test` names that first row.
+- `--copies` does not copy a table.
+
+`test` writes one line for each row, as for a case: `<row>: <verdict>`. It counts each row as a case.
+`-k` chooses the rows whose name contains its text. `test` then gives only their inputs to the command.
+
 ## Groups
 
 A group is a file of cases in `tests/cases`, or in a folder of `tests/cases`.
@@ -60,6 +90,7 @@ A change runs only the groups that test a changed file: `.toolchain/docs/scope.p
 | `fail` | The calls that fail in the command. The key is a function, and the value is the number of its call that fails: *Failed calls*. |
 | `claims` | The claims about the command. A case must make one claim or more. |
 | `false` | The false variant of the case. Each case must have one. |
+| `rows` | The rows of a table: *Tables*. A case with `rows` has no `false`, no `stdin` and no `script`. |
 | `alone` | `true` if the case must not run at the same time as a copy of itself. Such a case runs one time with `--copies`. |
 
 Each case starts in an empty folder, `{case}`. The command runs in the folder of the project.
