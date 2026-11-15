@@ -477,3 +477,24 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/swept_by_hand.toml"] }
 claims = { status_not = 0, has = ["tests/cases/swept_by_hand.toml: 3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
+
+[[case]]
+name = "copies of a table"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--copies", "3"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_ran.toml"] }
+claims = { status = 0, files = { "{case}/out/{target}/scratch/cases/table_ran/0/2/ran.txt" = "ran" } }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "a table that runs alone"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--copies", "3"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_lone.toml"] }
+claims = { status = 0, files = { "{case}/out/{target}/scratch/cases/table_lone/0/ran.txt" = "ran" } }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/table_ran.toml"] } }
+
+[[case]]
+name = "copies of a table that differ"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--copies", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_differs.toml"] }
+claims = { status_not = 0, has = ["greet writes the name that it gets: differs in 2 of 2 copies"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
