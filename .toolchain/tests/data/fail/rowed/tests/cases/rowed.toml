@@ -1,0 +1,14 @@
+[[case]]
+name = "rowed"
+run = ["{out}/rowed{exe}"]
+sweep = ["malloc"]
+claims = { status = 0 }
+rows = [
+    { name = "a row gives its words to the entry", in = "twice ab", claims = { order = ["abab", "status 0"] }, false = "twice ba" },
+    { name = "a row can refuse a call", in = "+refuse malloc 1 twice ab", claims = { order = ["no memory", "status 1"] }, false = "+refuse malloc 2 twice ab" },
+    { name = "a row can set a variable of the environment", in = "+env WORD=here show", claims = { line = ["here"] }, false = "+env WORD=there show" },
+    { name = "a variable of a row is gone in the next row", in = "show", claims = { line = ["no WORD"] }, false = "+env WORD=here show" },
+    { name = "a row can give an empty word", in = "say a \"\" b", claims = { line = ["[a][][b] from row"] }, false = "say a b" },
+    { name = "a row with 2 marks does both", in = "+env WORD=here +refuse malloc 1 twice ab", claims = { order = ["no memory", "status 1"] }, false = "+env WORD=here twice ab" },
+    { name = "the status of a row is what the entry gives", in = "other", claims = { order = ["no mode 'other'", "status 2"] }, false = "other more" },
+]
