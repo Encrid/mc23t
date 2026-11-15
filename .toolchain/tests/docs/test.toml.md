@@ -14,6 +14,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `table_still.toml` | The same table. The false input of its first row is the input of the row. |
 | `table_ends.toml` | The same table. Its command ends at the name `Bob`, which the second row gives. |
 | `table_many.toml` | The same table. Its command writes 2 answers for each row. |
+| `long_table.py` | A program that writes the table `long` into the project, and runs `test` on it. The table has 60 rows. Each input has 2000 characters, and each answer is 10 times its input. Each row claims the text that the program gets. |
 | `table_state.toml` | A table of 2 rows. Its command writes the number of each line before the name. |
 | `table_exit.toml` | The same table as `table.toml`. Its command ends with the status 1. |
 | `table_none.toml` | A table with `rows = []`. |
@@ -103,6 +104,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a row whose false input still holds | `test --break` stops, and names the row. | `table.toml`. |
 | a table whose command ends before its last row | The row at which the command ended, and the row after it, fail. `test` names the first one. | `table.toml`. |
 | a table whose command gives more answers than rows | Each row fails: `is one of 3 rows, and the command gave 6 answers`. | `table.toml`. |
+| a table whose inputs and answers are longer than a pipe holds | `long_table.py` gets `aaaa`, the text of each answer. `test` reads the answers while it writes the inputs, thus each row passes: `long: 60 cases: 60 as written`. | `long_table.py` gets `bbbb`, which no answer has. |
 | a table whose rows need their order | The table passes in its order, and fails in the reverse order: `differs in the reverse order`. | `table.toml`. |
 | a table whose command ends with another status | Each row fails: `is in a run that differs`. | `table.toml`. |
 | a table with no row | `test` stops: `the table greet has no row`. | `passes.toml`. |
