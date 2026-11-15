@@ -287,3 +287,46 @@ static int use(int a)
     return (a ? pick(a) : 0);
 }
 '''
+
+[[case]]
+name = "a declaration with restrict after its star is a declaration"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double sum_of(double *from)
+{
+    double *restrict place = from;
+    double sum = 0;
+
+    sum += *place;
+    return (sum);
+}
+'''
+
+[case.false.files]
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double sum_of(double *from)
+{
+    double *restrict place = from;
+
+    *place = 0;
+    double sum = 0;
+    return (sum);
+}
+'''
