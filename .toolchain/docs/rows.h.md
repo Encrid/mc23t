@@ -32,8 +32,11 @@ A row can start with marks. A mark begins with `+`, and `rows_run` does not give
 
 | Mark | Effect |
 | --- | --- |
-| `+refuse <function> <number>` | In this row, the call number `<number>` of the function fails, as with `sweep_refuse`: `.toolchain/docs/sweep.h.md`. The case states the function in `sweep`. After the row, no call fails. |
+| `+refuse <function>=<number>` | In this row, the call number `<number>` of the function fails, as with `sweep_plan`: `.toolchain/docs/sweep.h.md`. The case states the function in `sweep`. After the row, no call fails. |
 | `+env <name>=<value>` | In this row, the variable of the environment has the value. After the row, `rows_run` removes the variable. |
+
+The mark `+refuse` takes more than one function, with a comma between them: `+refuse malloc=1,write=1`.
+A system that has no call of a function of the list refuses no call of it.
 
 A row has 61 words at most, and a line 4095 characters at most.
 
@@ -43,5 +46,6 @@ A row has 61 words at most, and a line 4095 characters at most.
 | --- | --- |
 | `rows_split(line, words)` | Cuts a line into its words, and gives their count. |
 | `rows_env(text, on)` | Sets the variable of the text `<name>=<value>` in the environment, or removes it. |
+| `rows_refuse(calls, on)` | Makes the calls of the list fail with `sweep_plan`, or makes no call fail. |
 | `rows_mark(words, count, on)` | Does the marks at the start of a row, or undoes them. It gives the place of the first word after them. |
 | `rows_run(run)` | Reads each line of the input, and calls the entry for it. It gives 0. |

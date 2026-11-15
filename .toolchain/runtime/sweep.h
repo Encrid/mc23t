@@ -16,19 +16,26 @@ int putenv(char *text);
 
     #endif
 
-static inline void sweep_refuse(const char *call, unsigned at)
+static inline void sweep_plan(const char *calls)
 {
-    static char plan[128];
+    static char plan[256];
     static unsigned turn;
 
     turn++;
-    snprintf(plan, sizeof(plan), "C23_FAIL= turn=%u %s=%u told=0", turn, call,
-        at);
+    snprintf(plan, sizeof(plan), "C23_FAIL= turn=%u %s told=0", turn, calls);
     #ifdef _WIN32
     _putenv(plan);
     #else
     putenv(plan);
     #endif
+}
+
+static inline void sweep_refuse(const char *call, unsigned at)
+{
+    char calls[128];
+
+    snprintf(calls, sizeof(calls), "%s=%u", call, at);
+    sweep_plan(calls);
 }
 
 static inline bool sweep_is_refused(void)

@@ -48,21 +48,29 @@ static inline void rows_env(char *text, bool on)
     #endif
 }
 
+static inline void rows_refuse(char *calls, bool on)
+{
+    char *comma = strchr(calls, ',');
+
+    while (comma) {
+        *comma = ' ';
+        comma = strchr(comma, ',');
+    }
+    sweep_plan(on ? calls : "");
+}
+
 static inline int rows_mark(char **words, int count, bool on)
 {
-    bool refuse;
     int at = 0;
 
-    while (at < count && words[at][0] == '+') {
-        refuse = !strcmp(words[at], "+refuse");
-        if (refuse && at + 2 < count)
-            sweep_refuse(words[at + 1],
-                on ? (unsigned)strtoul(words[at + 2], nullptr, 10) : 0);
-        if (!strcmp(words[at], "+env") && at + 1 < count)
+    while (at + 1 < count && words[at][0] == '+') {
+        if (!strcmp(words[at], "+refuse"))
+            rows_refuse(words[at + 1], on);
+        if (!strcmp(words[at], "+env"))
             rows_env(words[at + 1], on);
-        at += refuse ? 3 : 2;
+        at += 2;
     }
-    return (at < count ? at : count);
+    return (at);
 }
 
 static inline int rows_run(rows_run_fn_t run)
