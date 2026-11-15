@@ -15,6 +15,7 @@ int unsetenv(const char *name);
     #endif
 
 constexpr int ROWS_WORDS = 64;
+constexpr int ROWS_LINE = 16'384;
 
 typedef int (*rows_run_fn_t)(int count, char **words);
 
@@ -75,7 +76,7 @@ static inline int rows_mark(char **words, int count, bool on)
 
 static inline int rows_run(rows_run_fn_t run)
 {
-    static char line[4096];
+    static char line[ROWS_LINE];
     static char name[] = "row";
     char *words[ROWS_WORDS];
     char *given[ROWS_WORDS] = { name };
@@ -83,6 +84,8 @@ static inline int rows_run(rows_run_fn_t run)
     int first;
 
     while (fgets(line, sizeof(line), stdin)) {
+        if (!strchr(line, '\n') && !feof(stdin))
+            return (printf("a row is too long\n"), 1);
         count = rows_split(line, words);
         first = rows_mark(words, count, true);
         for (int i = first; i < count; i++)
