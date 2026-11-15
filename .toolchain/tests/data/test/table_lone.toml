@@ -1,0 +1,9 @@
+[[case]]
+name = "greet"
+alone = true
+run = ["{python}", "-c", "import sys\nopen(sys.argv[1] + '/ran.txt', 'w').write('ran')\nfor line in sys.stdin:\n    print('hello, ' + line.strip())\n    print()", "{case}"]
+claims = { status = 0 }
+rows = [
+    { name = "greet writes the name that it gets", in = "Ada", claims = { line = ["hello, Ada"] }, false = "Bob" },
+    { name = "greet writes a second name", in = "Bob", claims = { line = ["hello, Bob"] }, false = "Ada" },
+]
