@@ -208,3 +208,21 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/swept/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/swept/src/take.c", ".toolchain/tests/data/fail/swept/src/take.h"], "{case}/tests" = [".toolchain/tests/data/fail/swept/tests/main.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/swept/tests/unlisted.toml"] }
 claims = { status_not = 0, has = ["the case a sweep of a call that no list has makes take_one fail, and [fail.calls] does not list it"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/swept/tests/cases/swept.toml"] } }
+
+[[case]]
+name = "a program of rows runs each line as a command, with its marks and its status"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out"]
+claims = { status = 0, line = ["a row gives its words to the entry: as written", "a row can refuse a call: as written", "a row can set a variable of the environment: as written", "a variable of a row is gone in the next row: as written", "a row can give an empty word: as written", "a row with 2 marks does both: as written", "the status of a row is what the entry gives: as written", "rowed: 7 cases: 7 as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "each row of a program of rows fails with its false input"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--break"]
+claims = { status = 0, line = ["rowed: 7 claims made false: 7 cases failed"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out"] }
+
+[[case]]
+name = "a program of rows gives back what it takes"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--leaks"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--break"] }

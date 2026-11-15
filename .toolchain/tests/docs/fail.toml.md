@@ -1,7 +1,7 @@
 # .toolchain/tests/cases/fail.toml
 
 The group `fail` checks `.toolchain/tools/fail.py`, through `test`, `test --branches` and `test --leaks` of `.toolchain/tools/test.py`.
-Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, `library` for four cases, or `swept` for four cases.
+Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, `library` for four cases, `swept` for four cases, or `rowed` for three cases.
 
 The program `failed` takes a block with `first_block` of `src/first.c`, and a second block with `malloc` in `src/main.c`.
 Then it takes a block with `calloc`, makes it bigger with `realloc`, and opens and shuts a door.
@@ -85,3 +85,11 @@ The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
 | a sweep of a call that no list has | `test` stops for `tests/unlisted.toml` of `swept`, which sweeps `take_one`: `makes take_one fail, and [fail.calls] does not list it`. | The case file `swept.toml`. |
 
 The program `swept` is a test program: `tests/main.c` includes `sweep.h`, and sweeps the `malloc` of `take_two` of `src/take.c`, or of `take_one` with the argument `one`.
+
+The program `rowed` is a test program of rows: `tests/main.c` gives its entry to `rows_run` of `rows.h`. Its table has 7 rows, which call `word_twice` of `src/word.c`, show a variable of the environment, or say their words.
+
+| Case | Behavior | False variant |
+| --- | --- | --- |
+| a program of rows runs each line as a command, with its marks and its status | `test` on `rowed` writes `<row>: as written` for each of the 7 rows. | `--break`. |
+| each row of a program of rows fails with its false input | `test --break` on `rowed` writes `rowed: 7 claims made false: 7 cases failed`. | A run with no `--break`. |
+| a program of rows gives back what it takes | `test --leaks` on `rowed` writes `leaks: 1 cases, 1 give back what they take`. | `--break`, which `--leaks` refuses. |
