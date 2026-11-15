@@ -5,6 +5,19 @@ A case runs a command, and makes claims about its exit status, its output and it
 `python project.py test --break` runs the false variant of each case. Each case must then fail.
 `tests` can also hold other files, for example the data that the cases read. No check reads `tests`.
 
+## Test a part
+
+A test is for a part, and it can reach each outcome of the part. Do not write a test for each outcome.
+
+1. A test program tests one part. It reads a table, and gives one answer for each row: *Tables*.
+2. The rows come from what the code must do. Write one row for each class of inputs that the code treats in one way. Write one row for each edge between two classes. Do not take the rows from the lines of the code.
+3. `test --branches` measures the table: *The branches*.
+4. A case has its own process only if it needs one: *Its own process*.
+5. A sweep tests the calls that fail for one reason, such as no memory: *A sweep*.
+
+A row that runs a branch does not check it: only a claim checks it.
+Thus each row claims what the code must give, also at an edge. For example, a limit of 10 gets a row with 10 and a row with 11.
+
 ## Write a case
 
 1. Select a behavior that a document of the project describes.
@@ -26,8 +39,8 @@ false = { run = ["{out}/greet{exe}", "Bob"] }
 
 With `Bob`, the output has no line `hello, Ada`. Thus the claims of the false variant are false, and the case can fail.
 
-- A case checks one behavior. Its name tells the behavior.
-- Each behavior that a document describes has a case.
+- A case or a row checks one behavior. Its name tells the behavior.
+- Each behavior that a document describes has a case or a row.
 - The false variant changes the command or its input. It cannot change the claims.
 - The false variant runs the code that does the behavior, with one input changed. A command that the program refuses before that code runs is not a false variant, for example an unknown name.
 - A case writes its files only into its folder, `{case}`.
@@ -62,6 +75,30 @@ rows = [
 `test` writes one line for each row, as for a case: `<row>: <verdict>`. It counts each row as a case.
 `-k` chooses the rows whose name contains its text. `test` then gives only their inputs to the command.
 
+## Its own process
+
+A case with no `rows` starts a process for one behavior. It states why, with the key `process`:
+
+| `process` | The reason |
+| --- | --- |
+| `status` | The behavior is how the command ends: its status, an abort, or a kill. |
+| `signal` | The case sends a signal to the command. |
+| `helper` | The case runs a helper beside the command. |
+| `command` | The behavior is in what the command gets when it starts: its arguments, its environment or its files. |
+| `state` | The behavior needs a process that did nothing before. |
+
+`test` stops for a different word: `<file>: the case <name> states the process <word>, and a process is status, signal, helper, command, state`.
+
+With `tables = true` in `[test]`, `test` also stops for a group that breaks one of these rules:
+
+| Fault | Message |
+| --- | --- |
+| A case with no `rows` states no `process`. | `<file>: the case <name> has its own process and states no reason: write process, or make it a row of a table` |
+| A table states `process`. | `<file>: the table <name> states process, and only a case with no rows has its own process` |
+| 3 cases or more have one command, and each one makes one call of the same function fail. | `<file>: <count> cases refuse the calls of <function> one after the other, from the case <name>: write a sweep` |
+
+A project states `tables = true` when its cases follow *Test a part*.
+
 ## Groups
 
 A group is a file of cases in `tests/cases`, or in a folder of `tests/cases`.
@@ -92,6 +129,7 @@ A change runs only the groups that test a changed file: `.toolchain/docs/scope.p
 | `claims` | The claims about the command. A case must make one claim or more. |
 | `false` | The false variant of the case. Each case must have one. |
 | `rows` | The rows of a table: *Tables*. A case with `rows` has no `false`, no `stdin` and no `script`. |
+| `process` | The reason why a case with no `rows` has its own process: *Its own process*. |
 | `alone` | `true` if the case must not run at the same time as a copy of itself. Such a case runs one time with `--copies`. |
 
 Each case starts in an empty folder, `{case}`. The command runs in the folder of the project.
@@ -185,7 +223,8 @@ It runs each case one time. Then it writes a line for each branch that no case r
 - a `case` or a `default` that no case reaches;
 - a function that no case calls.
 
-For each line, write a case that runs the branch, or remove the branch.
+For each line, find the class of inputs or the edge that the table of the part lacks, and add its row.
+If no input can run the branch, remove the branch. Do not write a case only to run a line.
 A condition in an argument or in the body of a macro cannot get a probe. The run writes it, and stops.
 Thus write such a condition outside the macro.
 
@@ -306,6 +345,7 @@ A case that fails in some copies writes the number of these copies, for example 
 | `copies` | The number of copies of each case that run at the same time. `--copies` replaces it. |
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
+| `tables` | Optional. `true` makes `test` refuse a case that breaks a rule of *Its own process*. The default is `false`. |
 
 A rule adds a claim to each case: the output does not contain the text `lacks`.
 The rule does not apply to the groups of `exempt`.

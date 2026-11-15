@@ -442,3 +442,38 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table.toml"] }
 claims = { status = 0, line = ["greet writes a second name: as written", "table: 1 cases: 1 as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "-k", "greet"] }
+
+[[case]]
+name = "a case with no reason for its own process, in a project with tables"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] }
+claims = { status_not = 0, has = ["tests/cases/passes.toml: the case passes has its own process and states no reason: write process, or make it a row of a table"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "a case that states the reason of its own process"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] }
+claims = { status = 0, line = ["stated: as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
+name = "a process that is no reason"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/own_word.toml"] }
+claims = { status_not = 0, has = ["tests/cases/own_word.toml: the case worded states the process speed, and a process is status, signal, helper, command, state"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
+
+[[case]]
+name = "a table that states a process, in a project with tables"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_own.toml"] }
+claims = { status_not = 0, has = ["tests/cases/table_own.toml: the table greet states process, and only a case with no rows has its own process"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "3 cases that refuse the calls of one function by hand, in a project with tables"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/swept_by_hand.toml"] }
+claims = { status_not = 0, has = ["tests/cases/swept_by_hand.toml: 3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
