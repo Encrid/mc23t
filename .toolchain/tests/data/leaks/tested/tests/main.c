@@ -27,6 +27,7 @@ static void run_two(void)
 int main(int argc, char **argv)
 {
     const char *mode = argc > 1 ? argv[1] : "";
+    char said[16];
 
     if (!strcmp(mode, MODE_FREES))
         free(give());
@@ -36,6 +37,7 @@ int main(int argc, char **argv)
         kept = malloc(8);
     if (!strcmp(mode, MODE_TWO))
         run_two();
-    printf("%s\n", mode);
+    sprintf(said, "%.15s", mode);
+    printf("%s\n", said);
     return (kept == nullptr && !strcmp(mode, MODE_KEEPS));
 }
