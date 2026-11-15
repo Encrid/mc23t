@@ -1,0 +1,9 @@
+[[case]]
+name = "greet"
+run = ["{python}", "-c", "import sys\nfor line in sys.stdin:\n    name = line.strip()\n    print('hello, ' + name if name else 'no name')\n    print()"]
+claims = { status = 0 }
+rows = [
+    { name = "greet writes the name that it gets", in = "Ada", claims = { line = ["hello, Ada"] } },
+    { name = "greet refuses an empty name", in = "", claims = { line = ["no name"] }, false = "Ada" },
+    { name = "greet writes a second name", in = "Bob", claims = { line = ["hello, Bob"] }, false = "" },
+]

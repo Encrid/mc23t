@@ -1,0 +1,8 @@
+[[case]]
+name = "greet"
+run = ["{python}", "-c", "import sys\nfor count, line in enumerate(sys.stdin):\n    print(count, line.strip())\n    print()"]
+claims = { status = 0 }
+rows = [
+    { name = "the first answer has the number 0", in = "Ada", claims = { line = ["0 Ada"] }, false = "Bob" },
+    { name = "the second answer has the number 1", in = "Bob", claims = { line = ["1 Bob"] }, false = "Ada" },
+]
