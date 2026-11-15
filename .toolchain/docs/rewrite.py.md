@@ -88,6 +88,9 @@ zig then writes an error ending with `FileNotFound`, because no object is made. 
 If clang writes a different error, `dumped` stops: `the tree of <path> cannot be read:`, and the errors.
 If the output is not JSON, it stops: `the tree of <path> is not JSON`.
 
+`dumped` gives the output of the command to a file of its own in the folder of `<work>`. It reads the tree from that file, and removes it. Thus no pipe holds a tree.
+If the machine has no memory for a tree, it stops: `the tree of <path> needs more memory than this machine has free`.
+
 The dump sets `_FORTIFY_SOURCE` to 0. Then a call that the system would fortify, such as `snprintf`, does not read as a macro.
 Without that macro, the headers of macOS declare a function such as `sprintf` as deprecated, which the compile of the file does not see.
 Thus the dump has `-Wno-deprecated-declarations`: the dump reads the tree, and only the compile judges a deprecated function.

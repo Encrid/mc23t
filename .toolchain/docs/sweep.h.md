@@ -31,10 +31,11 @@ Thus 1 run of the program reaches the path of the error of each `malloc` of the 
 
 ## How it works
 
-`sweep_refuse` writes the variable `C23_FAIL` of the environment: ` turn=<turn> <call>=<at>`. It removes the variable `C23_FAILED`.
+`sweep_refuse` writes the variable `C23_FAIL` of the environment: ` turn=<turn> <call>=<at> told=0`.
 The layer of `fail.py` reads the turn at each call. A new turn makes it read the numbers again, and start its counts again: `.toolchain/docs/fail.py.md`, *The turn*.
-`sweep_is_refused` reads the variable `C23_FAILED`, which the layer sets for a failed call of the turn.
+`sweep_is_refused` tells if the text holds ` told=1`, which the layer writes for a failed call of the turn.
 
 The variables of the environment reach each library of the program. Thus a sweep also refuses the calls of a shared library.
 A program calls `sweep_refuse` from 1 source file only: the count of the turns is in that file.
+It calls `sweep_refuse` only when no other thread runs the code, because the call changes the environment.
 On a build with no layer, no call fails, and the loop ends after its first turn.
