@@ -51,11 +51,11 @@ Else `main` does these steps:
 3. It reads the groups of `[test] cases` (the default is `tests/cases`). With `--toolchain`, it reads `.toolchain/tests/cases` of the repository `mc23t`.
 4. If there is no case, it writes `no case: <folder> holds no case`, and ends.
 5. With `--part`, it keeps only the groups of the named parts. With `--group`, it keeps only the named groups. With `-k`, it keeps only the cases whose name contains the text.
-6. If a case states `fail`, it makes the run `fail`: *A changed run*, with `failed` of `fail.py`.
+6. If a case states `fail` or `sweep`, it makes the run `fail`: *A changed run*, with `failed` of `fail.py`.
 7. It runs the groups, one time for each round of `--rounds`. Before each round of 2 rounds or more, it writes `round <n> of <rounds>`.
 8. With no `--break`, `--toolchain`, `-k`, `--part` or `--group`, it checks the messages of the code with `checked` of `said.py`.
 
-With `--break`, the false variant of a case tells if the case states `fail` at step 6.
+With `--break`, the false variant of a case tells if the case states `fail` or `sweep` at step 6.
 The number of copies is `--copies`, or `[test] copies`. If neither gives it, `main` stops: `.toolchain/project.toml: write [test] copies`.
 
 `main` stops at step 7 if a case failed. Thus step 8 runs only if each case passed.
@@ -104,8 +104,8 @@ A case that holds no `{port}` gets no port. In such a case, a value of `[variabl
 With `counted`, the command and the helper get the variable `C23_LEAKS`: the path of the folder of the case, with `.leaks` added.
 If the case states `fail`, the command gets the variable `C23_FAIL`: `.toolchain/docs/fail.py.md`, *The layer*. Else `tried` removes `C23_FAIL` from the environment of the command.
 
-The command also gets `C23_FAIL_PART`, the part that `owner` gives for the group of the case. With no such part, `tried` removes `C23_FAIL_PART` too.
-With `failing`, a case that states `fail` runs on the build of the run `fail`. Its folder, its `{out}` and its artifacts are those of that run.
+A case that states `fail` or `sweep` also gives the command `C23_FAIL_PART`, the part that `owner` gives for the group of the case. With no such part, `tried` removes `C23_FAIL_PART` too.
+With `failing`, a case that states `fail` or `sweep` runs on the build of the run `fail`. Its folder, its `{out}` and its artifacts are those of that run.
 
 `tried` runs each command in the root, with a timer of `[test] timeout` seconds.
 The timer stops a command that does not end in time.

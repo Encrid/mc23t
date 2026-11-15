@@ -1,7 +1,7 @@
 # .toolchain/tests/cases/fail.toml
 
 The group `fail` checks `.toolchain/tools/fail.py`, through `test`, `test --branches` and `test --leaks` of `.toolchain/tools/test.py`.
-Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, or `library` for four cases.
+Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, `library` for four cases, or `swept` for four cases.
 
 The program `failed` takes a block with `first_block` of `src/first.c`, and a second block with `malloc` in `src/main.c`.
 Then it takes a block with `calloc`, makes it bigger with `realloc`, and opens and shuts a door.
@@ -79,3 +79,9 @@ The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
 | a run of a part gives what a full run gives | `test --part alpha` on `parted` writes `other part: as written`. | `--break`. |
 | the run of branches refuses a call only in the part of the case | `test --branches` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |
 | the run of leaks refuses a call only in the part of the case | `test --leaks` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |
+| a sweep refuses each call in turn, in 1 run of the command | `test` on `swept` writes `each refused malloc of take_two gives nothing: as written`. The case of `swept` claims the line of the first refused `malloc`, of the second, and `2 refused calls, then taken`. | `--break`. |
+| the break run of a sweep runs its false variant on the build that can fail | `test --break` on `swept` writes `each refused malloc of take_two gives nothing, made false: fails, as it must`: the false variant sweeps `take_one`, which has 1 `malloc`. | A run with no `--break`. |
+| a sweep gives back what the code takes in each turn | `test --leaks` on `swept` writes `leaks: 1 cases, 1 give back what they take`. | `--break`, which `--leaks` refuses. |
+| a sweep of a call that no list has | `test` stops for `tests/unlisted.toml` of `swept`, which sweeps `take_one`: `makes take_one fail, and [fail.calls] does not list it`. | The case file `swept.toml`. |
+
+The program `swept` is a test program: `tests/main.c` includes `sweep.h`, and sweeps the `malloc` of `take_two` of `src/take.c`, or of `take_one` with the argument `one`.

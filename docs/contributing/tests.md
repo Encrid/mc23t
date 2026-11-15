@@ -87,6 +87,7 @@ A change runs only the groups that test a changed file: `.toolchain/docs/scope.p
 | `helper` | A second command that runs at the same time. |
 | `files` | The text files that `test` writes before the command starts. The key is the path, and the value is the text. |
 | `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to copy into the folder. |
+| `sweep` | The functions whose calls the command refuses one after the other: *A sweep*. |
 | `fail` | The calls that fail in the command. The key is a function, and the value is the number of its call that fails: *Failed calls*. |
 | `claims` | The claims about the command. A case must make one claim or more. |
 | `false` | The false variant of the case. Each case must have one. |
@@ -242,6 +243,41 @@ A call through a pointer of a loader can fail too.
 A listed function that the file only names in a text fails by its own name with its own value.
 For example, `"socket"` is a text of a call of `GetProcAddress`, and `fail = { socket = 1 }` fails that call.
 `.toolchain/docs/fail.py.md` tells how a call fails.
+
+## A sweep
+
+A test program can refuse each call of the code in 1 run: the first call, then the second, until the code runs whole.
+The case states `sweep`, with each function that the program refuses. Each one is a function that a case can make fail.
+
+```toml
+[[case]]
+name = "each refused malloc of greet gives an error"
+run = ["{out}/greet-unit{exe}"]
+sweep = ["malloc"]
+claims = { status = 0, line = ["2 refused calls, then greeted"] }
+false = { run = ["{out}/greet-unit{exe}", "short"] }
+```
+
+The program includes `sweep.h` of `.toolchain/runtime`. Its artifact has `{toolchain}/runtime` in `include`.
+
+```c
+unsigned at = 0;
+
+do {
+    at++;
+    sweep_refuse("malloc", at);
+    greeted = greet("Ada");
+} while (sweep_is_refused());
+```
+
+- `sweep_refuse` makes the call number `at` of the function fail, and starts each count again.
+- `sweep_is_refused` tells if a call failed since then. When no call failed, the code made fewer calls than `at`, and the sweep is done.
+- In each turn, the program checks what the code must do when the call fails, and writes a line that the case claims.
+- `test` runs a case with `sweep` on the copy of the code in which calls can fail, as a case with `fail`. It refuses the calls only in the programs of the part of the case.
+- `test --leaks` counts the whole run. Thus the code gives back what it took in each turn.
+
+Use a sweep for the calls that fail for one reason, such as no memory. Use `fail` for one call whose failure is a behavior of its own.
+`.toolchain/docs/sweep.h.md` tells how a sweep works.
 
 ## Run the tests
 
