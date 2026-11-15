@@ -381,6 +381,13 @@ claims = { status_not = 0, has = ["is one of 3 rows, and the command gave 6 answ
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/table.toml"] } }
 
 [[case]]
+name = "a table whose inputs and answers are longer than a pipe holds"
+run = ["{python}", "{root}/.toolchain/tests/data/test/long_table.py", "{case}", "{root}/.toolchain/tools/test.py", "aaaa"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] }
+claims = { status = 0, has = ["long: 60 cases: 60 as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/test/long_table.py", "{case}", "{root}/.toolchain/tools/test.py", "bbbb"] }
+
+[[case]]
 name = "a table whose rows need their order"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_state.toml"] }
