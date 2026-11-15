@@ -151,5 +151,6 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the runner mpbt compiles each source | The same, with `[build] runner = "mpbt"`: the step `each` of `program` compiles the source, and the program writes `2`. | The header does not change. |
 | the steps of a kind that write no output | The step of `silent` prints `1` and writes no `{output}`: `the steps of note wrote no note.txt`. | The kind `marked`, which writes its output. |
 | an archive that the runner zig makes holds no path of its machine | With the runner `zig` and the cache of zig outside the project, `--pack` of `archived` for `x86_64-windows-gnu` passes the check of the paths. | `--debug`: the debug data holds the folder of the project. |
+| the step of an artifact takes its sources as inputs, and not as arguments | After a build of the project of `graph/output`, `obj/graph.json` holds `"kind": "input"`: the source `note.txt` is an input of the step, and no argument. | A project with no artifact, whose graph has no input. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.
