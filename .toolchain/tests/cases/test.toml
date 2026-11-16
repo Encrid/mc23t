@@ -175,6 +175,13 @@ claims = { status_not = 0, has = ["fails: differs", "  ended with 1 (0x00000001)
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
 
 [[case]]
+name = "a case that differs, with a byte in its output that is not text"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/not_text.toml"] }
+claims = { status_not = 0, has = ["bytes: differs", "a\uFFFDb", "not as written: bytes"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
 name = "a case that does not end in time"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/late/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/late.toml"] }
