@@ -175,6 +175,13 @@ claims = { status_not = 0, has = ["fails: differs", "  ended with 1 (0x00000001)
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
 
 [[case]]
+name = "a case that differs, with a byte in its output that is not text"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/not_text.toml"] }
+claims = { status_not = 0, has = ["bytes: differs", "a\uFFFDb", "not as written: bytes"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
+
+[[case]]
 name = "a case that does not end in time"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/late/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/late.toml"] }
@@ -365,6 +372,30 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_still.toml"] }
 claims = { status_not = 0, has = ["still as written with their claims made false: greet writes the name that it gets"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/table.toml"] } }
+
+[[case]]
+name = "a row that claims its whole answer"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_whole.toml"] }
+files = { "{case}/said/two.txt" = "one\ntwo\n", "{case}/said/one.txt" = "one\n" }
+claims = { status = 0, order = ["an answer of 2 lines is the text of a file: as written", "an answer of 1 line is the text of a file: as written", "table_whole: 2 cases: 2 as written"] }
+false = { files = { "{case}/said/two.txt" = "one\n" } }
+
+[[case]]
+name = "the break run of a row that claims its whole answer"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--break"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_whole.toml"] }
+files = { "{case}/said/two.txt" = "one\ntwo\n", "{case}/said/one.txt" = "one\n" }
+claims = { status = 0, has = ["table_whole: 2 claims made false: 2 cases failed"] }
+false = { files = { "{case}/said/two.txt" = "one\n" } }
+
+[[case]]
+name = "a whole answer that is not the text of the file"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_whole_differs.toml"] }
+files = { "{case}/said/one.txt" = "one\n", "{case}/said/empty.txt" = "" }
+claims = { status_not = 0, order = ["the answer has 1 line more than the file: differs", "the file is not there: differs", "the file is empty: differs"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
 
 [[case]]
 name = "a table whose command ends before its last row"
