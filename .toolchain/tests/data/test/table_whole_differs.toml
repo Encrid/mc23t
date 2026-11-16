@@ -1,0 +1,9 @@
+[[case]]
+name = "words"
+run = ["{python}", "-c", "import sys\nfor line in sys.stdin:\n    print('\\n'.join(line.split()))\n    print()"]
+claims = { status = 0 }
+rows = [
+    { name = "the answer has 1 line more than the file", in = "one two", claims = { output = "said/one.txt" }, false = "two" },
+    { name = "the file is not there", in = "one", claims = { output = "said/none.txt" }, false = "two" },
+    { name = "the file is empty", in = "one", claims = { output = "said/empty.txt" }, false = "two" },
+]
