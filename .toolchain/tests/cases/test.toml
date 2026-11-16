@@ -388,6 +388,13 @@ claims = { status = 0, has = ["long: 60 cases: 60 as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tests/data/test/long_table.py", "{case}", "{root}/.toolchain/tools/test.py", "bbbb"] }
 
 [[case]]
+name = "a table that is longer than the timeout, with each row in time"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/late/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_paced.toml"] }
+claims = { status = 0, has = ["table_paced: 4 cases: 4 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/table_stalls.toml"] } }
+
+[[case]]
 name = "a table whose rows need their order"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_state.toml"] }
