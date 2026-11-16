@@ -1,0 +1,10 @@
+[[case]]
+name = "paced"
+run = ["{python}", "-c", "import sys, time\nfor line in sys.stdin:\n    time.sleep(float(line))\n    print('waited ' + line.strip())\n    print(flush=True)"]
+claims = { status = 0 }
+rows = [
+    { name = "the first row answers in its time", in = "0.7", claims = { line = ["waited 0.7"] }, false = "0.6" },
+    { name = "the second row answers in its time", in = "0.7", claims = { line = ["waited 0.7"] }, false = "0.6" },
+    { name = "the third row answers in its time", in = "0.7", claims = { line = ["waited 0.7"] }, false = "0.6" },
+    { name = "the fourth row answers in its time", in = "0.7", claims = { line = ["waited 0.7"] }, false = "0.6" },
+]
