@@ -23,6 +23,8 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `table_false.toml` | A table that also states `false`. |
 | `table_short.toml` | A table whose first row has no `false`. |
 | `table_status.toml` | A table whose first row claims `status`. |
+| `table_whole.toml` | The table `words` with 2 rows. Its command answers a line with each of its words on a line. Each row claims `output`, with a file of `said`. |
+| `table_whole_differs.toml` | The same table with 3 rows whose claim `output` is false: a file with 1 line less than the answer, a file that is not there, and an empty file. |
 | `table_mute.toml` | A table whose first row has `claims = {}`. |
 | `table_silent.toml` | The table of `table.toml` with no `claims` for its run. |
 | `tabled/project.toml` | The project of `project.toml`, with `tables = true` in `[test]`. |
@@ -105,6 +107,9 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a table gives a verdict for each row | It writes `<row>: as written` for each of the 3 rows, and then `table: 3 cases: 3 as written`. | `table_ends.toml`. |
 | the break run gives each row its false input | `test --break` writes `<row>, made false: fails, as it must` for each of the 3 rows. | `table_still.toml`. |
 | a row whose false input still holds | `test --break` stops, and names the row. | `table.toml`. |
+| a row that claims its whole answer | The 2 rows of `table_whole.toml` pass. The case writes the files `said/two.txt` and `said/one.txt`. | `said/two.txt` holds 1 line. |
+| the break run of a row that claims its whole answer | `test --break` writes `table_whole: 2 claims made false: 2 cases failed`. | `said/two.txt` holds 1 line, which is the answer to the false input. |
+| a whole answer that is not the text of the file | Each of the 3 rows of `table_whole_differs.toml` gets `differs`. | `passes.toml`. |
 | a table whose command ends before its last row | The row at which the command ended, and the row after it, fail. `test` names the first one. | `table.toml`. |
 | a table whose command gives more answers than rows | Each row fails: `is one of 3 rows, and the command gave 6 answers`. | `table.toml`. |
 | a table whose inputs and answers are longer than a pipe holds | `long_table.py` gets `aaaa`, the text of each answer. `test` reads the answers while it writes the inputs, thus each row passes: `long: 60 cases: 60 as written`. | `long_table.py` gets `bbbb`, which no answer has. |
