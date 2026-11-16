@@ -4,3 +4,11 @@ run = ["{python}", "-c", ""]
 process = "status"
 claims = { status = 0 }
 false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[[case]]
+name = "fed"
+run = ["{python}", "-c", "import sys; print(sys.stdin.read())"]
+stdin = "one"
+process = "script"
+claims = { status = 0, line = ["one"] }
+false = { stdin = "two" }
