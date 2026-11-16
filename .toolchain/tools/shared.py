@@ -28,6 +28,8 @@ KEYS = {'step': {'run', 'cwd', 'section', 'text', 'contains', 'copy', 'rename'},
 SIDES = {'include': 'docs/extern', 'src': 'docs/intern', 'tools': 'docs/tools'}
 TAG = re.compile(r'(?:([a-z0-9_]+)-)?v\d+\.\d+\.\d+')
 UNSET = {}
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 
 
 def die(why):

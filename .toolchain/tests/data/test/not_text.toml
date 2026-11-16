@@ -1,0 +1,5 @@
+[[case]]
+name = "bytes"
+run = ["{python}", "-c", "import sys; sys.stdout.buffer.write(bytes([97, 255, 98, 10])); sys.exit(1)"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(2)"] }

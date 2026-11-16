@@ -10,6 +10,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `note.txt` | The line `written at the prompt`. |
 | `passes.toml` | The case `passes`, which passes. |
 | `fails.toml` | The case `fails`, which ends with the status 1. |
+| `not_text.toml` | The case `bytes`, which ends with the status 1. Its command writes `a`, the byte 255, which is not UTF-8, and `b`. |
 | `table.toml` | The table `greet` with 3 rows, which claims the status 0. Its command answers each name with `hello, <name>`, and an empty line with `no name`. |
 | `table_still.toml` | The same table. The false input of its first row is the input of the row. |
 | `table_ends.toml` | The same table. Its command ends at the name `Bob`, which the second row gives. |
@@ -74,6 +75,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a signal after a hang-up | `test` stops: `the case after sends a signal after a hang-up`. | `passes.toml`. |
 | a wait after a close of the output | `test` stops: `the case blind waits for a line after it closes the output`. | `passes.toml`. |
 | a case that differs | `test` writes `fails: differs`, the status and the output. Then it stops: `not as written: fails`. | `passes.toml`. |
+| a case that differs, with a byte in its output that is not text | `test` writes `bytes: differs` and the output, with the character U+FFFD in place of the byte. Then it stops: `not as written: bytes`. | `passes.toml`. |
 | a case that does not end in time | `test` writes `late: did not end in 2 seconds`, and stops. | `passes.toml`. |
 | a rule of the tests | The group `held/said` fails, and the group `free/said` passes. | `passes.toml` in `held`. |
 | no case | `test` writes `no case: tests/cases holds no case`, and ends with 0. | `passes.toml`. |
