@@ -499,14 +499,21 @@ false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project
 name = "a case that states the reason of its own process"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] }
-claims = { status = 0, line = ["stated: as written"] }
+claims = { status = 0, line = ["stated: as written", "fed: as written"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] } }
 
 [[case]]
 name = "a process that is no reason"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/own_word.toml"] }
-claims = { status_not = 0, has = ["tests/cases/own_word.toml: the case worded states the process speed, and a process is status, signal, helper, command, state"] }
+claims = { status_not = 0, has = ["tests/cases/own_word.toml: the case worded states the process speed, and a process is status, signal, helper, command, state, script"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
+
+[[case]]
+name = "a case that states the process script, with no script and no standard input"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/own_script.toml"] }
+claims = { status_not = 0, has = ["tests/cases/own_script.toml: the case silent states the process script, and it has no script and no stdin"] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
 
 [[case]]
