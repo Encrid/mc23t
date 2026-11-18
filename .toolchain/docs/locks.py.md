@@ -3,8 +3,10 @@
 `locks.py` holds the locks of the uses of the machine: `.toolchain/docs/test.py.md`, *The uses*.
 
 A lock is the file `<use>.lock` in the folder of the locks. The variable `MC23T_LOCKS` names that folder. With no such variable, it is `mc23t-locks` in the temporary folder of the system.
+
 On Linux and macOS, that folder is the same for each user. `locks.py` makes it writable by each user, and each file of a lock readable and writable by each user. Thus the runs of each user of the machine share the locks.
 On Windows, the temporary folder is of 1 user. Thus only the runs of that user share the locks, unless `MC23T_LOCKS` names a folder of each user.
+
 A lock is a lock of the system: `msvcrt.locking` on Windows, and `fcntl.flock` on the other systems. Thus a run that ends, also by a crash, gives back each lock that it holds.
 Only an answer of the system that another run holds the lock makes a run wait. Each other error of the system stops the run.
 
