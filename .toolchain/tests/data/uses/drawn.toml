@@ -1,0 +1,7 @@
+code = ["src/gpu/**"]
+
+[[case]]
+name = "drawn"
+run = ["{python}", "-c", ""]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

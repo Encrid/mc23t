@@ -550,3 +550,68 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_differs.toml"] }
 claims = { status_not = 0, has = ["greet writes the name that it gets: differs in 2 of 2 copies"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "a group waits for the lock of its use"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["drawn: waits for the use gpu, which another run holds", "drawn: 1 cases: 1 as written"] }
+false = { helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "display"], wait = "held display", stdin = "", claims = { status = 0 } } }
+
+[[case]]
+name = "a group with no use runs while a use is held"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/plain.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["plain: 1 cases: 1 as written"], lacks = ["waits for the use"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"] } }
+
+[[case]]
+name = "a group takes its uses in the order of their names"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/both.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu", "display"], wait = "held display gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["both: waits for the use display, which another run holds"], lacks = ["waits for the use gpu"] }
+false = { helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } } }
+
+[[case]]
+name = "a group holds the lock of its use while its cases run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks", MC23T_TOOLS = "{root}/.toolchain/tools" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/probe.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["probe: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nouse/project.toml"] } }
+
+[[case]]
+name = "a group gives the lock of its use back after its cases"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml", ".toolchain/tests/data/uses/both.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["drawn: 1 cases: 1 as written", "both: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"] } }
+
+[[case]]
+name = "a use with no pattern stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/none/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["[test] uses: gpu has no pattern"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
+
+[[case]]
+name = "a pattern of a use that matches no file stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nofile/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["[test] uses: src/none/** matches no file"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
+
+[[case]]
+name = "a run that is killed gives its lock back"
+run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "kill"]
+claims = { status = 0, line = ["free"] }
+false = { run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "keep"] }

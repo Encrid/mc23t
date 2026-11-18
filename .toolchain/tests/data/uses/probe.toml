@@ -1,0 +1,7 @@
+code = ["src/gpu/**"]
+
+[[case]]
+name = "probe"
+run = ["{python}", "-c", "import os, sys; sys.path.insert(0, os.environ['MC23T_TOOLS']); import locks; print('free' if locks.took(locks.opened('gpu')) else 'taken')"]
+claims = { status = 0, line = ["taken"] }
+false = { run = ["{python}", "-c", "print('free')"] }

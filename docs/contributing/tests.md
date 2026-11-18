@@ -352,6 +352,7 @@ A case that fails in some copies writes the number of these copies, for example 
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
 | `tables` | Optional. `true` makes `test` refuse a case that breaks a rule of *Its own process*. The default is `false`. |
+| `uses` | Optional. The resources of the machine that 2 runs must not share, such as the GPU. The key is the name of a use, and the value is a list of patterns of the code. A group that tests a matched file waits for the other runs that hold the use: `.toolchain/docs/test.py.md`, *The uses*. |
 
 A rule adds a claim to each case: the output does not contain the text `lacks`.
 The rule does not apply to the groups of `exempt`.
