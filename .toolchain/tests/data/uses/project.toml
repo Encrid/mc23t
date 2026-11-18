@@ -1,0 +1,11 @@
+[project]
+name = "tested"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[test]
+timeout = 60
+copies = 1
+
+[test.uses]
+gpu = ["src/gpu/**"]
+display = ["src/screen/**"]
