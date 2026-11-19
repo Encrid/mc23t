@@ -332,9 +332,50 @@ static double sum_of(double *from)
 '''
 
 [[case]]
-name = "a declaration with a name of the linker counts its arguments"
+name = "a declaration with an attribute counts its arguments"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
-claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "src/a.h:11: F5 5 arguments, and 4 is the most", "faults: 2"] }
+claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
+    unsigned long e) __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d)
+    __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[[case]]
+name = "a declaration of a symbol of the system does not count its arguments"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
 
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
@@ -351,7 +392,7 @@ targets = ["x86_64-linux-gnu"]
     #define A_H
 
 void *open_map(void *a, void *b, unsigned long c, unsigned long d,
-    unsigned long e) __asm__("CreateFileMappingA");
+    unsigned long e, const char *f) __asm__("CreateFileMappingA");
 void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
     unsigned long e) __asm("MapViewOfFile") __attribute__((nonnull(1)));
 
@@ -368,10 +409,10 @@ void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
 #ifndef A_H
     #define A_H
 
-void *open_map(void *a, void *b, unsigned long c, ...)
-    __asm__("CreateFileMappingA");
-void *view_map(void *a, unsigned long b, unsigned long c, ...)
-    __asm("MapViewOfFile") __attribute__((nonnull(1)));
+void *open_map(void *a, void *b, unsigned long c, unsigned long d,
+    unsigned long e, const char *f);
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
+    unsigned long e) __attribute__((nonnull(1)));
 
 #endif
 '''

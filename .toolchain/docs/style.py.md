@@ -32,7 +32,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 | F2 | The snake case. A person checks the verb. |
 | F3 | The columns of each line. A tab moves the next character to the next multiple of 8 columns. |
 | F4 | The lines between the line of the opening bracket and the line of the closing bracket. |
-| F5 | `void` in a declaration with no argument, and the number of the arguments. A `...` is one argument. A declaration counts its arguments too when `__asm__(...)`, `__asm(...)` or `__attribute__((...))` follow them. |
+| F5 | `void` in a declaration with no argument, and the number of the arguments. A `...` is one argument. A declaration counts its arguments too when `__attribute__((...))` follows them. A declaration with `__asm__(...)` or `__asm(...)` after its arguments names a symbol of the system, and `style.py` does not count its arguments. |
 | F6 | Each comment that is not the legal notice. |
 | L1 | Each line with more than one statement or assignment, an assignment in a condition, and a condition with its statement. |
 | L2, L3, L4, L5, L6 | Each rule. |
@@ -97,7 +97,7 @@ The output follows `.toolchain/docs/shared.py.md`, *The report of a check*.
 | `check_text_macro(src, first, last, name)` | Checks the lines `first` to `last` of a macro of a text: H4. |
 | `check_file(src, functions)` | Checks the file: G1, F6, O3, G2, G3, V1, H1, H2, H3 and H4. |
 | `check_outside(src, statements, functions, declared)` | Checks the file scope: V1, H1, G4, F5 and G5. |
-| `check_parameters(src, line, params, name)` | Checks the parameters of a function: F5. |
+| `check_parameters(src, line, params, name, foreign)` | Checks the parameters of a function: F5. With `foreign`, the declaration names a symbol of the system, and the check does not count the parameters. |
 | `check_function(src, f)` | Checks the body of a function: F2, F4, F5, L1, L2, L4, L5, L6, V1, C1, C2 and C3. |
 | `check(path, text, declared)` | Gives the faults of one file. `declared` holds the names that the headers of the project declare. |
 | `exceptions()` | Gives the exceptions of `[[style.exception]]`. |
