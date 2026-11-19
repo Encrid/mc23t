@@ -236,6 +236,7 @@ Thus write such a condition outside the macro.
 
 The probes change the program, thus the run does not judge the claims. It writes the verdicts only for information.
 An outcome counts as soon as a case reaches it, also if the program then ends with `_Exit` or `abort`.
+In a wasm module, an outcome counts when the host of the module destroys the instance: `.toolchain/docs/branches.py.md`, *A wasm module*.
 `.toolchain/docs/branches.py.md` tells how the probes work.
 
 ## The leaks

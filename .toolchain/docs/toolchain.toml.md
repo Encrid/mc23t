@@ -63,6 +63,14 @@ Each step `each` passes `-MD -MF {deps}`, so zig knows the headers of each sourc
 It also passes `-Wno-unused-command-line-argument`, because `-c` uses no flag of the linker, for example `-s`.
 | `file` | `{name}` | It copies the one source to the output. |
 
+A kind can also have these keys:
+
+| Key | Value |
+| --- | --- |
+| `flags` | The flags that the kind adds to `{flags}` of each artifact of the kind. |
+| `dump` | The command that gives the syntax tree of one source of the kind. With no `dump`, the kind uses `[rewrite] dump`. |
+| `probed` | The flags that the kind adds to `{flags}` only when it builds the tree of a run of `rewrite.py`: `.toolchain/docs/rewrite.py.md`. They can name `{tree}`, the folder of that tree. The syntax tree does not get them. |
+
 ## [rewrite]
 
 `dump` is the command that gives the syntax tree of one source as JSON, for a changed copy of the code.
