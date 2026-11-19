@@ -32,6 +32,7 @@ DECLARES = re.compile(r'(?:\[\[[^\]]*\]\]\s*)*(?:(?:%s)\s+)*(?:%s)\b(?:\s+(?:%s|
                       % (QUALIFIER, ANY, BASE))
 HEADER = re.compile(r'/\*\n' + shared.header('**') + r'\*/\n')
 ASSIGNS = re.compile(r'(?<![=!<>+\-*/%&|^])=(?!=)')
+LABELS = re.compile(r'(?:\s*(?:\b__asm(?:__)?\s*\([^()]*\)|\b__attribute__\s*\(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\)))+\s*\Z')
 
 
 class Source:
@@ -333,7 +334,7 @@ def check_outside(src, statements, functions, declared):
     for m in re.finditer(r'\(\s*\*\s*\w+\s*\)\s*\(([^()]*)\)', code):
         check_parameters(src, src.line_of(m.start()), m.group(1), None)
     for begun, end in statements:
-        text = re.sub(r'\s*\b__asm__\s*\([^()]*\)\s*\Z', '', code[begun:end])
+        text = re.sub(LABELS, '', code[begun:end])
         m = re.search(r'\b([A-Za-z_]\w*)\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*\Z', text)
         if m and not ASSIGNS.search(text) and not re.match(r'\s*(?:typedef|static_assert)\b', text) \
                 and m.group(1) not in KEYWORDS and not UPPER.match(m.group(1)):
