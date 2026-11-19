@@ -95,7 +95,10 @@ def planned(config, values, artifact, tree=None):
                 link=expanded(artifact.get('link', []), mine), manifest=expanded(artifact.get('manifest', []), mine),
                 objects=[])
     mine['inputs'] = ['--embed-dir=' + folder for folder in dict.fromkeys(Path(file).parent.as_posix() for file in read(artifact, mine))]
-    mine['flags'] = expanded(kind.get('flags', []) + artifact.get('flags', []), mine)
+    if tree:
+        mine['tree'] = Path(tree).as_posix()
+    mine['flags'] = expanded(kind.get('flags', []) + (kind.get('probed', []) if tree else []) + artifact.get('flags', []),
+                             mine)
     return kind, mine
 
 

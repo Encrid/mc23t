@@ -11,9 +11,10 @@ import tempfile
 from pathlib import Path
 
 import build
-from shared import die, expanded
+from shared import HERE, die, expanded
 
 TOPS = ('src/', 'include/')
+RUNTIME = (HERE / '.toolchain' / 'runtime').as_posix()
 TESTED = ('program', 'library', 'archive')
 OPENS = ('if', 'ifdef', 'ifndef')
 DIRECTIVE = re.compile(rb'[ \t]*#[ \t]*(\w+)')
@@ -25,47 +26,16 @@ RENAME = '''[[maybe_unused]] static typeof(*%(n)s) %(p)s%(n)s;
 #undef %(n)s
 #define %(n)s %(p)s%(n)s
 '''
-WRITER = r'''#include <stdlib.h>
-#include <string.h>
-#ifdef _WIN32
-#include <errno.h>
-#include <fcntl.h>
-#include <io.h>
-#include <share.h>
-#include <sys/stat.h>
-#else
-#include <fcntl.h>
-#include <unistd.h>
-#endif
+WRITER = r'''#ifndef __wasm__
+#include "%(runtime)s/counts.h"
 [[gnu::destructor]] static void %(p)swrite(void)
 {
     static char %(p)sline[%(line)d];
-    const char *%(p)spath = getenv("%(variable)s");
-    unsigned %(p)sat = %(name_len)du;
-    int %(p)sfd;
-    int %(p)sn;
+    long long %(p)scounts[%(slots)d];
 
-    if (!%(p)spath)
-        return;
-#ifdef _WIN32
-    do
-        %(p)sfd = _sopen(%(p)spath, _O_WRONLY | _O_CREAT | _O_APPEND | _O_BINARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
-    while (%(p)sfd < 0 && errno == EACCES);
-#else
-    %(p)sfd = open(%(p)spath, O_WRONLY | O_CREAT | O_APPEND, 0644);
-#endif
-    if (%(p)sfd < 0)
-        return;
-    memcpy(%(p)sline, "%(name)s ", %(p)sat);
-%(fill)s    %(p)sline[%(p)sat++] = '\n';
-#ifdef _WIN32
-    %(p)sn = _write(%(p)sfd, %(p)sline, %(p)sat);
-    _close(%(p)sfd);
-#else
-    %(p)sn = (int)write(%(p)sfd, %(p)sline, %(p)sat);
-    close(%(p)sfd);
-#endif
-    (void)%(p)sn;
+    for (unsigned %(p)si = 0; %(p)si < %(slots)du; %(p)si++)
+        %(p)scounts[%(p)si] = %(p)s%(kept)s[%(p)si];
+    c23_counts_keep(%(p)sline, "%(name)s", %(p)scounts, %(slots)du);
 }
 #ifdef __APPLE__
 typedef struct {
@@ -84,7 +54,23 @@ extern void *%(p)sdlopen(const char *path, int mode) __asm__("_dlopen");
         (void)%(p)sdlopen(%(p)sinfo.dli_fname, 0x1 | 0x10 | 0x80);
 }
 #endif
+#endif
 '''
+AREA = r"""[[gnu::weak]] extern unsigned char __start_c23b[];
+[[gnu::weak]] extern unsigned char __stop_c23b[];
+[[gnu::weak]] extern unsigned char __start_c23l[];
+[[gnu::weak]] extern unsigned char __stop_c23l[];
+char c23b_plan[256];
+struct {
+    unsigned version;
+    unsigned char *outcomes;
+    unsigned char *outcomes_end;
+    unsigned char *counts;
+    unsigned char *counts_end;
+    char *plan;
+    unsigned room;
+} c23b_outcomes = { 1u, __start_c23b, __stop_c23b, __start_c23l, __stop_c23l, c23b_plan, sizeof(c23b_plan) };
+"""
 
 
 def tree(values, run):
@@ -162,19 +148,22 @@ def stood_in(artifact, mine):
 
 
 def sources(config, values, tests=False):
-    jobs = {}
+    jobs, parts = {}, {}
     for artifact in build.artifacts(config):
         if 'target' in artifact:
             continue
-        _, mine = build.planned(config, values, artifact)
+        kind, mine = build.planned(config, values, artifact)
         Path(mine['work']).parent.mkdir(parents=True, exist_ok=True)
         mine['inputs'] = stood_in(artifact, mine)
         tops = ('src/', 'tests/') if tests and artifact['kind'] in TESTED else ('src/',)
         for source in mine['sources']:
-            if source.startswith(tops) and source.endswith('.c') and source not in jobs:
-                jobs[source] = expanded(config['rewrite']['dump'], dict(mine, source=source)), set()
-            if source in jobs and 'part' in artifact:
-                jobs[source][1].add(artifact['part'])
+            if source.startswith(tops) and source.endswith('.c'):
+                command = expanded(kind.get('dump', config['rewrite']['dump']), dict(mine, source=source))
+                at = command.index('-o')
+                key = source, tuple(command[:at] + command[at + 2:])
+                jobs.setdefault(key, (command, parts.setdefault(source, set())))
+            if source in parts and 'part' in artifact:
+                parts[source].add(artifact['part'])
     return jobs
 
 
@@ -182,12 +171,22 @@ def each(config, values, use, tests=False):
     root = Path(values['root'])
     jobs = sources(config, values, tests)
     with concurrent.futures.ThreadPoolExecutor(min(8, os.cpu_count() or 1)) as pool:
-        return list(pool.map(lambda job: (use(root, job[0], dumped(job[1][0], root)), sorted(job[1][1])),
+        return list(pool.map(lambda job: (use(root, job[0][0], dumped(job[1][0], root)), sorted(job[1][1])),
                              jobs.items()))
+
+
+def united(files):
+    found = {}
+    for (path, used, declared, ends), parts in files:
+        _, was, known, at, _ = found.get(path, (path, [], {}, {}, parts))
+        found[path] = path, sorted(set(was) | set(used)), {**declared, **known}, {**ends, **at}, parts
+    return [(one[:4], one[4]) for one in found.values()]
 
 
 def copied(root, where, more=()):
     shutil.rmtree(where, ignore_errors=True)
+    where.mkdir(parents=True)
+    (where / 'c23b_area.c').write_text(AREA, encoding='utf-8')
     for top in ('src', 'include'):
         if (root / top).is_dir():
             shutil.copytree(root / top, where / top)
@@ -301,4 +300,4 @@ def placing(text, at):
 
 
 def writer(values):
-    return WRITER % dict(values, fill=values['fill'] % values)
+    return WRITER % dict(values, runtime=RUNTIME)

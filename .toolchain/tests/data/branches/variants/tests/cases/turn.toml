@@ -1,0 +1,17 @@
+[[case]]
+name = "plain"
+run = ["{out}/plain{exe}"]
+claims = { status = 0, line = ["0"] }
+false = { run = ["{out}/plain{exe}", "1"] }
+
+[[case]]
+name = "turned two"
+run = ["{out}/turned{exe}", "2"]
+claims = { status = 0, line = ["-2"] }
+false = { run = ["{out}/turned{exe}", "1"] }
+
+[[case]]
+name = "turned one"
+run = ["{out}/turned{exe}", "1"]
+claims = { status = 0, line = ["1"] }
+false = { run = ["{out}/turned{exe}", "2"] }

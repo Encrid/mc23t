@@ -117,3 +117,9 @@ name = "the groups that test a file reach its branches together"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one", "--group", "two"]
 claims = { status = 0, line = ["branches: 3 outcomes, 3 reached"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/grouped", "--out", "{case}/out", "--branches", "--group", "one", "--group", "two", "-k", "one"] }
+
+[[case]]
+name = "each variant of a source gets its own tree"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/variants", "--out", "{case}/out", "--branches"]
+claims = { status = 0, line = ["branches: 5 outcomes, 5 reached"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/variants", "--out", "{case}/out", "--branches", "-k", "plain"] }

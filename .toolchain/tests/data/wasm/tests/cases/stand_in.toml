@@ -1,0 +1,13 @@
+[[case]]
+name = "a host keeps the outcomes of the module"
+run = ["{out}/stand_in{exe}", "0", "12"]
+claims = { status = 0, line = ["kept"] }
+false = { run = ["{out}/stand_in{exe}", "0", "13"] }
+process = "command"
+
+[[case]]
+name = "a host that writes past the end of the file keeps nothing"
+run = ["{out}/stand_in{exe}", "0", "13"]
+claims = { status = 0, line = ["refused"] }
+false = { run = ["{out}/stand_in{exe}", "0", "12"] }
+process = "command"

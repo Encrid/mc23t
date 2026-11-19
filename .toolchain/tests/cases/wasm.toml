@@ -1,0 +1,11 @@
+[[case]]
+name = "the probes of a wasm module"
+run = ["{python}", "{root}/.toolchain/tests/data/wasm/tools/drive.py", "{root}/.toolchain/tools", "{case}/proj", "{case}/out"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/wasm/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/wasm/src/heap.c", ".toolchain/tests/data/wasm/src/heap.h", ".toolchain/tests/data/wasm/src/probe.c"], "{case}/proj/tests" = [".toolchain/tests/data/wasm/tests/stand_in.c"], "{case}/proj/tests/cases" = [".toolchain/tests/data/wasm/tests/cases/stand_in.toml"] }
+claims = { status = 0 }
+rows = [
+    { name = "a wasm module with no probes exports nothing", in = "build", claims = { line = ["exports: memory pick"] }, false = "branches" },
+    { name = "a probed wasm module exports the area of its outcomes", in = "branches", claims = { line = ["outcomes: 6 bytes at 0", "outcomes: 6 bytes at 6"] }, false = "build" },
+    { name = "the outcomes that a host keeps reach hits.bin", in = "branches", claims = { line = ["branches: 9 outcomes, 9 reached"] }, false = "branches past" },
+    { name = "a probed wasm module exports the counts of its leaks", in = "leaks", claims = { line = ["counts: src/probe.c with 2 slots"] }, false = "branches" },
+]
