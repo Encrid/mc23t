@@ -32,7 +32,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 | F2 | The snake case. A person checks the verb. |
 | F3 | The columns of each line. A tab moves the next character to the next multiple of 8 columns. |
 | F4 | The lines between the line of the opening bracket and the line of the closing bracket. |
-| F5 | `void` in a declaration with no argument, and the number of the arguments. A `...` is one argument. A declaration with a name for the linker in `__asm__` counts its arguments too. |
+| F5 | `void` in a declaration with no argument, and the number of the arguments. A `...` is one argument. A declaration counts its arguments too when `__asm__(...)`, `__asm(...)` or `__attribute__((...))` follow them. |
 | F6 | Each comment that is not the legal notice. |
 | L1 | Each line with more than one statement or assignment, an assignment in a condition, and a condition with its statement. |
 | L2, L3, L4, L5, L6 | Each rule. |
