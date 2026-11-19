@@ -330,3 +330,44 @@ static double sum_of(double *from)
     return (sum);
 }
 '''
+
+[[case]]
+name = "a declaration with a name of the linker counts its arguments"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *open_map(void *a, void *b, unsigned long c, unsigned long d,
+    unsigned long e) __asm__("CreateFileMappingA");
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *open_map(void *a, void *b, unsigned long c, ...)
+    __asm__("CreateFileMappingA");
+
+#endif
+'''

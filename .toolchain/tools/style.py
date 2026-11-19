@@ -333,7 +333,7 @@ def check_outside(src, statements, functions, declared):
     for m in re.finditer(r'\(\s*\*\s*\w+\s*\)\s*\(([^()]*)\)', code):
         check_parameters(src, src.line_of(m.start()), m.group(1), None)
     for begun, end in statements:
-        text = code[begun:end]
+        text = re.sub(r'\s*\b__asm__\s*\([^()]*\)\s*\Z', '', code[begun:end])
         m = re.search(r'\b([A-Za-z_]\w*)\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*\Z', text)
         if m and not ASSIGNS.search(text) and not re.match(r'\s*(?:typedef|static_assert)\b', text) \
                 and m.group(1) not in KEYWORDS and not UPPER.match(m.group(1)):
