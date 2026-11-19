@@ -22,4 +22,5 @@ steps = [
     { run = ["{wasm_opt}", "{work}.raw.wasm", "{wasm_features}", "-O3", "-o", "{work}.own.wasm"] },
     { run = ["{wasm_merge}", "{work}.own.wasm", "main", "{link}", "acc", "{wasm_features}", "-o", "{work}.merged.wasm"] },
     { run = ["{wasm_opt}", "{work}.merged.wasm", "{wasm_features}", "--remove-exports=acc_*", "--remove-unused-module-elements", "-o", "{output}"] },
+    { section = "bridge:manifest", text = "{manifest:\u0000}\u0000" },
 ]

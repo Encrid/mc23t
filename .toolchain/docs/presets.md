@@ -53,13 +53,14 @@ A source of the module puts the manifest into the section with this line:
 The headers of BB-Wasm include `bridge_abi.h` of Bridge, so a project of wasm modules also takes the source `bridge` of `native_module`.
 An artifact of the kind `wasm_module` names the accessors in `link`, for example `{bb_wasm}/acc.wasm`, and the headers in `include`: `{bridge}/include` and `{bb_wasm}/include`.
 
-The kind `wasm_module` makes a module in 5 steps:
+The kind `wasm_module` makes a module in 6 steps:
 
 1. zig compiles the sources for `wasm32-freestanding`, with no library of C, into `<name>.raw.wasm`.
 2. `.toolchain/tools/wasm_guard.py` checks the imports of that module: `.toolchain/docs/wasm_guard.py.md`.
 3. `wasm-opt` optimizes the code of the module with `-O3`.
 4. `wasm-merge` merges the accessors of `link` into the module, under the name `acc`.
 5. `wasm-opt` removes the exports of the accessors and each part that nothing uses. It runs no other pass, so each accessor keeps the body that BB-Wasm checks at load.
+6. It writes the items of `manifest` into the custom section `bridge:manifest`, with a zero byte after each item. Bridge-Host reads the manifest there.
 
 The kind `wasm_text` makes a module from wasm text with `wasm-as`. It holds no accessor, so it is for a test or for the accessors themselves.
 

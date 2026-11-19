@@ -25,3 +25,10 @@ run = ["{python}", "-c", "import subprocess, sys; [subprocess.run([sys.executabl
 folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/text/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/text/probe.wat"] }
 claims = { status = 0, has = ["probe.wasm"] }
 false = { folders = { "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/text/broken/probe.wat"] } }
+
+[[case]]
+name = "a wasm module with its manifest"
+run = ["{python}", "-c", "import glob, subprocess, sys; [subprocess.run([sys.executable, sys.argv[1] + '/' + tool, '--root', sys.argv[2], '--out', sys.argv[3]], check=True) for tool in ('fetch.py', 'build.py')]; data = open(glob.glob(sys.argv[3] + '/*/probe.wasm')[0], 'rb').read(); print('manifest of ' + ('test:probe@1.0.0' if b'bridge:manifest' in data and b'test:probe@1.0.0' in data else 'nothing'))", "{root}/.toolchain/tools", "{case}/proj", "{case}/out"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_sources.toml", ".toolchain/presets/native_module/native_targets.toml", ".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/probe.c"] }
+claims = { status = 0, has = ["manifest of test:probe@1.0.0"] }
+false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/unmarked/project.toml"] } }
