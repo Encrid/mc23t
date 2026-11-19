@@ -11,3 +11,17 @@ run = ["{python}", "{root}/.toolchain/tests/data/build/runtime/tools/inspect.py"
 folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/runtime/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/runtime/probe.c"] }
 claims = { status = 0, line = ["KERNEL32.dll: RtlMoveMemory", "KERNEL32.dll: RtlFillMemory"] }
 false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/runtime/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/tests/data/presets/runtime/bare_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/runtime/probe.c"] } }
+
+[[case]]
+name = "a wasm module with the accessors"
+run = ["{python}", "-c", "import subprocess, sys; [subprocess.run([sys.executable, sys.argv[1] + '/' + tool, '--root', sys.argv[2], '--out', sys.argv[3]], check=True) for tool in ('fetch.py', 'build.py')]", "{root}/.toolchain/tools", "{case}/proj", "{case}/out"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_sources.toml", ".toolchain/presets/native_module/native_targets.toml", ".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/probe.c"] }
+claims = { status = 0, has = ["probe.wasm"] }
+false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/imports/project.toml"] } }
+
+[[case]]
+name = "a module of wasm text"
+run = ["{python}", "-c", "import subprocess, sys; [subprocess.run([sys.executable, sys.argv[1] + '/' + tool, '--root', sys.argv[2], '--out', sys.argv[3]], check=True) for tool in ('fetch.py', 'build.py')]", "{root}/.toolchain/tools", "{case}/proj", "{case}/out"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/text/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/text/probe.wat"] }
+claims = { status = 0, has = ["probe.wasm"] }
+false = { folders = { "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/text/broken/probe.wat"] } }
