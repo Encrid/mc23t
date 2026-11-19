@@ -7,7 +7,6 @@
     #define C23_OUTCOMES_H
 
     #include <fcntl.h>
-    #include <stdatomic.h>
     #include <stddef.h>
     #include <stdlib.h>
 
@@ -16,21 +15,22 @@
 
 void *c23_outcomes_create_mapping(void *file, void *security,
     unsigned long protect, ...) __asm__("CreateFileMappingA");
-void *c23_outcomes_map_view(void *mapping, unsigned long access, ...)
-    __asm__("MapViewOfFile");
+void *c23_outcomes_map_view(void *mapping, unsigned long access,
+    unsigned long offset_high, ...) __asm__("MapViewOfFile");
     #else
         #include <sys/mman.h>
         #include <unistd.h>
     #endif
 
 typedef struct {
-    atomic_uchar *all;
+    _Atomic unsigned char *all;
     size_t size;
 } c23_outcomes_file_t;
 
     #ifdef _WIN32
 
-static inline atomic_uchar *c23_outcomes_map(const char *path, size_t *size)
+static inline _Atomic unsigned char *c23_outcomes_map(const char *path,
+    size_t *size)
 {
     int fd = _open(path, _O_RDWR | _O_BINARY);
     long long length = fd < 0 ? 0 : _filelengthi64(fd);
@@ -49,7 +49,8 @@ static inline atomic_uchar *c23_outcomes_map(const char *path, size_t *size)
 
     #else
 
-static inline atomic_uchar *c23_outcomes_map(const char *path, size_t *size)
+static inline _Atomic unsigned char *c23_outcomes_map(const char *path,
+    size_t *size)
 {
     int fd = open(path, O_RDWR);
     off_t length = fd < 0 ? 0 : lseek(fd, 0, SEEK_END);
@@ -81,8 +82,8 @@ static inline const c23_outcomes_file_t *c23_outcomes_get_file(void)
     return (&file);
 }
 
-static inline atomic_uchar *c23_outcomes_keep(const unsigned char *bytes,
-    size_t start, size_t count)
+static inline _Atomic unsigned char *c23_outcomes_keep(
+    const unsigned char *bytes, size_t start, size_t count)
 {
     const c23_outcomes_file_t *file = c23_outcomes_get_file();
 
@@ -90,8 +91,7 @@ static inline atomic_uchar *c23_outcomes_keep(const unsigned char *bytes,
         return (nullptr);
     for (size_t i = 0; i < count; i++)
         if (bytes[i])
-            atomic_store_explicit(&file->all[start + i], 1,
-                memory_order_relaxed);
+            file->all[start + i] = 1;
     return (file->all + start);
 }
 

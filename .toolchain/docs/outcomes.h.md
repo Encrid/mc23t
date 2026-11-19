@@ -23,7 +23,8 @@ Thus during the cases, the file of the hits has 1 way to write: the mapping of t
 
 On Linux and on macOS, `c23_outcomes_map` maps the file with `mmap`. On Windows, it maps the file with `CreateFileMappingA` and `MapViewOfFile`.
 The header declares these 2 functions of Windows with names of its own, so `windows.h` does not come into a probed file.
-The rule F5 of `docs/contributing/coding_style.md` allows at most 4 arguments. Thus each declaration names the first arguments, and gives the rest as `...`.
+`CreateFileMappingA` takes 6 arguments and `MapViewOfFile` takes 5. The rule F5 of `docs/contributing/coding_style.md` allows at most 4 arguments, and `...` counts as 1.
+Thus each declaration names the first 3 arguments of its function, and gives the rest as `...`.
 On x86_64 and on aarch64, Windows puts an argument that is an integer or a pointer in the same place for a call with `...` and for a call with no `...`.
 Each call gives each argument of the full declaration, with its type.
 
@@ -36,6 +37,7 @@ The first call keeps the mapping in static variables. Thus a program calls the f
 A wasm module has no file and no environment. Thus its probes keep their bytes in its memory, and a host of the module gives them to `c23_outcomes_keep`.
 The host also gives the counts of `test --leaks` to `c23_counts_keep` of `counts.h`, and writes the plan of `fail` into the module: `.toolchain/docs/counts.h.md`.
 This section states what the host reads and writes. The host runs no code of the module.
+A host that includes `outcomes.h` or `counts.h` needs a compiler of C23, for `nullptr`, `bool` and `_Atomic`. On Windows, `outcomes.h` also needs the labels `__asm__` of GNU C, which clang and gcc have.
 
 ### The global
 
