@@ -71,11 +71,13 @@ A probe sets the byte of its outcome to 1 only the first time that the outcome i
 
 The system keeps the bytes of a mapped file when the program ends. Thus an outcome stays, also when the program ends with `_Exit` or `abort`.
 Each program, and each library that a program opens, maps the same file. Thus the file holds the outcomes of all the programs of the cases.
-`c23_outcomes_keep` is the only writer of the file of the hits. A host of wasm modules uses it too, so each write goes through the same mapping.
+
+`test.py` writes the file of the hits only before the cases run. During the cases, each write goes through the mapping of `c23_outcomes_keep`.
+A probe writes into the mapping, after the constructor of its file. A host of wasm modules gives each chunk to `c23_outcomes_keep`.
 
 ## A wasm module
 
-A wasm module has no file, no environment and no constructor. Thus the probes choose the target with `__wasm__`, which clang defines for wasm.
+In a wasm module, the probes cannot map a file or read the environment. Thus they choose the target with `__wasm__`, which clang defines for wasm.
 The tree of a wasm source comes from the command `dump` of its kind, with the flags of wasm: `.toolchain/docs/presets.md`, *wasm_module*.
 
 - The bytes of a file are in a chunk in the section `c23b` of the module. The chunk also tells where the bytes go in the file of the hits.

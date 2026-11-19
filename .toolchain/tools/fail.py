@@ -101,7 +101,7 @@ static void c23b_fturn(_Atomic long long *count, long long *counted)
 COUNT = ('[[gnu::weak, gnu::visibility("hidden")]] _Atomic long long c23b_fc_%(n)s;\n'
          '[[gnu::weak, gnu::visibility("hidden")]] long long c23b_fg_%(n)s;\nstatic long long c23b_fs_%(n)s;\n')
 READ = '    c23b_fs_%(n)s = c23b_fget(" %(n)s=");\n'
-MINE = '[[gnu::constructor]] static void c23b_fread(void)\n{\n    if (!c23b_fmine("%s"))\n        return;\n'
+MINE = '#ifndef __wasm__\n[[gnu::constructor]]\n#endif\nstatic void c23b_fread(void)\n{\n    if (!c23b_fmine("%s"))\n        return;\n'
 WRAP = ('    c23b_fturn(&c23b_fc_%(n)s, &c23b_fg_%(n)s);\n    if (++c23b_fc_%(n)s == c23b_fs_%(n)s) {\n'
         '        c23b_ftold();\n        return (%(v)s);\n    }\n    return (%(c)s);\n}\n')
 
