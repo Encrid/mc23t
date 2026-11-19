@@ -339,11 +339,13 @@ def check_outside(src, statements, functions, declared):
     for m in re.finditer(r'\(\s*\*\s*(?:(?:const|volatile)\s+)*\w+\s*\)\s*\(([^()]*)\)', code):
         check_parameters(src, src.line_of(m.start()), m.group(1), None)
     for begun, end in statements:
-        text = re.sub(LABELS, '', code[begun:end])
+        labels = LABELS.search(code, begun, end)
+        text = code[begun:labels.start() if labels else end]
+        foreign = bool(labels and re.search(r'\b__asm', labels.group()))
         m = re.search(r'\b([A-Za-z_]\w*)\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*\Z', text)
         if m and not ASSIGNS.search(text) and not re.match(r'\s*(?:typedef|static_assert)\b', text) \
                 and m.group(1) not in KEYWORDS and not UPPER.match(m.group(1)):
-            check_parameters(src, src.line_of(begun + m.start()), m.group(2), m.group(1))
+            check_parameters(src, src.line_of(begun + m.start()), m.group(2), m.group(1), foreign)
     for f in functions:
         static = re.search(r'\bstatic\b', f.prefix)
         exported = re.search(r'\b\w*(?:EXPORT|_API)\b|\bdllexport\b|\bvisibility\b', f.prefix) or f.macro
@@ -371,11 +373,11 @@ def check_variables(src, line, text, in_header):
             src.say('V1', line, "the global constant '%s' is not in UPPER_CASE" % name)
 
 
-def check_parameters(src, line, params, name):
+def check_parameters(src, line, params, name, foreign=False):
     count = parameters(params)
     if count < 0:
         src.say('F5', line, 'a function that takes nothing takes void', name)
-    elif count > ARGUMENTS:
+    elif count > ARGUMENTS and not foreign:
         src.say('F5', line, '%d arguments, and %d is the most' % (count, ARGUMENTS), name)
 
 
