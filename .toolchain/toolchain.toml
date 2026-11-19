@@ -11,6 +11,10 @@ aarch64-linux-gnu = { host = "aarch64-linux", format = "tar.xz", sha256 = "a1546
 x86_64-macos = { host = "x86_64-macos", format = "tar.xz", sha256 = "9af07b20319fbd0c92ee46ad23e81d6a782b1aaea2cfb8dcbff35f1d2c7ddbb7" }
 aarch64-windows-gnu = { host = "aarch64-windows", format = "zip", sha256 = "4789895bdb1e312a2ea73b2a7c0a0cc8d2ab62ba6976e834a7c54cf443377c15" }
 
+[fetch]
+archives = "build/archives"
+timeout = 60
+
 [build]
 folder = "build"
 cache = "build/zig-cache"

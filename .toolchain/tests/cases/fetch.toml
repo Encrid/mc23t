@@ -46,3 +46,21 @@ name = "an archive with no folder of its top"
 run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/fetch", "--out", "{case}/out", "--set", "top=missing"]
 claims = { status = 1, line = ["fetch.py: sample: the archive has no folder missing"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/fetch", "--out", "{case}/out"] }
+
+[[case]]
+name = "an archive in the shared folder is not downloaded again"
+run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "archive", "gone"]
+claims = { status = 0, line = ["sample.zip"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "none", "gone"] }
+
+[[case]]
+name = "a download that gives no new byte stops"
+run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "gone"]
+claims = { status = 1, line = ["kept.py: sample.zip stops at 3 bytes: run fetch again"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "archive"] }
+
+[[case]]
+name = "a download that gets all the bytes writes the archive again"
+run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "archive"]
+claims = { status = 0, line = ["sample.zip"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "gone"] }
