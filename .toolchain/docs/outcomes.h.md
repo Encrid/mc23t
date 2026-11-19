@@ -3,7 +3,7 @@
 `outcomes.h` writes the outcomes of the probes of `test --branches` into the file of the hits.
 The probes of `branches.py` include it at the end of each probed file: `.toolchain/docs/branches.py.md`, *The hits*.
 A host of wasm modules includes it to give the outcomes of each instance: *A host of wasm modules*.
-Thus the file of the hits has 1 writer and 1 way to write: a mapping of the file.
+Thus during the cases, the file of the hits has 1 way to write: the mapping of the file that `c23_outcomes_keep` makes.
 
 ## Functions
 
