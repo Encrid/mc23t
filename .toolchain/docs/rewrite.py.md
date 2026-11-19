@@ -9,6 +9,10 @@ It holds the parts that these runs share.
 1. `sources` finds each artifact that the build makes for this target.
 2. It takes each file `.c` of `src` that such an artifact compiles, with its command `dump`: *The syntax tree*.
    A file gets 1 job for each different command, with no regard to the output of the command. Thus a variant with a different `defines` gets a tree of its own.
+
+   The command of an artifact with `inputs` holds `--embed-dir=<work>.inputs`, the folder of its stand-ins. Each artifact has a different folder.
+   Thus 2 artifacts with `inputs` that compile 1 file give 2 jobs, also with the same flags.
+
    It also keeps the parts of all the artifacts that compile the file. A file of a project with no parts has no part.
 3. `each` runs the command of each job, 8 jobs at the same time. It gives each syntax tree to the run, and gives the parts of the file with its result.
 4. `united` joins the results of `found` for 1 file: the functions that each tree uses, and their declarations.
