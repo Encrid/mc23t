@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, sys.argv[1])
 import fetch
+import shared
 
 case = Path(sys.argv[2])
 archive = case / 'tools.zip'
@@ -17,5 +18,6 @@ with zipfile.ZipFile(archive, 'w') as packed:
         member = zipfile.ZipInfo('tools/' + name)
         member.external_attr = mode << 16
         packed.writestr(member, 'x')
-fetch.fetched(archive.as_uri(), hashlib.sha256(archive.read_bytes()).hexdigest(), case / 'out')
+fetch.fetched(archive.as_uri(), hashlib.sha256(archive.read_bytes()).hexdigest(), case / 'out',
+              dict(shared.config(case)['fetch'], archives=case / 'archives'))
 print(os.stat(case / 'out' / 'tools' / sys.argv[3]).st_mode & 0o100 != 0)

@@ -18,11 +18,18 @@ The patch `wrong` has a line of context that the file does not have.
 | a source that is fetched already | `fetched.txt` holds the stamp, thus `fetch` keeps `greeting.txt` as it is. | `fetched.txt` holds a different stamp. |
 | a zip keeps the execute bits of its programs | `moded.py` writes `{case}/tools.zip`, fetches it with `fetched`, and writes `True`: `tool{exe}` can run. | `note.txt`, which has no execute bit. |
 | a source with a folder for each target | After one `fetch`, a build for `aarch64-macos` and a build for `x86_64-linux-gnu` each copy `name.txt` of their own target. | `--set place=aarch64-macos`, so the two builds copy the file of `aarch64-macos`. |
+| an archive in the shared folder is not downloaded again | `kept.py` puts `sample.zip` into the folder of its digest, and gives an address with no file. `kept` gives the archive: `sample.zip`. | The folder holds no archive, so `kept` stops. |
+| a download that gives no new byte stops | The folder holds `sample.zip.part` with 3 bytes, and the address has no file. `kept` stops: `kept.py: sample.zip stops at 3 bytes: run fetch again`. | The address of `sample.zip`. |
+| a download that gets all the bytes writes the archive again | The folder holds `sample.zip.part` with 3 bytes. A `file:` address sends all the bytes, so `kept` writes the file again, checks its digest, and gives `sample.zip`. | The address has no file. |
 
 The case `a source with a folder for each target` uses the project in `.toolchain/tests/data/fetch/everywhere`.
 Its source `everywhere` is `everywhere.zip`, with one digest. The zip holds `<target>/name.txt` for each of the 6 targets, and each file holds the name of its target.
 The `top` of the source is the variable `place`, which is `{target}`.
 The artifact `name.txt` copies `name.txt` from the folder of the source.
+
+The cases of `kept` run `.toolchain/tests/data/fetch/kept.py` with the folder of the case, `sample.zip`, what the folder of the digest holds, and the address.
+The folder holds `archive`, `part` or `none`. The address is `archive`, the address of `sample.zip`, or `gone`, an address with no file.
+`kept.py` makes the folder `{case}/archives/<digest>`, calls `kept`, and writes the name of the archive that `kept` gives.
 
 The case `a zip keeps the execute bits of its programs` runs `.toolchain/tests/data/fetch/moded.py`, which makes a zip with no network.
 The zip records the mode 755 for `tool` and for `tool.exe`, and 644 for `note.txt`.
