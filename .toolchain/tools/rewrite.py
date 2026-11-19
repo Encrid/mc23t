@@ -30,7 +30,7 @@ WRITER = r'''#ifndef __wasm__
 #include "%(runtime)s/counts.h"
 [[gnu::destructor]] static void %(p)swrite(void)
 {
-    static char %(p)sline[%(line)d];
+    static char %(p)sline[C23_COUNTS_ROOM(%(length)du, %(slots)du)];
     long long %(p)scounts[%(slots)d];
 
     for (unsigned %(p)si = 0; %(p)si < %(slots)du; %(p)si++)

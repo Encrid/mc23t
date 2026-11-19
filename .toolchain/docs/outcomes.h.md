@@ -102,6 +102,6 @@ It checks each address and each size that it reads against the committed size of
 4. For each chunk, it calls `c23_outcomes_keep(base + at + 8, start, bits)`. `base + at` is the chunk in the memory of the host.
 5. Then the host reads the chunks of counts, if `C23_LEAKS` is set.
 6. For each chunk, it copies the counts and the path, and calls `c23_counts_keep(line, path, counts, slots)`.
-7. `line` holds `c23_counts_get_room(length, slots)` bytes.
+7. `line` holds `C23_COUNTS_ROOM(length, slots)` bytes.
 
 The host does the steps 3 to 7 at each destroy of an instance, also after a reload and after a trap. An instance that the host does not destroy gives nothing.
