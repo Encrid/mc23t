@@ -15,8 +15,8 @@ BUILT = {'malloc': ('take', 'memory', 'result'), 'calloc': ('take', 'memory', 'r
 PLACES = {'take': re.compile(r'result|\*?[1-9][0-9]*|\*[1-9][0-9]*\.[A-Za-z_]\w*'),
           'give': re.compile(r'result|\*?[1-9][0-9]*')}
 VERBS = {'take': 'take', 'give': 'give back'}
-TESTED = '    if (%sc23b_l_held(&(%s), sizeof(%s)))\n        %skept[%d]%s;\n'
 PREFIX = 'c23b_l_'
+TESTED = '    if (%s' + PREFIX + 'held(&(%s), sizeof(%s)))\n        %skept[%d]%s;\n'
 COUNT = re.compile(r'-?[0-9]+')
 QUALIFIED = re.compile(r'(\s*\b(?:const|volatile|restrict|__restrict|__restrict__)\b)+$')
 COUNTS = r'''#ifdef __wasm__
@@ -118,8 +118,7 @@ def rewritten(text, path, used, ends, declared, names, kinds, outer=(0, '', ''))
     text = text.rstrip(b'\r\n') + b'\n'
     at = rewrite.included(text)
     slots = len(kinds) + 1
-    values = {'p': PREFIX, 'slots': slots, 'line': len(path) + 2 + 22 * slots, 'name': path,
-              'length': len(path), 'size': len(path) + 1, 'kept': 'kept'}
+    values = {'p': PREFIX, 'slots': slots, 'name': path, 'length': len(path), 'size': len(path) + 1, 'kept': 'kept'}
     places = {name: max(at, text.index(b'\n', ends[name]) + 1) if name in ends else at for name in used}
     out, last = b'', 0
     for where in sorted(set(places.values()) | {at}):

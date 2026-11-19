@@ -20,10 +20,7 @@
         #include <unistd.h>
     #endif
 
-static inline size_t c23_counts_get_room(size_t length, size_t slots)
-{
-    return (length + 2 + 22 * slots);
-}
+    #define C23_COUNTS_ROOM(length, slots) ((length) + 2 + 22 * (slots))
 
 static inline size_t c23_counts_put_number(char *line, size_t at,
     long long n)
