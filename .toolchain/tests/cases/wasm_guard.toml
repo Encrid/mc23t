@@ -1,0 +1,48 @@
+[[case]]
+name = "a file that is not a wasm module"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "text" }
+claims = { status = 1, has = ["is refused: it is not a wasm module"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000" } }
+
+[[case]]
+name = "a module that imports a memory"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0008\u0001\u0001m\u0001s\u0002\u0000\u0001" }
+claims = { status = 1, has = ["is refused: it imports the memory 'm.s'; a module reaches shared data only through the accessors"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0007\u0001\u0001m\u0001s\u0000\u0000" } }
+
+[[case]]
+name = "a module that imports a global"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0008\u0001\u0001m\u0001g\u0003\u007f\u0000" }
+claims = { status = 1, has = ["is refused: it imports the global 'm.g'; a module imports no global"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0007\u0001\u0001m\u0001g\u0000\u0000" } }
+
+[[case]]
+name = "a module that imports a tag"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0008\u0001\u0001m\u0001t\u0004\u0000\u0000" }
+claims = { status = 1, has = ["is refused: it imports the tag 'm.t'; a module imports no tag"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0007\u0001\u0001m\u0001t\u0000\u0000" } }
+
+[[case]]
+name = "a table with a maximum is stepped over"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0011\u0002\u0001m\u0001t\u0001p\u0001\u0001\u0002\u0001m\u0001g\u0003\u007f\u0000" }
+claims = { status = 1, has = ["is refused: it imports the global 'm.g'; a module imports no global"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0011\u0002\u0001m\u0001t\u0001p\u0001\u0001\u0002\u0001m\u0001g\u0000\u0000\u0000" } }
+
+[[case]]
+name = "a module that ends inside the import section"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002" }
+claims = { status = 1, has = ["is refused: it ends inside a section"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0001\u0000" } }
+
+[[case]]
+name = "a module that ends inside a different section"
+run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
+files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0001\u0005\u0001" }
+claims = { status = 1, has = ["is refused: it ends inside a section"] }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0001\u0001\u0000" } }
