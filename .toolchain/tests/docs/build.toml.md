@@ -154,5 +154,6 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the step of an artifact takes its sources as inputs, and not as arguments | After a build of the project of `graph/output`, `obj/graph.json` holds `"kind": "input"`: the source `note.txt` is an input of the step, and no argument. | A project with no artifact, whose graph has no input. |
 | the default of float joins no product and no sum | `build.py` builds `mad` of `.toolchain/tests/data/build/contract`. Its function `add_product` gives `a * b + c`, with the target feature `fma` on x86_64. `mad` writes `separate`: the result is the product, rounded, plus `c`. | The artifact has the flag `-ffp-contract=on`. |
 | the flags of an artifact override float | The same build, with `--set override=-ffp-contract=on`. `{flags}` comes after `{float}`, thus `mad` writes `fused`: 1 fused multiply-add. | The artifact has no flag of its own. |
+| a count of jobs that is not a whole number above 0 | `--set jobs=0`: `build.py` stops with `[variables] jobs is 0, and it must be a whole number above 0`. | `--set jobs=1`: the build runs 1 job at a time, and ends with 0. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.

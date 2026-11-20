@@ -83,7 +83,7 @@ The tools stop with these faults:
 
 Each key of `[variables]` is a variable.
 A key must not have the name of a variable that the tools give, or of a key of a target.
-`.toolchain/toolchain.toml` gives the keys `language`, `optimize` and `float`.
+`.toolchain/toolchain.toml` gives the keys `language`, `optimize`, `float` and `jobs`.
 With `--debug`, each key of `[debug]` in `.toolchain/toolchain.toml` replaces the variable with the same name.
 `--set <name>=<value>` replaces the value of a key of `[variables]`.
 

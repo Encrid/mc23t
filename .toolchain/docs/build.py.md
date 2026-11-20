@@ -95,7 +95,9 @@ The 2 runners make the same files.
 
 ## The runner zig
 
-`graphed` writes the graph `{out}/obj/graph.json`, and runs `zig build` with `.toolchain/graph.zig`, `-Dgraph=<graph>` and `--prefix {out}`.
+`graphed` writes the graph `{out}/obj/graph.json`, and runs `zig build` with `-j<jobs>`, `.toolchain/graph.zig`, `-Dgraph=<graph>` and `--prefix {out}`.
+`-j<jobs>` limits the steps that run at the same time: `.toolchain/docs/toolchain.toml.md`, *The jobs*.
+
 `.toolchain/docs/graph.zig.md` tells the form of the graph.
 `graph.zig` is the same file for each project, so zig builds it only once for each version of zig on a machine.
 For each artifact, `specified` writes `{work}.json`: the values of the artifact, and its steps with their variables replaced.
