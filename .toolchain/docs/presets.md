@@ -76,6 +76,7 @@ The kind `wasm_library` makes a static library `<name>.a` for `wasm32-freestandi
 Its step `each` compiles each source with `wasm_compile`, `{flags}`, `{defines}` and `{include}`, as step 1 of `wasm_module` does.
 Then `zig build-lib -static` makes the library from the objects, with `{strip}`. The library has its own command `dump`, the same as the one of `wasm_module`.
 A module names the library in `archives`, for example `archives = ["{out}/convex.a"]`.
+
 With `{float}`, the code of a library or of a module joins no product and no sum. Each command has `{flags}` after `wasm_compile`, so an artifact can override that: `.toolchain/docs/toolchain.toml.md`, *The rules of floating point*.
 
 The kind `wasm_text` makes a module from wasm text with `wasm-as`. It holds no accessor, so it is for a test or for the accessors themselves.
