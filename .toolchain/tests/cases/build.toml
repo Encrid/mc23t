@@ -585,3 +585,15 @@ run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{case}/p", "--
 folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/build/graph/output/.toolchain/project.toml"], "{case}/p" = [".toolchain/tests/data/build/graph/output/note.txt"] }
 claims = { status = 0, files = { "{case}/out/{target}/scratch/obj/graph.json" = '"kind": "input"' } }
 false = { folders = { "{case}/p/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "the default of float joins no product and no sum"
+run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}"]
+claims = { status = 0, line = ["separate"] }
+false = { run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}", "--set", "override=-ffp-contract=on"] }
+
+[[case]]
+name = "the flags of an artifact override float"
+run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}", "--set", "override=-ffp-contract=on"]
+claims = { status = 0, line = ["fused"] }
+false = { run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}"] }

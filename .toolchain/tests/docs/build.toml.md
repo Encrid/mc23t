@@ -152,5 +152,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the steps of a kind that write no output | The step of `silent` prints `1` and writes no `{output}`: `the steps of note wrote no note.txt`. | The kind `marked`, which writes its output. |
 | an archive that the runner zig makes holds no path of its machine | With the runner `zig` and the cache of zig outside the project, `--pack` of `archived` for `x86_64-windows-gnu` passes the check of the paths. | `--debug`: the debug data holds the folder of the project. |
 | the step of an artifact takes its sources as inputs, and not as arguments | After a build of the project of `graph/output`, `obj/graph.json` holds `"kind": "input"`: the source `note.txt` is an input of the step, and no argument. | A project with no artifact, whose graph has no input. |
+| the default of float joins no product and no sum | `build.py` builds `mad` of `.toolchain/tests/data/build/contract`. Its function `add_product` gives `a * b + c`, with the target feature `fma` on x86_64. `mad` writes `separate`: the result is the product, rounded, plus `c`. | The artifact has the flag `-ffp-contract=on`. |
+| the flags of an artifact override float | The same build, with `--set override=-ffp-contract=on`. `{flags}` comes after `{float}`, thus `mad` writes `fused`: 1 fused multiply-add. | The artifact has no flag of its own. |
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.

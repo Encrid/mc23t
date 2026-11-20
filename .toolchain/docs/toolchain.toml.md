@@ -33,8 +33,19 @@ It is the same in each project, and a project does not change it.
 | --- | --- |
 | `language` | The flags of the language: C23, the pedantic errors, and each warning as an error. |
 | `optimize` | The flags of the optimization. `-s` tells the linker to drop the debug information, also of the objects that zig builds for the C library. Without it, a Linux program holds the folder of the project. `[debug] optimize` gives the flags of a debug build, with the sanitizer of undefined behaviour. |
-| `float` | The flags of the rules of floating point. |
+| `float` | The flags of the rules of floating point: `-ffp-contract=off`, `-fno-fast-math` and `-fno-rounding-math`. *The rules of floating point* tells why. |
 | `strip` | The flag of `zig build-lib` for the debug information. `-fstrip` drops it, as `-g0` does for the compiler. `[debug] strip` is `-fno-strip`, which keeps it. |
+
+## The rules of floating point
+
+With `-ffp-contract=on`, the compiler can join a product and a sum into 1 fused multiply-add, with 1 rounding in place of 2.
+A processor with such an instruction then gives different bits than a processor with no such instruction.
+Thus `float` holds `-ffp-contract=off`, so that the same source gives the same results on each processor, as the need Deterministic of `docs/contributing/needs.md` asks.
+A function that needs a fused multiply-add calls `fma` of C23, which gives the same result on each machine.
+
+Each kind of `.toolchain/toolchain.toml` that compiles C passes `{flags}` after `{float}`. The kind `native_module` of the preset `native_module` does too.
+Thus an artifact can override the default with `-ffp-contract=on` in its `flags`.
+An artifact overrides the default only for a gain that a measure shows. The document of its sources states that measure as the reason.
 
 ## [targets.\<target\>]
 
