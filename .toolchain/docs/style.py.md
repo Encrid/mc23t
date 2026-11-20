@@ -41,7 +41,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 | V3 | The `*` of each pointer. |
 | C1 | The branches of each chain of `if` and `else`, and the depth of the levels. |
 | C2, C3 | Each rule. |
-| H1 | The items of a header. Each variable that a header gives a value to has `constexpr`. Each type that a file `.c` declares, also with a variable, and also after a qualifier or a storage class, for example `static const struct {`. A variable of a named type declares no type. A person checks the includes. |
+| H1 | The items of a header. Each variable that a header gives a value to has `constexpr`. Each type that a file `.c` declares, also with a variable, and also after a qualifier, a storage class or `alignas`, for example `static const struct {`. This includes a declaration with no body, such as `struct p;`, and a type in a function, such as `sizeof(struct { int a; })`. A variable of a named type declares no type. A person checks the includes. |
 | H2, H3, H4 | Each rule. |
 
 For C1, `if`, `while`, `for`, `switch` and `do` are levels, and an `else if` is not a new level.
@@ -64,6 +64,7 @@ Before it reads the files, `style.py` checks itself:
 1. For each rule that it checks, it reads a short text that breaks the rule. The rule must find a fault in the text.
 2. It reads a short clean text. No rule but G1, H1 and H2 can find a fault in it.
 3. It reads a short clean header. No rule but G1 and H2 can find a fault in it. The header holds a function `static inline` with an assignment, a macro with an assignment, declarations `extern` and variables `constexpr`.
+4. It reads a short clean source. No rule but G1 can find a fault in it. The source holds variables of a named type, `static_assert`, and a function that gives a `struct`.
 
 If the self-test fails, `style.py` stops: `the checker itself: <faults>`.
 
