@@ -27,7 +27,7 @@ BASE = (r'void|char|short|int|long|float|double|bool|auto|size_t|ptrdiff_t|signe
 ANY = BASE + r'|[A-Za-z_]\w*'
 QUALIFIER = r'static|const|constexpr|volatile|register|thread_local|extern|inline'
 DECLARES = re.compile(r'(?:\[\[[^\]]*\]\]\s*)*(?:(?:%s)\s+)*(?:%s)\b(?:\s+(?:%s|const|long|int|char))*'
-                      r'(?:[\s*]|(?:const|restrict|volatile)\b)*(?:\(\s*\*\s*)?(?P<name>[A-Za-z_]\w*)\s*'
+                      r'(?:[\s*]|(?:const|restrict|volatile)\b)*(?:\(\s*\*\s*(?:(?:const|volatile)\s+)*)?(?P<name>[A-Za-z_]\w*)\s*'
                       r'(?:\)\s*\([^)]*\)\s*)?(?:\[[^\]]*\]\s*)*(?:=|,|\Z)'
                       % (QUALIFIER, ANY, BASE))
 HEADER = re.compile(r'/\*\n' + shared.header('**') + r'\*/\n')
@@ -113,21 +113,26 @@ def opening(code, at):
     return 0
 
 
-def top_level(text, what):
-    depth = 0
-    for c in text:
+def split_top(text, what):
+    parts, depth, last = [], 0, 0
+    for i, c in enumerate(text):
         if c in '([{':
             depth += 1
         elif c in ')]}':
             depth -= 1
         elif c == what and not depth:
-            return True
-    return False
+            parts.append(text[last:i])
+            last = i + 1
+    return parts + [text[last:]]
 
 
-def constant_in(text):
-    head = text.split('=')[0]
-    return re.search(r'\b(?:const|constexpr)\b', head.rsplit('*', 1)[-1] if '*' in head else head)
+def top_level(text, what):
+    return len(split_top(text, what)) > 1
+
+
+def constant_in(declared):
+    head = declared.string[:declared.start('name')]
+    return re.search(r'\bconstexpr\b', head) or re.search(r'\bconst\b', head.rsplit('*', 1)[-1])
 
 
 def parameters(text):
@@ -309,9 +314,14 @@ def check_outside(src, statements, functions, declared):
                 src.say('V1', line, "the type '%s' does not end with _t" % name.group(1))
             if not in_header:
                 src.say('H1', line, 'a type is declared in a source file')
-        elif re.match(r'(?:struct|enum|union)\b[^=(]*\{', bare):
-            if not in_header:
+        elif re.match(r'(?:(?:%s)\s+)*(?:struct|enum|union)\b[^=(]*\{' % QUALIFIER, bare):
+            if not in_header and re.match(r'(?:struct|enum|union)\b', bare):
                 src.say('H1', line, 'a type is declared in a source file')
+            start = bare.index('{')
+            rest = bare[closing(bare, start) + 1:].strip()
+            if rest:
+                kind = re.sub(r'\b(?:struct|enum|union)\b(?:\s+\w+)?\s*\Z', 'int ', bare[:start])
+                check_variables(src, line, kind + rest, in_header)
         elif re.match(r'static_assert\b', bare):
             pass
         elif re.match(r'[A-Z_][A-Z0-9_]*\s*\(', bare):
@@ -320,20 +330,13 @@ def check_outside(src, statements, functions, declared):
             if not in_header:
                 src.say('H1', line, 'a function is declared in a source file')
         elif DECLARES.match(bare):
-            name = DECLARES.match(bare).group('name')
-            constant = constant_in(bare)
-            if in_header and ASSIGNS.search(bare) and not re.search(r'\bconstexpr\b', bare.split('=')[0]):
-                src.say('H1', line, "'%s' is defined in a header and is not constexpr" % name)
-            if not constant:
-                src.say('G4', line, "'%s' is a global variable that is not constant" % name)
-            elif not UPPER.match(name):
-                src.say('V1', line, "the global constant '%s' is not in UPPER_CASE" % name)
+            check_variables(src, line, bare, in_header)
         for m in re.finditer(r'\benum\b[^{;]*\{([^}]*)\}', bare):
             for item in m.group(1).split(','):
                 name = item.split('=')[0].strip()
                 if name and not UPPER.match(name):
                     src.say('V1', line, "'%s', of an enum, is not in UPPER_CASE" % name)
-    for m in re.finditer(r'\(\s*\*\s*\w+\s*\)\s*\(([^()]*)\)', code):
+    for m in re.finditer(r'\(\s*\*\s*(?:(?:const|volatile)\s+)*\w+\s*\)\s*\(([^()]*)\)', code):
         check_parameters(src, src.line_of(m.start()), m.group(1), None)
     for begun, end in statements:
         text = re.sub(LABELS, '', code[begun:end])
@@ -350,6 +353,22 @@ def check_outside(src, statements, functions, declared):
             src.say('H1', src.line_of(f.start), "'%s' is static inline in a source file" % f.name, f.name)
         if not in_header and not static and not exported and f.name != 'main' and f.name not in declared:
             src.say('G5', src.line_of(f.start), "'%s' is used in this file alone, and is not static" % f.name, f.name)
+
+
+def check_variables(src, line, text, in_header):
+    first = DECLARES.match(text)
+    prefix = re.split(r'[*(]', text[:first.start('name')], maxsplit=1)[0] if first else ''
+    for k, piece in enumerate(split_top(text, ',')):
+        declared = DECLARES.match(prefix + piece if k else piece)
+        if not declared:
+            continue
+        name = declared.group('name')
+        if in_header and ASSIGNS.search(piece) and not re.search(r'\bconstexpr\b', prefix):
+            src.say('H1', line, "'%s' is defined in a header and is not constexpr" % name)
+        if not constant_in(declared):
+            src.say('G4', line, "'%s' is a global variable that is not constant" % name)
+        elif not UPPER.match(name):
+            src.say('V1', line, "the global constant '%s' is not in UPPER_CASE" % name)
 
 
 def check_parameters(src, line, params, name):
@@ -495,7 +514,7 @@ def check_function(src, f):
         text = ' '.join(code[at:end].split())
         if text.startswith('goto') and re.match(r'goto\b', text):
             say('C3', n, 'goto')
-        declares = DECLARES.match(text) and not re.match(r'(?:return|goto|break|continue)\b', text)
+        declares = not re.match(r'(?:return|goto|break|continue)\b', text) and DECLARES.match(text)
         if declares:
             if len(blocks) > 1 or state['extra'] or state['coded']:
                 say('L5', n, 'a variable is declared after the beginning of the function')
@@ -503,8 +522,8 @@ def check_function(src, f):
                 state['declared'].append(src.line_of(end))
             if top_level(text, ','):
                 say('L5', n, 'more than one variable declared on a line')
-            name = DECLARES.match(text).group('name')
-            if not SNAKE.match(name) and not (UPPER.match(name) and constant_in(text)):
+            name = declares.group('name')
+            if not SNAKE.match(name) and not (UPPER.match(name) and constant_in(declares)):
                 say('V1', n, "'%s' is not in snake_case" % name)
         elif text:
             state['coded'] = True
@@ -596,6 +615,9 @@ PROVES_IN_C = {
 CLEAN = ('static int add_them(int first, int second)\n{\n    int sum = first + second;\n\n'
          '    if (sum < 0)\n        return (0);\n    for (int i = 0; i < 2; i++) {\n        sum += i;\n    }\n'
          '    return (sum);\n}\n\n#define POSITION_FIELDS { \\\n    float x; \\\n    float y; \\\n}\n')
+CLEAN_HEADER = ('static inline int pick(int first)\n{\n    int second = first;\n\n    return (second);\n}\n\n'
+                '#define SET(a, b) ((a) = (b))\nextern const int LIMIT;\nextern int (*const HANDLER)(int);\n'
+                'constexpr int COUNT = 4;\nstatic constexpr int (*PICK)(int) = pick;\n')
 
 
 def self_test():
@@ -605,6 +627,7 @@ def self_test():
             if rule not in {f[2] for f in check(path, text, set())}:
                 wrong.append('%s is not found in what infringes it' % rule)
     stray = [f for f in check('x.h', CLEAN, set()) if f[2] not in ('G1', 'H2', 'H1')]
+    stray += [f for f in check('x.h', CLEAN_HEADER, set()) if f[2] not in ('G1', 'H2')]
     if stray:
         wrong.append('clean C is reported: %s' % stray)
     return wrong
