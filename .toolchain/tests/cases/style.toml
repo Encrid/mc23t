@@ -375,3 +375,44 @@ void *view_map(void *a, unsigned long b, unsigned long c, ...)
 
 #endif
 '''
+
+[[case]]
+name = "a header that defines a variable that is not constexpr"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:9: H1 'LIMIT' is defined in a header and is not constexpr", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+static const int LIMIT = 4;
+extern const int COUNT;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+constexpr int LIMIT = 4;
+extern const int COUNT;
+
+#endif
+'''

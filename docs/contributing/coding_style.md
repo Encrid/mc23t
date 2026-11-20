@@ -636,6 +636,7 @@ A header holds only these items:
 - functions `static inline`.
 
 These items are only in headers.
+A header gives a value to a global variable only if `constexpr` marks the variable.
 A header includes a different header only if it is necessary.
 The attributes of a function are in the brackets of C23, for example `[[nodiscard]]` and `[[maybe_unused]]`.
 

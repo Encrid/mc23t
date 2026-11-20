@@ -322,6 +322,8 @@ def check_outside(src, statements, functions, declared):
         elif DECLARES.match(bare):
             name = DECLARES.match(bare).group('name')
             constant = constant_in(bare)
+            if in_header and ASSIGNS.search(bare) and not re.search(r'\bconstexpr\b', bare.split('=')[0]):
+                src.say('H1', line, "'%s' is defined in a header and is not constexpr" % name)
             if not constant:
                 src.say('G4', line, "'%s' is a global variable that is not constant" % name)
             elif not UPPER.match(name):
@@ -579,6 +581,7 @@ PROVES = {
     'C2': 'int f(int a)\n{\n    a ? g() : h();\n    return (0);\n}\n',
     'C3': 'int f(void)\n{\n    goto out;\n    return (0);\n}\n',
     'G4': 'int counter;\n',
+    'H1': 'const int LIMIT = 4;\n',
     'H3': '#define LOOP_COUNTER 0\n',
     'H4': '#define POSITION_FIELDS { float x; float y; }\n',
     'F2': 'static inline int doIt(void)\n{\n    return (0);\n}\n',
