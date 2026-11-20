@@ -62,7 +62,7 @@ The kind `wasm_module` makes a module in 6 steps:
 5. `wasm-opt` removes the exports of the accessors and each part that nothing uses. It runs no other pass, so each accessor keeps the body that BB-Wasm checks at load.
 6. It writes the items of `manifest` into the custom section `bridge:manifest`, with a zero byte after each item. Bridge-Host reads the manifest there.
 
-`wasm_compile` holds the flags of the target and of the language of step 1: `-target wasm32-freestanding`, `{language}`, `-Wno-missing-field-initializers`, `-O2`, `{wasm_simd}` and `-nostdlib`.
+`wasm_compile` holds the flags of the target and of the language of step 1: `-target wasm32-freestanding`, `{language}`, `-Wno-missing-field-initializers`, `-O2`, `{float}`, `{wasm_simd}` and `-nostdlib`.
 The step 1 and the command `dump` of the kind both use it. Thus the syntax tree of a changed copy sees the code as the module compiles it, also the code under `__wasm__`.
 
 In the build of the tree of a run, the key `probed` of the kind adds 2 flags to step 1: `.toolchain/docs/toolchain.toml.md`, *[kinds.\<kind\>]*.
@@ -76,7 +76,7 @@ The kind `wasm_library` makes a static library `<name>.a` for `wasm32-freestandi
 Its step `each` compiles each source with `wasm_compile`, `{flags}`, `{defines}` and `{include}`, as step 1 of `wasm_module` does.
 Then `zig build-lib -static` makes the library from the objects, with `{strip}`. The library has its own command `dump`, the same as the one of `wasm_module`.
 A module names the library in `archives`, for example `archives = ["{out}/convex.a"]`.
-An artifact of the library can add `-ffp-contract=off` in its `flags`, so that its code joins no product and no sum.
+With `{float}`, the code of a library or of a module joins no product and no sum. Each command has `{flags}` after `wasm_compile`, so an artifact can override that: `.toolchain/docs/toolchain.toml.md`, *The rules of floating point*.
 
 The kind `wasm_text` makes a module from wasm text with `wasm-as`. It holds no accessor, so it is for a test or for the accessors themselves.
 
