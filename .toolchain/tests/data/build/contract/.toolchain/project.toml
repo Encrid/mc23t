@@ -1,0 +1,16 @@
+[project]
+name = "contract"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[variables]
+override = []
+
+[[artifact]]
+name = "mad"
+kind = "program"
+sources = ["src/mad.c"]
+flags = ["{override}"]
+
+[test]
+timeout = 60
+copies = 1
