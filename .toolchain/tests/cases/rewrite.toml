@@ -1,0 +1,46 @@
+[[case]]
+name = "a syntax tree read in small parts keeps the nodes that a run reads"
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import rewrite; rewrite.CHUNK = 100; [print(n['kind'], n.get('name'), n.get('loc', {}).get('_file'), len(n.get('inner', []))) for n in rewrite.parsed(sys.argv[2], Path('/r'))['inner']]", "{root}/.toolchain/tools", "{case}/tree.json"]
+claims = { status = 0, line = ["TypedefDecl __int128_t None 0", "FunctionDecl malloc /usr/include/stdlib.h 1", "FunctionDecl go /r/src/a.c 1", "VarDecl kept /r/src/a.c 0"], lacks = ["RecordDecl"] }
+
+[case.files]
+"{case}/tree.json" = '''
+{"id":"0x1","kind":"TranslationUnitDecl","loc":{},"range":{"begin":{},"end":{}},"inner":[
+{"id":"0x2","kind":"TypedefDecl","loc":{},"range":{"begin":{},"end":{}},"isImplicit":true,"name":"__int128_t","type":{"qualType":"__int128"}},
+{"id":"0x3","kind":"FunctionDecl","loc":{"offset":40,"file":"/usr/include/stdlib.h","line":3,"col":7,"tokLen":6},"range":{"begin":{"offset":34,"col":1,"tokLen":4},"end":{"offset":58,"col":25,"tokLen":1}},"name":"malloc","type":{"qualType":"void *(size_t)"},"inner":[{"id":"0x4","kind":"ParmVarDecl","loc":{"offset":53,"col":20,"tokLen":4},"range":{"begin":{"offset":47,"col":14,"tokLen":6},"end":{"offset":53,"col":20,"tokLen":4}},"name":"size","type":{"qualType":"size_t"}}]},
+{"id":"0x5","kind":"RecordDecl","loc":{"offset":70,"line":5,"col":8,"tokLen":4},"range":{"begin":{"offset":63,"col":1,"tokLen":6},"end":{"offset":90,"line":7,"col":1,"tokLen":1}},"name":"sys","tagUsed":"struct"},
+{"id":"0x6","kind":"FunctionDecl","loc":{"offset":24,"file":"/r/src/a.c","line":2,"col":5,"tokLen":2},"range":{"begin":{"offset":20,"col":1,"tokLen":3},"end":{"offset":60,"line":5,"col":1,"tokLen":1}},"name":"go","type":{"qualType":"int (void)"},"inner":[{"id":"0x7","kind":"CompoundStmt","range":{"begin":{"offset":34,"line":3,"col":1,"tokLen":1},"end":{"offset":60,"line":5,"col":1,"tokLen":1}}}]},
+{"id":"0x8","kind":"VarDecl","loc":{"offset":70,"line":7,"col":12,"tokLen":4},"range":{"begin":{"offset":63,"col":1,"tokLen":6},"end":{"offset":70,"col":12,"tokLen":4}},"name":"kept","type":{"qualType":"int"}}
+]}
+'''
+
+[case.false.files]
+"{case}/tree.json" = '''
+{"id":"0x1","kind":"TranslationUnitDecl","loc":{},"range":{"begin":{},"end":{}},"inner":[
+{"id":"0x2","kind":"TypedefDecl","loc":{},"range":{"begin":{},"end":{}},"isImplicit":true,"name":"__int128_t","type":{"qualType":"__int128"}},
+{"id":"0x3","kind":"FunctionDecl","loc":{"offset":40,"file":"/usr/include/stdlib.h","line":3,"col":7,"tokLen":6},"range":{"begin":{"offset":34,"col":1,"tokLen":4},"end":{"offset":58,"col":25,"tokLen":1}},"name":"malloc","type":{"qualType":"void *(size_t)"},"inner":[{"id":"0x4","kind":"ParmVarDecl","loc":{"offset":53,"col":20,"tokLen":4},"range":{"begin":{"offset":47,"col":14,"tokLen":6},"end":{"offset":53,"col":20,"tokLen":4}},"name":"size","type":{"qualType":"size_t"}}]},
+{"id":"0x5","kind":"RecordDecl","loc":{"offset":70,"line":5,"col":8,"tokLen":4},"range":{"begin":{"offset":63,"col":1,"tokLen":6},"end":{"offset":90,"line":7,"col":1,"tokLen":1}},"name":"sys","tagUsed":"struct"},
+{"id":"0x6","kind":"FunctionDecl","loc":{"offset":24,"file":"/usr/include/go.h","line":2,"col":5,"tokLen":2},"range":{"begin":{"offset":20,"col":1,"tokLen":3},"end":{"offset":60,"line":5,"col":1,"tokLen":1}},"name":"go","type":{"qualType":"int (void)"},"inner":[{"id":"0x7","kind":"CompoundStmt","range":{"begin":{"offset":34,"line":3,"col":1,"tokLen":1},"end":{"offset":60,"line":5,"col":1,"tokLen":1}}}]},
+{"id":"0x8","kind":"VarDecl","loc":{"offset":70,"line":7,"col":12,"tokLen":4},"range":{"begin":{"offset":63,"col":1,"tokLen":6},"end":{"offset":70,"col":12,"tokLen":4}},"name":"kept","type":{"qualType":"int"}}
+]}
+'''
+
+[[case]]
+name = "a syntax tree that ends too soon is not JSON"
+run = ["{python}", "-c", "import sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import rewrite; rewrite.CHUNK = 100\ntry:\n    print(len(rewrite.parsed(sys.argv[2], Path('/r'))['inner']), 'nodes')\nexcept ValueError:\n    print('the tree ends too soon')", "{root}/.toolchain/tools", "{case}/tree.json"]
+claims = { status = 0, line = ["the tree ends too soon"] }
+
+[case.files]
+"{case}/tree.json" = '''
+{"id":"0x1","kind":"TranslationUnitDecl","loc":{},"range":{"begin":{},"end":{}},"inner":[
+{"id":"0x2","kind":"TypedefDecl","loc":{},"range":{"begin":{},"end":{}},"isImplicit":true,"name":"__int128_t","type":{"qualType":"__int128"}},
+{"id":"0x6","kind":"FunctionDecl","loc":{"offset":24,"file":"/r/src/a.c","line":2,"col":5,"tokLen":2},"range":{"begin":{"offset":20,"col":1,"tokLen":3},"end":{"offset":60,"line":5,"col":1,"tokLen":1}},"name":"go","type":{"qualType":"int (void)"}}
+'''
+
+[case.false.files]
+"{case}/tree.json" = '''
+{"id":"0x1","kind":"TranslationUnitDecl","loc":{},"range":{"begin":{},"end":{}},"inner":[
+{"id":"0x2","kind":"TypedefDecl","loc":{},"range":{"begin":{},"end":{}},"isImplicit":true,"name":"__int128_t","type":{"qualType":"__int128"}},
+{"id":"0x6","kind":"FunctionDecl","loc":{"offset":24,"file":"/r/src/a.c","line":2,"col":5,"tokLen":2},"range":{"begin":{"offset":20,"col":1,"tokLen":3},"end":{"offset":60,"line":5,"col":1,"tokLen":1}},"name":"go","type":{"qualType":"int (void)"}}
+]}
+'''
