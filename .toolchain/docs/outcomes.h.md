@@ -34,6 +34,7 @@ The first call keeps the mapping in static variables. Thus a program calls the f
 
 A wasm module has no file and no environment. Thus its probes keep their bytes in its memory, and a host of the module gives them to `c23_outcomes_keep`.
 The host also gives the counts of `test --leaks` to `c23_counts_keep` of `counts.h`, and writes the plan of `fail` into the module: `.toolchain/docs/counts.h.md`.
+
 This section states what the host reads and writes. The host runs no code of the module.
 A host that includes `outcomes.h` or `counts.h` needs a compiler of C23, for `nullptr`, `bool` and `_Atomic`. On Windows, `outcomes.h` also needs the labels `__asm__` of GNU C, which clang and gcc have.
 
@@ -41,6 +42,7 @@ A host that includes `outcomes.h` or `counts.h` needs a compiler of C23, for `nu
 
 A module that a run of `test --branches`, `test --leaks` or `test` with `fail` builds exports the global `c23b_outcomes`.
 The global is an `i32` that is not mutable. Its value is the address of the area in the memory that the module exports as `memory`.
+
 A module of a normal build does not export the global. Thus a host does nothing for such a module.
 The kind adds the area to each module of the run: `.toolchain/docs/rewrite.py.md`, *The area*. A module with no probes thus has an area with no chunk.
 
@@ -97,8 +99,8 @@ The host acts only if the module exports `c23b_outcomes`, and only if `version` 
 It checks each address and each size that it reads against the committed size of the memory. If a chunk or the plan goes past the committed size, it reads no more of the area.
 
 1. After the start of an instance, and before `init`, the host writes the plan, if `C23_FAIL` is set.
-2. If the 2 texts and their 2 bytes 0 do not fit in `room`, the host writes no plan, and tells it.
-3. At the destroy of an instance, before its memory goes, the host reads the chunks of outcomes, if `C23_BRANCHES` is set.
+2. The 2 texts and their 2 bytes 0 may not fit in `room`. Then the host writes no plan, and tells it.
+3. At the destroy of an instance, before its memory goes, the host reads the chunks of outcomes. It reads them only if `C23_BRANCHES` is set.
 4. For each chunk, it calls `c23_outcomes_keep(base + at + 8, start, bits)`. `base + at` is the chunk in the memory of the host.
 5. Then the host reads the chunks of counts, if `C23_LEAKS` is set.
 6. For each chunk, it copies the counts and the path, and calls `c23_counts_keep(line, path, counts, slots)`.
