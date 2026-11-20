@@ -644,7 +644,7 @@ A header holds only these items:
 - functions `static inline`.
 
 These items are only in headers.
-Thus a source declares no type, also not with a variable.
+Thus a source declares no type, also not with a variable, not with no body such as `struct point;`, and not in a function.
 A header gives a value to a global variable only if `constexpr` marks the variable.
 A header includes a different header only if it is necessary.
 The attributes of a function are in the brackets of C23, for example `[[nodiscard]]` and `[[maybe_unused]]`.

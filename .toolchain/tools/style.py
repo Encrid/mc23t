@@ -25,11 +25,13 @@ KEYWORDS = CONTROL + ('else', 'do', 'return', 'sizeof', 'case', 'default', 'goto
 BASE = (r'void|char|short|int|long|float|double|bool|auto|size_t|ptrdiff_t|signed|unsigned|'
         r'\w+_t|struct\s+\w+|enum\s+\w+|union\s+\w+')
 ANY = BASE + r'|[A-Za-z_]\w*'
-QUALIFIER = r'static|const|constexpr|volatile|register|thread_local|extern|inline'
+QUALIFIER = (r'static|const|constexpr|volatile|register|thread_local|extern|inline|_Atomic|'
+             r'(?:alignas|_Alignas)\s*\((?:[^()]|\([^()]*\))*\)')
 DECLARES = re.compile(r'(?:\[\[[^\]]*\]\]\s*)*(?:(?:%s)\s+)*(?:%s)\b(?:\s+(?:%s|const|long|int|char))*'
                       r'(?:[\s*]|(?:const|restrict|volatile)\b)*(?:\(\s*\*\s*(?:(?:const|volatile)\s+)*)?(?P<name>[A-Za-z_]\w*)\s*'
                       r'(?:\)\s*\([^)]*\)\s*)?(?:\[[^\]]*\]\s*)*(?:=|,|\Z)'
                       % (QUALIFIER, ANY, BASE))
+BLOCK_TYPE = re.compile(r'\b(?:struct|enum|union)\b(?:\s+\w+\s*;|(?:\s+\w+)?\s*\{)')
 HEADER = re.compile(r'/\*\n' + shared.header('**') + r'\*/\n')
 ASSIGNS = re.compile(r'(?<![=!<>+\-*/%&|^])=(?!=)')
 LABELS = re.compile(r'(?:\s*(?:\b__asm(?:__)?\s*\([^()]*\)|\b__attribute__\s*\(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)\)))+\s*\Z')
@@ -322,6 +324,9 @@ def check_outside(src, statements, functions, declared):
             if rest:
                 kind = re.sub(r'\b(?:struct|enum|union)\b(?:\s+\w+)?\s*\Z', 'int ', bare[:start])
                 check_variables(src, line, kind + rest, in_header)
+        elif re.match(r'(?:struct|enum|union)\s+\w+\Z', bare):
+            if not in_header:
+                src.say('H1', line, 'a type is declared in a source file')
         elif re.match(r'static_assert\b', bare):
             pass
         elif re.match(r'[A-Z_][A-Z0-9_]*\s*\(', bare):
@@ -355,6 +360,8 @@ def check_outside(src, statements, functions, declared):
             src.say('H1', src.line_of(f.start), "'%s' is static inline in a source file" % f.name, f.name)
         if not in_header and not static and not exported and f.name != 'main' and f.name not in declared:
             src.say('G5', src.line_of(f.start), "'%s' is used in this file alone, and is not static" % f.name, f.name)
+        for m in [] if in_header else BLOCK_TYPE.finditer(code, f.open_at, f.close_at):
+            src.say('H1', src.line_of(m.start()), 'a type is declared in a source file', f.name)
 
 
 def check_variables(src, line, text, in_header):
@@ -610,10 +617,16 @@ PROVES = {
     'G3': '#ifdef A\n#define B(x) (x)\n#endif\n',
     'O3': 'static inline int f(void)\n{\n    return (0);\n}\n\n' * 6,
 }
-PROVES_IN_C = {
-    'G5': 'int f(void)\n{\n    return (0);\n}\n',
-    'H1': 'typedef int age_t;\n',
-}
+PROVES_IN_C = (
+    ('G5', 'int f(void)\n{\n    return (0);\n}\n'),
+    ('H1', 'typedef int age_t;\n'),
+    ('H1', 'static const struct {\n    int a;\n} T[] = {{1}};\n'),
+    ('H1', 'struct p;\n'),
+    ('H1', 'static int f(void)\n{\n    return (sizeof(struct {\n        int a;\n    }));\n}\n'),
+)
+CLEAN_SOURCE = ('static const struct p X = {1};\nextern const struct p Y;\nstatic const x_t A = (x_t){1};\n'
+                'static_assert(sizeof(struct p) == 8);\n\nstatic struct p make(void)\n{\n'
+                '    return ((struct p){1});\n}\n')
 CLEAN = ('static int add_them(int first, int second)\n{\n    int sum = first + second;\n\n'
          '    if (sum < 0)\n        return (0);\n    for (int i = 0; i < 2; i++) {\n        sum += i;\n    }\n'
          '    return (sum);\n}\n\n#define POSITION_FIELDS { \\\n    float x; \\\n    float y; \\\n}\n')
@@ -624,12 +637,13 @@ CLEAN_HEADER = ('static inline int pick(int first)\n{\n    int second = first;\n
 
 def self_test():
     wrong = []
-    for path, proves in (('x.h', PROVES), ('x.c', PROVES_IN_C)):
-        for rule, text in proves.items():
+    for path, proves in (('x.h', PROVES.items()), ('x.c', PROVES_IN_C)):
+        for rule, text in proves:
             if rule not in {f[2] for f in check(path, text, set())}:
                 wrong.append('%s is not found in what infringes it' % rule)
     stray = [f for f in check('x.h', CLEAN, set()) if f[2] not in ('G1', 'H2', 'H1')]
     stray += [f for f in check('x.h', CLEAN_HEADER, set()) if f[2] not in ('G1', 'H2')]
+    stray += [f for f in check('x.c', CLEAN_SOURCE, set()) if f[2] != 'G1']
     if stray:
         wrong.append('clean C is reported: %s' % stray)
     return wrong

@@ -487,9 +487,9 @@ constexpr int FIRST = 1, SECOND = 2;
 '''
 
 [[case]]
-name = "a type that a source declares with its variable"
+name = "a type that a source declares"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
-claims = { status = 1, has = ["src/a.c:8: H1 a type is declared in a source file", "src/a.c:11: H1 a type is declared in a source file", "src/a.c:14: H1 a type is declared in a source file", "src/a.c:18: H1 a type is declared in a source file", "faults: 4"] }
+claims = { status = 1, has = ["src/a.c:8: H1 a type is declared in a source file", "src/a.c:11: H1 a type is declared in a source file", "src/a.c:14: H1 a type is declared in a source file", "src/a.c:18: H1 a type is declared in a source file", "src/a.c:22: H1 a type is declared in a source file", "src/a.c:25: H1 a type is declared in a source file", "src/a.c:28: H1 a type is declared in a source file", "src/a.c:32: H1 a type is declared in a source file", "src/a.c:35: H1 a type is declared in a source file", "src/a.c:37: H1 a type is declared in a source file", "faults: 10"] }
 
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
@@ -518,6 +518,25 @@ union {
     float f;
     uint32_t u;
 } const BITS = {1.0f};
+static const _Atomic struct {
+    int a;
+} SHARED = {1};
+alignas(16) static const struct {
+    int a;
+} ALIGNED[] = {{1}};
+struct later;
+
+static int sized(void)
+{
+    struct {
+        int a;
+    } kept = {1};
+    return (kept.a + (struct {
+        int b;
+    }){1}.b + (int)sizeof(struct {
+        int c;
+    }));
+}
 '''
 "{case}/p/src/p.h" = '''
 /*
