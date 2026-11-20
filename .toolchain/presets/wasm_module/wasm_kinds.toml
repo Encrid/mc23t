@@ -1,6 +1,6 @@
 [variables]
 wasm_simd = "-msimd128"
-wasm_compile = ["-target", "wasm32-freestanding", "{language}", "-Wno-missing-field-initializers", "-O2", "{wasm_simd}", "-nostdlib"]
+wasm_compile = ["-target", "wasm32-freestanding", "{language}", "-Wno-missing-field-initializers", "-O2", "{float}", "{wasm_simd}", "-nostdlib"]
 wasm_features = ["--enable-multimemory", "--enable-bulk-memory", "--enable-sign-ext", "--enable-nontrapping-float-to-int", "--enable-mutable-globals", "--enable-simd"]
 
 [tools]

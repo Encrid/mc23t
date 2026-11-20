@@ -6,7 +6,7 @@ Thus the case fetches the 3 sources of the preset on each target, and checks the
 Its second case copies only the kind of the preset, and builds a module for `x86_64-windows-gnu` on each target, with nothing to fetch.
 It reads the imports of the module with `tools/inspect.py` of `.toolchain/tests/data/build/runtime`.
 
-Its third case copies the files of the preset `wasm_module`, with the sources of `native_module`, and builds a wasm module from C. Its fourth case builds a module of wasm text. Its fifth case reads the manifest in the built module. Its sixth case builds a wasm library, and a wasm module that links it.
+Its third case copies the files of the preset `wasm_module`, with the sources of `native_module`, and builds a wasm module from C. Its fourth case builds a module of wasm text. Its fifth case reads the manifest in the built module. Its sixth case builds a wasm library, and a wasm module that links it. Its seventh case builds the same project with a different `float`.
 
 `.toolchain/tests/data/presets` holds the other files of the project:
 
@@ -38,3 +38,4 @@ Its third case copies the files of the preset `wasm_module`, with the sources of
 | a module of wasm text | `fetch` and `build` end with 0, and `build` writes the path of `probe.wasm`. | The text is not valid. Thus `wasm-as` stops the build. |
 | a wasm module with its manifest | The built module holds the section `bridge:manifest` and the identity `test:probe@1.0.0`. | The artifact states no manifest. |
 | a wasm library that a wasm module links and calls | `fetch` and `build` end with 0, and `build` writes the paths of `sums.a` and of `probe.wasm`. | `probe` names no archive. Thus `wasm-ld` finds no `sums_get_next`, and stops the build. |
+| a wasm library compiles with the rules of floating point | With `--set float=-fno-such-flag`, the compile of `sums.c` for `-target wasm32-freestanding` stops: `unknown clang option: "-fno-such-flag"`. Thus `wasm_compile` holds `{float}`. | `float` is `-ffp-contract=off`, a flag that clang knows. |

@@ -57,7 +57,7 @@ A processor with such an instruction then gives different bits than a processor 
 Thus `float` holds `-ffp-contract=off`, so that the same source gives the same results on each processor, as the need Deterministic of `docs/contributing/needs.md` asks.
 A function that needs a fused multiply-add calls `fma` of C23, which gives the same result on each machine.
 
-Each kind of `.toolchain/toolchain.toml` that compiles C passes `{flags}` after `{float}`. The kind `native_module` of the preset `native_module` does too.
+Each kind of `.toolchain/toolchain.toml` that compiles C passes `{flags}` after `{float}`. The kind `native_module` of the preset `native_module` does too, and so do the kinds `wasm_module` and `wasm_library` of the preset `wasm_module`, through `wasm_compile`.
 Thus an artifact can override the default with `-ffp-contract=on` in its `flags`.
 An artifact overrides the default only for a gain that a measure shows. The document of its sources states that measure as the reason.
 
