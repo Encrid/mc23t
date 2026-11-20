@@ -32,3 +32,10 @@ run = ["{python}", "-c", "import glob, subprocess, sys; [subprocess.run([sys.exe
 folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_sources.toml", ".toolchain/presets/native_module/native_targets.toml", ".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/probe.c"] }
 claims = { status = 0, has = ["manifest of test:probe@1.0.0"] }
 false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/unmarked/project.toml"] } }
+
+[[case]]
+name = "a wasm library that a wasm module links and calls"
+run = ["{python}", "-c", "import subprocess, sys; [subprocess.run([sys.executable, sys.argv[1] + '/' + tool, '--root', sys.argv[2], '--out', sys.argv[3]], check=True) for tool in ('fetch.py', 'build.py')]", "{root}/.toolchain/tools", "{case}/proj", "{case}/out"]
+folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/library/project.toml"], "{case}/proj/.toolchain/config" = [".toolchain/presets/native_module/native_sources.toml", ".toolchain/presets/native_module/native_targets.toml", ".toolchain/presets/wasm_module/wasm_sources.toml", ".toolchain/presets/wasm_module/wasm_targets.toml", ".toolchain/presets/wasm_module/wasm_kinds.toml"], "{case}/proj/src" = [".toolchain/tests/data/presets/wasm/library/probe.c", ".toolchain/tests/data/presets/wasm/library/sums.c", ".toolchain/tests/data/presets/wasm/library/sums.h"] }
+claims = { status = 0, has = ["sums.a", "probe.wasm"] }
+false = { folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/presets/wasm/library/unlinked/project.toml"] } }
