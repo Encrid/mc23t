@@ -24,6 +24,7 @@ language = ["-std=c23", "-pedantic-errors", "-Wall", "-Wextra", "-Werror"]
 optimize = ["-O2", "-DNDEBUG", "-g0", "-s", "-fno-sanitize=undefined", "-fno-stack-protector", "-fno-omit-frame-pointer"]
 float = ["-ffp-contract=off", "-fno-fast-math", "-fno-rounding-math"]
 strip = "-fstrip"
+jobs = 8
 
 [debug]
 optimize = ["-O0", "-g", "-fsanitize=undefined", "-fno-sanitize=vptr", "-fno-sanitize=function", "-fstack-protector-strong", "-fno-omit-frame-pointer"]

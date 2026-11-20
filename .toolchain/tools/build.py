@@ -233,7 +233,7 @@ def graphed(config, values, chosen, tree=None):
     if not graph.is_file() or graph.read_text(encoding='utf-8') != text:
         graph.write_text(text, encoding='utf-8')
     caches = {name: str(root / os.environ[name]) for name in CACHES}
-    run([values['zig'], 'build', '--build-file', (shared.HERE / '.toolchain' / 'graph.zig').as_posix(),
+    run([values['zig'], 'build', '-j%d' % values['jobs'], '--build-file', (shared.HERE / '.toolchain' / 'graph.zig').as_posix(),
          '--prefix', out.as_posix(), '-Dgraph=' + graph.as_posix()], values['root'], dict(os.environ, **caches))
     found = []
     for artifact, mine, missing in done:

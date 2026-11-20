@@ -35,6 +35,20 @@ It is the same in each project, and a project does not change it.
 | `optimize` | The flags of the optimization. `-s` tells the linker to drop the debug information, also of the objects that zig builds for the C library. Without it, a Linux program holds the folder of the project. `[debug] optimize` gives the flags of a debug build, with the sanitizer of undefined behaviour. |
 | `float` | The flags of the rules of floating point: `-ffp-contract=off`, `-fno-fast-math` and `-fno-rounding-math`. *The rules of floating point* tells why. |
 | `strip` | The flag of `zig build-lib` for the debug information. `-fstrip` drops it, as `-g0` does for the compiler. `[debug] strip` is `-fno-strip`, which keeps it. |
+| `jobs` | The most jobs that a tool runs at the same time: *The jobs*. The default is 8. |
+
+## The jobs
+
+`jobs` limits the jobs that run at the same time: the steps of `zig build`, and the syntax trees of `rewrite.py`.
+`build.py` gives it to `zig build` as `-j<jobs>`: `.toolchain/docs/build.py.md`, *The runner zig*. `each` of `rewrite.py` runs that many trees at the same time.
+Each job takes memory. Thus a machine that runs several builds or test runs at the same time sets fewer jobs, for example `--set jobs=2`.
+
+The tools use the least of `jobs` and of the count of processors of the machine.
+If `jobs` is not a whole number above 0, the tools stop: `[variables] jobs is <jobs>, and it must be a whole number above 0`.
+
+The default 8 is the limit that `rewrite.py` had before the setting, so a machine with 8 processors or fewer runs as before.
+Without `-j`, `zig build` runs a step on each processor. On a machine with more than 8 processors, the default runs fewer steps.
+The copies of a case are no jobs: `[test] copies` gives their count, since the copies must run at the same time.
 
 ## The rules of floating point
 

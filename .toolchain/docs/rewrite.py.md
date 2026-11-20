@@ -14,7 +14,7 @@ It holds the parts that these runs share.
    Thus 2 artifacts with `inputs` that compile 1 file give 2 jobs, also with the same flags.
 
    It also keeps the parts of all the artifacts that compile the file. A file of a project with no parts has no part.
-3. `each` runs the command of each job, 8 jobs at the same time. It gives each syntax tree to the run, and gives the parts of the file with its result.
+3. `each` runs the command of each job, `{jobs}` jobs at the same time: `.toolchain/docs/toolchain.toml.md`, *The jobs*. It gives each syntax tree to the run, and gives the parts of the file with its result.
 4. `united` joins the results of `found` for 1 file: the functions that each tree uses, and their declarations.
 5. `copied` copies `src` and `include` into `<build>/<run>/tree`, and writes the area: *The area*. The run then writes its changes into the copies.
 
@@ -131,7 +131,7 @@ The build of the copies embeds the files that the run builds.
 | `dumped(command, root)` | Runs the command `dump`, and gives the syntax tree, with the file of each location. |
 | `stood_in(artifact, mine)` | Writes a file of 1 zero byte for each file of `inputs`, and gives the flag `--embed-dir` of their folder, or no flag. |
 | `sources(config, values, tests)` | Gives a job for each file `.c` of `src` that an artifact of this target compiles, and for each different command `dump` of the file. A job holds its command and the set of the parts of the file. With `tests`, it gives the test sources too: *The test sources*. |
-| `each(config, values, use, tests)` | Gives the result of `use(root, path, tree)` and the sorted parts of the file, for each job of `sources`, 8 jobs at the same time. |
+| `each(config, values, use, tests)` | Gives the result of `use(root, path, tree)` and the sorted parts of the file, for each job of `sources`, `{jobs}` jobs at the same time. |
 | `united(files)` | Gives 1 result of `found` for each file of `files`: the functions that each of its trees uses, their declarations and their ends. |
 | `copied(root, where, more)` | Empties `where`, copies `src` and `include` into it, and writes `c23b_area.c`: *The area*. It also copies the folder of each path of `more` that is not in them. |
 | `plain(kind)` | Gives a type of the syntax tree with each `typedef` replaced, if the dump gives it. The checks of `leaks.py` read it, for example to find a pointer. |

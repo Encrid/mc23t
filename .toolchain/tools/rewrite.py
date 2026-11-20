@@ -3,7 +3,6 @@
 # Under the GNU Affero General Public License, version 3 only: see license.
 import concurrent.futures
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -170,7 +169,7 @@ def sources(config, values, tests=False):
 def each(config, values, use, tests=False):
     root = Path(values['root'])
     jobs = sources(config, values, tests)
-    with concurrent.futures.ThreadPoolExecutor(min(8, os.cpu_count() or 1)) as pool:
+    with concurrent.futures.ThreadPoolExecutor(values['jobs']) as pool:
         return list(pool.map(lambda job: (use(root, job[0][0], dumped(job[1][0], root)), sorted(job[1][1])),
                              jobs.items()))
 

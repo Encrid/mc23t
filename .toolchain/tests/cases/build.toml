@@ -597,3 +597,9 @@ name = "the flags of an artifact override float"
 run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}", "--set", "override=-ffp-contract=on"]
 claims = { status = 0, line = ["fused"] }
 false = { run = ["{python}", "-c", "import subprocess, sys; subprocess.run([sys.executable, sys.argv[1], '--root', sys.argv[2], '--out', sys.argv[3]] + sys.argv[5:], check=True); sys.exit(subprocess.run([sys.argv[4], '0x1.00000004p+0', '0x1.fffffff8p-1', '-1']).returncode)", "{root}/.toolchain/tools/build.py", "{root}/.toolchain/tests/data/build/contract", "{case}/out", "{case}/out/{target}/mad{exe}"] }
+
+[[case]]
+name = "a count of jobs that is not a whole number above 0"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/contract", "--out", "{case}/out", "--set", "jobs=0"]
+claims = { status = 1, has = ["[variables] jobs is 0, and it must be a whole number above 0"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/contract", "--out", "{case}/out", "--set", "jobs=1"] }
