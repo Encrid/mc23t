@@ -142,6 +142,13 @@ claims = { status = 1, line = ["docs/usage/a.md: the layout needs this file"] }
 false = { files = { "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" } }
 
 [[case]]
+name = "a part that uses a part that is not there"
+run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
+files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = [\"hash\"]\nthird_party = []\n", "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n" }
+claims = { status = 1, line = ["layout.py: no part hash; the parts: a"] }
+false = { files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n" } }
+
+[[case]]
 name = "a file of docs outside contributing, extern, intern and tools is allowed"
 run = ["{python}", "{root}/.toolchain/tools/layout.py", "--root", "{case}/project"]
 files = { "{case}/project/.toolchain/project.toml" = "[project]\nname = \"p\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[parts.a]\nname = \"A\"\nfolder = \"a\"\nuses = []\nthird_party = []\n", "{case}/project/docs/usage/a.md" = "# A\n\nA part.\n\n## Install\n\nInstall it.\n\n## Usage\n\nUse it.\n", "{case}/project/docs/notes/plan.md" = "# Plan\n", "{case}/project/docs/notes/map.svg" = "<svg/>\n" }

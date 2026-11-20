@@ -383,6 +383,7 @@ The tools stop with these messages:
 - `no part <part>; the parts: <parts>`, if `--part` or `uses` names a part that `[parts]` does not have.
 - `the uses of the parts make a cycle: <parts>`, if a part uses itself, directly or through a different part.
 
+`python project.py check` stops with these messages too: `.toolchain/docs/layout.py.md`, *The parts*.
 A project with no `[parts]` states no part, and each command acts on the full project.
 `.toolchain/docs/build.py.md`, *Parts*, tells how the tools check and keep the parts.
 
