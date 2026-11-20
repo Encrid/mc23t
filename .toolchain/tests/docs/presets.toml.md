@@ -6,7 +6,7 @@ Thus the case fetches the 3 sources of the preset on each target, and checks the
 Its second case copies only the kind of the preset, and builds a module for `x86_64-windows-gnu` on each target, with nothing to fetch.
 It reads the imports of the module with `tools/inspect.py` of `.toolchain/tests/data/build/runtime`.
 
-Its third case copies the files of the preset `wasm_module`, with the sources of `native_module`, and builds a wasm module from C. Its fourth case builds a module of wasm text. Its fifth case reads the manifest in the built module.
+Its third case copies the files of the preset `wasm_module`, with the sources of `native_module`, and builds a wasm module from C. Its fourth case builds a module of wasm text. Its fifth case reads the manifest in the built module. Its sixth case builds a wasm library, and a wasm module that links it.
 
 `.toolchain/tests/data/presets` holds the other files of the project:
 
@@ -25,6 +25,10 @@ Its third case copies the files of the preset `wasm_module`, with the sources of
 | `wasm/text/project.toml` | The artifact `probe` of the kind `wasm_text`. |
 | `wasm/text/probe.wat` | A module of wasm text that exports `init`. |
 | `wasm/text/broken/probe.wat` | The same text, with an `i32.const` that has no number. |
+| `wasm/library/project.toml` | The artifact `sums` of the kind `wasm_library`, with `-ffp-contract=off`, and the artifact `probe` of the kind `wasm_module`, which names `{out}/sums.a` in `archives`. |
+| `wasm/library/unlinked/project.toml` | The same artifacts, and `probe` names no archive. |
+| `wasm/library/sums.c` and `wasm/library/sums.h` | The function `sums_get_next`, which gives its value plus 1. |
+| `wasm/library/probe.c` | The module of `wasm/probe.c`, whose system `step` calls `sums_get_next`. |
 
 | Case | Claim | False variant |
 | --- | --- | --- |
@@ -33,3 +37,4 @@ Its third case copies the files of the preset `wasm_module`, with the sources of
 | a wasm module with the accessors | `fetch` and `build` end with 0, and `build` writes the path of `probe.wasm`. | The module imports a memory. Thus `wasm_guard.py` stops the build. |
 | a module of wasm text | `fetch` and `build` end with 0, and `build` writes the path of `probe.wasm`. | The text is not valid. Thus `wasm-as` stops the build. |
 | a wasm module with its manifest | The built module holds the section `bridge:manifest` and the identity `test:probe@1.0.0`. | The artifact states no manifest. |
+| a wasm library that a wasm module links and calls | `fetch` and `build` end with 0, and `build` writes the paths of `sums.a` and of `probe.wasm`. | `probe` names no archive. Thus `wasm-ld` finds no `sums_get_next`, and stops the build. |
