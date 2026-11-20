@@ -100,6 +100,15 @@ If clang writes a different error, `dumped` stops: `the tree of <path> cannot be
 If the output is not JSON, it stops: `the tree of <path> is not JSON`.
 
 `dumped` gives the output of the command to a file of its own in the folder of `<work>`. It reads the tree from that file, and removes it. Thus no pipe holds a tree.
+
+The tree holds each header that the file includes, for example `windows.h`. Thus the tree of 1 file can be much larger than the file.
+`parsed` reads that text in parts of 16 MiB, and reads 1 node of the top of the tree at a time. It keeps only these nodes:
+
+- each node of the top that is in `src`, `include` or `tests`, whole;
+- each declaration of a function, a variable or a `typedef` in a different file, with only its type and the types of its parameters.
+
+`found` reads these declarations. Thus the memory of a tree holds mostly the code of the project, and not the headers of the system.
+The dump writes the file of a location only when it changes. Thus `located` gives each location its file while `parsed` reads the text, in the order of the text.
 If the machine has no memory for a tree, it stops: `the tree of <path> needs more memory than this machine has free`.
 
 The dump sets `_FORTIFY_SOURCE` to 0. Then a call that the system would fortify, such as `snprintf`, does not read as a macro.
@@ -124,10 +133,12 @@ The build of the copies embeds the files that the run builds.
 | Function | Result |
 | --- | --- |
 | `tree(values, run)` | Gives the folder of the copies of a run, `<build>/<run>/tree`. |
-| `marked(node, state)` | Gives each location of a syntax tree the file that it is in. The dump writes a file only when it changes. |
+| `located(item, state)` | Gives a location of the syntax tree the file that it is in, as `_file`. The dump writes a file only when it changes, so `state` holds the last file. |
+| `is_ours(node, root)` | Tells if a node of the top of the tree is in `src`, in `include` or in `tests`, also through the expansion of a macro. |
+| `kept(node, root)` | Gives the node of the top of the tree that `parsed` keeps: *The syntax tree*. It gives `None` for a node that no run reads. |
+| `parsed(path, root)` | Reads the syntax tree in the file `path`, 1 node of the top at a time, and keeps the nodes of `kept`. |
 | `is_macro(loc)` | Tells if a location comes from a macro. |
 | `owned(loc, root, tops)` | Gives the path of a location in `src` or in `include`, or `None`. With `tops` at `None`, it gives the path of a location in any folder of the project. |
-| `held(path)` | Reads a file in parts of 64 MiB, and gives its bytes. One read of a larger file fails on Windows. |
 | `dumped(command, root)` | Runs the command `dump`, and gives the syntax tree, with the file of each location. |
 | `stood_in(artifact, mine)` | Writes a file of 1 zero byte for each file of `inputs`, and gives the flag `--embed-dir` of their folder, or no flag. |
 | `sources(config, values, tests)` | Gives a job for each file `.c` of `src` that an artifact of this target compiles, and for each different command `dump` of the file. A job holds its command and the set of the parts of the file. With `tests`, it gives the test sources too: *The test sources*. |

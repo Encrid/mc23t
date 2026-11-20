@@ -15,7 +15,12 @@ from shared import HERE, die, expanded
 TOPS = ('src/', 'include/')
 RUNTIME = (HERE / '.toolchain' / 'runtime').as_posix()
 TESTED = ('program', 'library', 'archive')
+KEPT = TOPS + ('tests/',)
+DECLARED = ('FunctionDecl', 'VarDecl', 'TypedefDecl')
+SLIM = ('id', 'kind', 'name', 'type', 'isImplicit', 'loc', 'range')
+CHUNK = 1 << 24
 OPENS = ('if', 'ifdef', 'ifndef')
+BETWEEN = re.compile(r'[\s,]*')
 DIRECTIVE = re.compile(rb'[ \t]*#[ \t]*(\w+)')
 POINTER = re.compile(r'(.+?)\(\s*\*\s*\)\s*\((.*)\)')
 NULLABILITY = re.compile(r'\b_(?:Nonnull|Nullable_result|Nullable|Null_unspecified)\b'
@@ -76,21 +81,56 @@ def tree(values, run):
     return Path(values['build']) / run / 'tree'
 
 
-def marked(node, state):
-    def mark(loc):
-        if not isinstance(loc, dict) or not loc:
-            return
-        for side in ('spellingLoc', 'expansionLoc'):
-            mark(loc.get(side))
-        if 'file' in loc:
-            state[0] = loc['file']
-        loc['_file'] = state[0]
-    mark(node.get('loc'))
-    mark(node.get('range', {}).get('begin'))
-    mark(node.get('range', {}).get('end'))
-    for child in node.get('inner', []):
-        if isinstance(child, dict):
-            marked(child, state)
+def located(item, state):
+    if 'offset' in item or 'spellingLoc' in item or 'expansionLoc' in item:
+        state[0] = item.get('file', state[0])
+        item['_file'] = state[0]
+    return item
+
+
+def is_ours(node, root):
+    sides = [node.get('loc')] + list(node.get('range', {}).values())
+    return any(isinstance(side, dict) and (owned(side, root, KEPT) or owned(side.get('expansionLoc', {}), root, KEPT))
+               for side in sides)
+
+
+def kept(node, root):
+    if is_ours(node, root):
+        return node
+    if node.get('kind') not in DECLARED:
+        return None
+    slim = {key: node[key] for key in SLIM if key in node}
+    slim['inner'] = [{'kind': one['kind'], 'type': one.get('type', {})} for one in node.get('inner', [])
+                     if isinstance(one, dict) and one.get('kind') == 'ParmVarDecl']
+    return slim
+
+
+def parsed(path, root):
+    state = [None]
+    decoder = json.JSONDecoder(object_hook=lambda item: located(item, state))
+    with open(path, encoding='utf-8', newline='') as file:
+        text = file.read(CHUNK)
+        at = text.index('[', text.index('"inner"')) + 1
+        top = json.loads(text[:at] + ']}')
+        while True:
+            at = BETWEEN.match(text, at).end()
+            if at < len(text) and text[at] == ']':
+                return top
+            was = state[0]
+            try:
+                node, at = decoder.raw_decode(text, at)
+            except ValueError:
+                state[0] = was
+                more = file.read(max(CHUNK, len(text) - at))
+                if not more:
+                    raise
+                text, at = text[at:] + more, 0
+                continue
+            node = kept(node, root)
+            if node:
+                top['inner'].append(node)
+            if at > CHUNK:
+                text, at = text[at:], 0
 
 
 def is_macro(loc):
@@ -107,14 +147,6 @@ def owned(loc, root, tops=TOPS):
     return path if tops is None or path.startswith(tops) else None
 
 
-def held(path):
-    whole = bytearray()
-    with open(path, 'rb') as file:
-        for part in iter(lambda: file.read(1 << 26), b''):
-            whole += part
-    return whole
-
-
 def dumped(command, root):
     folder = (Path(root) / command[command.index('-o') + 1]).parent
     folder.mkdir(parents=True, exist_ok=True)
@@ -126,8 +158,7 @@ def dumped(command, root):
     try:
         if errors:
             die('the tree of %s cannot be read:\n%s' % (command[-1], '\n'.join(errors)))
-        found = json.loads(held(tree))
-        marked(found, [None])
+        found = parsed(tree, Path(root))
     except ValueError:
         die('the tree of %s is not JSON' % command[-1])
     except MemoryError:
