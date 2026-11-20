@@ -31,7 +31,7 @@ name = "a table with a maximum is stepped over"
 run = ["{python}", "{root}/.toolchain/tools/wasm_guard.py", "{case}/m.wasm"]
 files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0011\u0002\u0001m\u0001t\u0001p\u0001\u0001\u0002\u0001m\u0001g\u0003\u007f\u0000" }
 claims = { status = 1, has = ["is refused: it imports the global 'm.g'; a module imports no global"] }
-false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0011\u0002\u0001m\u0001t\u0001p\u0001\u0001\u0002\u0001m\u0001g\u0000\u0000\u0000" } }
+false = { files = { "{case}/m.wasm" = "\u0000asm\u0001\u0000\u0000\u0000\u0002\u0010\u0002\u0001m\u0001t\u0001p\u0001\u0001\u0002\u0001m\u0001g\u0000\u0000" } }
 
 [[case]]
 name = "a module that ends inside the import section"
