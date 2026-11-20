@@ -644,9 +644,26 @@ A header holds only these items:
 - functions `static inline`.
 
 These items are only in headers.
+Thus a source declares no type, also not with a variable.
 A header gives a value to a global variable only if `constexpr` marks the variable.
 A header includes a different header only if it is necessary.
 The attributes of a function are in the brackets of C23, for example `[[nodiscard]]` and `[[maybe_unused]]`.
+
+This code in a source obeys the rule. A header declares `struct point`:
+
+```c
+#include "point.h"
+
+static const struct point ORIGIN = {};
+```
+
+This code in a source breaks the rule:
+
+```c
+static const struct {
+    int x;
+} ORIGIN = {};
+```
 
 ### H2 - The include guard
 

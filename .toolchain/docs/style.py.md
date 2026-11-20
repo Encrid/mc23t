@@ -41,7 +41,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 | V3 | The `*` of each pointer. |
 | C1 | The branches of each chain of `if` and `else`, and the depth of the levels. |
 | C2, C3 | Each rule. |
-| H1 | The items of a header. Each variable that a header gives a value to has `constexpr`. A person checks the includes. |
+| H1 | The items of a header. Each variable that a header gives a value to has `constexpr`. Each type that a file `.c` declares, also with a variable, and also after a qualifier or a storage class, for example `static const struct {`. A variable of a named type declares no type. A person checks the includes. |
 | H2, H3, H4 | Each rule. |
 
 For C1, `if`, `while`, `for`, `switch` and `do` are levels, and an `else if` is not a new level.

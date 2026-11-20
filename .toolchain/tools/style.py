@@ -315,7 +315,7 @@ def check_outside(src, statements, functions, declared):
             if not in_header:
                 src.say('H1', line, 'a type is declared in a source file')
         elif re.match(r'(?:(?:%s)\s+)*(?:struct|enum|union)\b[^=(]*\{' % QUALIFIER, bare):
-            if not in_header and re.match(r'(?:struct|enum|union)\b', bare):
+            if not in_header:
                 src.say('H1', line, 'a type is declared in a source file')
             start = bare.index('{')
             rest = bare[closing(bare, start) + 1:].strip()

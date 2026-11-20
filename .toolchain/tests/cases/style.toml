@@ -485,3 +485,147 @@ constexpr int FIRST = 1, SECOND = 2;
 
 #endif
 '''
+
+[[case]]
+name = "a type that a source declares with its variable"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.c:8: H1 a type is declared in a source file", "src/a.c:11: H1 a type is declared in a source file", "src/a.c:14: H1 a type is declared in a source file", "src/a.c:18: H1 a type is declared in a source file", "faults: 4"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include <stdint.h>
+
+static const struct {
+    int a;
+} TABLE[] = {{1}};
+[[maybe_unused]] static const struct place {
+    int a;
+} PLACE = {1};
+static const enum mode : uint32_t {
+    FIRST,
+    SECOND,
+} MODE = FIRST;
+union {
+    float f;
+    uint32_t u;
+} const BITS = {1.0f};
+'''
+"{case}/p/src/p.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef P_H
+    #define P_H
+
+struct p {
+    int a;
+};
+typedef struct p point_t;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''
+
+[[case]]
+name = "a variable of a named type in a source declares no type"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 2 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/b.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''
+"{case}/p/src/p.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef P_H
+    #define P_H
+
+struct p {
+    int a;
+};
+typedef struct p point_t;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/b.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+static const struct {
+    int a;
+} TABLE[] = {{1}};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''
