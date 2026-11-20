@@ -109,6 +109,7 @@ The tree holds each header that the file includes, for example `windows.h`. Thus
 
 `found` reads these declarations. Thus the memory of a tree holds mostly the code of the project, and not the headers of the system.
 The dump writes the file of a location only when it changes. Thus `located` gives each location its file while `parsed` reads the text, in the order of the text.
+
 A node can continue into the next part. `parsed` then reads the next part, and reads the node again from its start, with the file of the location before the node.
 A tree that ends before the `]` of the top is not JSON.
 If the machine has no memory for a tree, it stops: `the tree of <path> needs more memory than this machine has free`.
