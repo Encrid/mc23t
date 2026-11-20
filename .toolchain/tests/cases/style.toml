@@ -379,7 +379,7 @@ void *view_map(void *a, unsigned long b, unsigned long c, ...)
 [[case]]
 name = "a header that defines a variable that is not constexpr"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
-claims = { status = 1, has = ["src/a.h:9: H1 'LIMIT' is defined in a header and is not constexpr", "faults: 1"] }
+claims = { status = 1, has = ["src/a.h:21: H1 'LIMIT' is defined in a header and is not constexpr", "src/a.h:22: H1 'ORIGIN' is defined in a header and is not constexpr", "src/a.h:23: H1 'CHOOSE' is defined in a header and is not constexpr", "src/a.h:24: H1 'SECOND' is defined in a header and is not constexpr", "faults: 4"] }
 
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
@@ -395,8 +395,22 @@ targets = ["x86_64-linux-gnu"]
 #ifndef A_H
     #define A_H
 
-static const int LIMIT = 4;
+static inline int pick(int first)
+{
+    int second = first;
+
+    return (second);
+}
+
+    #define SET(a, b) ((a) = (b))
 extern const int COUNT;
+extern int (*const HANDLER)(int);
+constexpr int SIZE = 4;
+static constexpr int (*PICK)(int) = pick;
+static const int LIMIT = 4;
+static const struct point { int x; } ORIGIN = { 0 };
+static int (*const CHOOSE)(int) = pick;
+static const int FIRST, SECOND = 2;
 
 #endif
 '''
@@ -411,8 +425,22 @@ extern const int COUNT;
 #ifndef A_H
     #define A_H
 
-constexpr int LIMIT = 4;
+static inline int pick(int first)
+{
+    int second = first;
+
+    return (second);
+}
+
+    #define SET(a, b) ((a) = (b))
 extern const int COUNT;
+extern int (*const HANDLER)(int);
+constexpr int SIZE = 4;
+static constexpr int (*PICK)(int) = pick;
+constexpr int LIMIT = 4;
+constexpr struct point { int x; } ORIGIN = { 0 };
+static constexpr int (*CHOOSE)(int) = pick;
+constexpr int FIRST = 1, SECOND = 2;
 
 #endif
 '''

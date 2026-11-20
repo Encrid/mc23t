@@ -26,7 +26,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 | G1 | The legal notice of `.toolchain/header.txt`, between `/*` and `*/`, with each line after `** `. |
 | G2 | One empty line after each function that is not at the end of the file. |
 | G3 | The level of each directive, and no space after `#`. |
-| G4 | Each global variable that `const` or `constexpr` does not mark. |
+| G4 | Each global variable that `const` or `constexpr` does not mark. For a pointer, the `const` of the variable is after the last `*` before its name. |
 | G5 | Each function of a file `.c` that is not `static`, if no header of the project declares it. The section *G5* gives the exceptions. |
 | F1 | No program checks it. |
 | F2 | The snake case. A person checks the verb. |
@@ -46,6 +46,7 @@ A `'` after a digit or a letter is a digit separator of C23, as in `1'000` and `
 
 For C1, `if`, `while`, `for`, `switch` and `do` are levels, and an `else if` is not a new level.
 For L1, a comma that joins two statements makes a line with more than one statement.
+For G4, V1 and H1, `style.py` checks each variable of a declaration. This includes a variable that the declaration of its `struct`, `enum` or `union` declares.
 
 ## G5
 
@@ -62,6 +63,7 @@ Before it reads the files, `style.py` checks itself:
 
 1. For each rule that it checks, it reads a short text that breaks the rule. The rule must find a fault in the text.
 2. It reads a short clean text. No rule but G1, H1 and H2 can find a fault in it.
+3. It reads a short clean header. No rule but G1 and H2 can find a fault in it. The header holds a function `static inline` with an assignment, a macro with an assignment, declarations `extern` and variables `constexpr`.
 
 If the self-test fails, `style.py` stops: `the checker itself: <faults>`.
 
