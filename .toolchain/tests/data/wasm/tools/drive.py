@@ -9,7 +9,7 @@ from pathlib import Path
 import area
 import host
 
-RUNS = {'build': [], 'branches': ['--branches'], 'leaks': ['--leaks'], 'fail': ['--branches']}
+RUNS = {'build': [], 'debug': ['--debug'], 'branches': ['--branches'], 'leaks': ['--leaks'], 'fail': ['--branches']}
 
 
 def ran(tools, tool, project, more):
@@ -20,7 +20,7 @@ def ran(tools, tool, project, more):
 
 def built(tools, project, out, run, picked):
     folder = Path(out) / run
-    tool = 'build.py' if run == 'build' else 'test.py'
+    tool = 'build.py' if run in ('build', 'debug') else 'test.py'
     shutil.rmtree(folder, ignore_errors=True)
     said = ran(tools, tool, project, ['--out', str(folder)] + RUNS[run] + (['-k'] + picked if picked else []))
     modules = sorted(folder.glob('**/probe.wasm'), key=lambda path: len(path.parts))
@@ -42,10 +42,20 @@ def planned(tools, project, out, words):
     host.run(Path(project) / 'build' / 'third_party' / 'bb_wasm' / target, module, failed, part)
 
 
+def pathed(tools, project, out, run):
+    said, module = built(tools, project, out, run, [])
+    if not module:
+        return print('\n'.join(said))
+    data, root = module.read_bytes(), str(Path(project).resolve())
+    print('paths of the machine: %d' % sum(data.count(form.encode()) for form in {root, root.replace('\\', '/')}))
+
+
 def answered(tools, project, out, words):
     run, picked = words[0], words[1:]
     if run == 'fail':
         return planned(tools, project, out, picked)
+    if run == 'paths':
+        return pathed(tools, project, out, 'debug' if picked == ['debug'] else 'build')
     said, module = built(tools, project, out, run, picked)
     for line in said:
         if line.startswith('stand_in: ') or line is said[-1]:

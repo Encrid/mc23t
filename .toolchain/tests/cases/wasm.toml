@@ -5,6 +5,7 @@ folders = { "{case}/proj/.toolchain" = [".toolchain/tests/data/wasm/project.toml
 claims = { status = 0 }
 rows = [
     { name = "a wasm module with no probes exports nothing", in = "build", claims = { line = ["exports: memory pick"] }, false = "branches" },
+    { name = "a wasm module of a release holds no path of its machine", in = "paths", claims = { line = ["paths of the machine: 0"] }, false = "paths debug" },
     { name = "a probed wasm module exports the area of its outcomes", in = "branches", claims = { line = ["area: version 1, room 256", "outcomes: 6 bytes at 0", "outcomes: 6 bytes at 6"] }, false = "build" },
     { name = "the outcomes that a host keeps reach hits.bin", in = "branches", claims = { line = ["branches: 9 outcomes, 9 reached"] }, false = "branches past" },
     { name = "a probed wasm module exports the counts of its leaks", in = "leaks past", claims = { line = ["counts: src/probe.c with 2 slots", "stand_in: 1 cases: 1 as written"] }, false = "branches past" },
