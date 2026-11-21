@@ -367,6 +367,92 @@ static double scale(double x)
 '''
 
 [[case]]
+name = "a tag declared in a header with no object is not a variable"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid;
+union bits;
+enum mode;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid r;
+union bits;
+enum mode;
+
+#endif
+'''
+
+[[case]]
+name = "a tag with an object in a header declares a variable"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:9: G4 'r' is a global variable that is not constant", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid {
+    int a;
+} r;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid {
+    int a;
+};
+
+#endif
+'''
+
+[[case]]
 name = "a declaration with an attribute counts its arguments"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
 claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "faults: 1"] }
