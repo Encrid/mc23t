@@ -611,6 +611,14 @@ claims = { status_not = 0, has = ["[test] uses: src/none/** matches no file"] }
 false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
 
 [[case]]
+name = "a pattern of folders that matches no file stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/patterned.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["data/*.txt: no file matches the pattern"] }
+false = { files = { "{case}/data/a.txt" = "a\n" } }
+
+[[case]]
 name = "a run that is killed gives its lock back"
 run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "kill"]
 claims = { status = 0, line = ["free"] }

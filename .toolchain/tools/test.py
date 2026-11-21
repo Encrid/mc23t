@@ -153,12 +153,29 @@ def source_of(item, outputs, values):
     return outputs[name] if name in outputs else Path(values['root']) / name
 
 
+def cleared(folder):
+    if not folder.exists():
+        return
+    for path in folder.rglob('*'):
+        if path.is_file():
+            os.chmod(path, 0o600)
+    shutil.rmtree(folder)
+
+
+def sources_of(item, outputs, values):
+    name = expand(item, values)
+    if '*' not in name:
+        return [source_of(item, outputs, values)]
+    found = sorted(path for path in Path(values['root']).glob(name) if path.is_file())
+    return found or shared.die('%s: no file matches the pattern' % name)
+
+
 def placed(use, outputs, values):
     for folder, held in use.get('folders', {}).items():
         located(folder, values).mkdir(parents=True, exist_ok=True)
         for item in held:
-            source = source_of(item, outputs, values)
-            shutil.copy(source, located(folder, values) / source.name)
+            for source in sources_of(item, outputs, values):
+                shutil.copy(source, located(folder, values) / source.name)
     for path, text in use.get('files', {}).items():
         located(path, values).parent.mkdir(parents=True, exist_ok=True)
         located(path, values).write_text(expand(text, values), encoding='utf-8', newline='\n')
@@ -198,7 +215,7 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
     use = made_false(case) if broken else case
     values, outputs = failing if failing and (use.get('fail') or use.get('sweep')) else (values, outputs)
     folder = Path(values['out']) / 'cases' / where
-    shutil.rmtree(folder, ignore_errors=True)
+    cleared(folder)
     folder.mkdir(parents=True, exist_ok=True)
     mine = dict(values, case=folder.as_posix())
     if '{port}' in str(use):
@@ -504,7 +521,7 @@ def tallied(args):
         die('--leaks runs each case one time: it takes no --break, --toolchain, --copies, --rounds or --branches')
     config, values, (files, kinds), outputs, groups = changed(args, 'leaks', leaks.counted)
     folder = Path(values['out']) / 'cases'
-    shutil.rmtree(folder, ignore_errors=True)
+    cleared(folder)
     test(config, values, outputs, groups, False, False, 1, True)
     cases = [(case['name'], folder / group / ('%d.leaks' % index)) for group, listed in groups
              for index, case in enumerate(listed)]

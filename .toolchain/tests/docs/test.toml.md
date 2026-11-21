@@ -46,6 +46,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `later/project.toml` | An artifact that links `linked.txt`, which is not there. Its kind has `unlinked` steps. |
 | `nowhere/project.toml` | The project of `.toolchain/project.toml`, and the target `nowhere`, whose `runs_on` is empty. |
 | `port/project.toml`, `unported.toml` and `ported.toml` | A project whose variable `address` holds `{port}`. The case `unported` names `{address}` only, and the case `ported` names `{port}` too. |
+| `patterned.toml` | The case `patterned`, whose `folders` copy each file of the pattern `data/*.txt` into `{case}/got`. |
 
 The cases of the parts run `test.py` on `.toolchain/tests/data/build/family`, as `.toolchain/tests/docs/build.toml.md` tells, or on `.toolchain/tests/data/test/parted`.
 `parted` has the parts `alpha` and `beta`, each with a program and a group. The folder of `beta` is `deep/beta`.
@@ -130,3 +131,4 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a case that states the process script, with no script and no standard input | `test` stops, also with no `tables`: `the case silent states the process script, and it has no script and no stdin`. | `own_stated.toml`. |
 | a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
 | 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |
+| a pattern of folders that matches no file stops the run | In the project of `uses/one/project.toml` with the group `patterned.toml`, `test` stops: `data/*.txt: no file matches the pattern`. | The file `{case}/data/a.txt` is there. |

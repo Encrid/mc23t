@@ -129,7 +129,7 @@ A change runs only the groups that test a changed file: `.toolchain/docs/scope.p
 | `ignore` | `["interrupt"]` if the command starts with the interrupt ignored: *Scripts*. |
 | `helper` | A second command that runs at the same time. |
 | `files` | The text files that `test` writes before the command starts. The key is the path, and the value is the text. |
-| `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to copy into the folder. |
+| `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to copy into the folder. A file of the list with `*` is a pattern of the project. `test` copies each file that the pattern matches, and stops if it matches none. |
 | `sweep` | The functions whose calls the command refuses one after the other: *A sweep*. |
 | `fail` | The calls that fail in the command. The key is a function, and the value is the number of its call that fails: *Failed calls*. |
 | `claims` | The claims about the command. A case must make one claim or more. |
