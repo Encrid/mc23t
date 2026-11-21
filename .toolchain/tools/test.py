@@ -4,6 +4,7 @@
 import concurrent.futures
 import fnmatch
 import os
+import platform
 import re
 import shutil
 import socket
@@ -433,6 +434,13 @@ def free_memory():
                                                         'free_virtual', 'free_extended')]
         status = Status(length=ctypes.sizeof(Status))
         return status.free_commit if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)) else None
+    if platform.system() == 'Darwin':
+        try:
+            said = subprocess.run(['vm_stat'], capture_output=True, text=True, check=True).stdout
+            size = int(re.search(r'page size of (\d+)', said).group(1))
+        except (OSError, subprocess.CalledProcessError, AttributeError):
+            return None
+        return size * sum(int(n) for n in re.findall(r'Pages (?:free|inactive|speculative|purgeable):\s+(\d+)', said))
     try:
         with open('/proc/meminfo', encoding='ascii') as info:
             return next(int(line.split()[1]) * 1024 for line in info if line.startswith('MemAvailable:'))
