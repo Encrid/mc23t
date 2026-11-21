@@ -4,6 +4,7 @@ The group `scope` checks `.toolchain/tools/scope.py`.
 Each case writes the list of the changed paths into `{case}/changed.txt` with `files`, and gives it to `scope.py` with `--changed`.
 The paths of the lists need not be there, since `scope.py` reads only their text. Only a config file and the case files must be there.
 Each case file of the data holds one case, which no case runs.
+`branched.py` makes a repository: it removes the folder of the repository if it is there, copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to `.toolchain/project.toml` of the copy without a commit, and then runs the command after `--`.
 
 | Data | Content |
 | --- | --- |
@@ -35,3 +36,5 @@ Each case file of the data holds one case, which no case runs.
 | a code that is no list of patterns | In `miscoded`, the tool stops: `tests/cases/x.toml: code is a list of patterns`. | The project `owned`. |
 | a whole that is not true or false | In `miswhole`, the tool stops: `tests/cases/x.toml: whole is true or false`. | The project `mono`. |
 | a list that is not there stops the tool | `cannot read the list <path>`. | The list is there. |
+| a change of the project file in the tables of the checks names no group | `branched.py` adds a table `[[style.exception]]` to `parted`, and `.toolchain/project.toml` writes nothing. | It adds a table `[test]`, and the file gives `--group all`. |
+| a project file outside a repository names the groups of the whole | `parted` is no repository of its own, so `.toolchain/project.toml` gives `--group all`. | A repository with a change of `[style]` only. |

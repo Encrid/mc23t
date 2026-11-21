@@ -18,7 +18,7 @@ The step `Runner` of `ci.yml` and of `release.yml` gives the runner what the cas
 
 ## The jobs of ci.yml
 
-The job `gate` has a job for each target and each gate: `test`, `test --break`, `test --branches` and `test --leaks`. Thus a job runs 1 gate, and stays far under its limit of 60 minutes.
+The job `gate` has a job for each target and each gate: `test`, `test --break`, `test --branches` and `test --leaks`. Thus a job runs 1 gate, under its limit of 60 minutes. A project whose whole scope takes longer raises `timeout-minutes` in its copy of `ci.yml`.
 Each such job prepares its runner with `runner.py`, then runs `fetch` and its gate. The job of `test` also runs `check` before its gate, and `pack` after it.
 
 The gate runs only for the groups that `scope.py` gives for the pull request: `.toolchain/docs/scope.py.md`. A pull request into `main` runs it for the groups that state `whole = true`.
