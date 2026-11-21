@@ -23,6 +23,8 @@
 | `claimed(claims, lacks, code, answer, values)` | Tells if each claim of a row is true on its answer, as *A table* tells. |
 | `source_of(item, outputs, values)` | Gives the file of an artifact, or a file of the project. |
 | `placed(use, outputs, values)` | Writes the `files` of a case, and fills its `folders`. |
+| `sources_of(item, outputs, values)` | Gives the files of 1 item of `folders`: the artifact or the file, or each file of the project that a pattern with `*` matches. It stops the run if a pattern matches no file. |
+| `cleared(folder)` | Removes a folder with all its files, also a file that is read-only, such as an object of git. |
 | `scripted(running, script, outputs, values)` | Does the steps of a script. |
 | `made_false(case)` | Gives the false variant of a case. |
 | `typed_rows(use, broken, order, values)` | Gives the text that `test` writes to the command of a table. It is the input of each row of `order`, each on one line. With `broken`, it is the false input. |
@@ -103,7 +105,7 @@ With `tables = true` in `[test]`, `groups_of` then gives the cases of each file 
 
 `tried` runs one case:
 
-1. It empties the folder of the case, `<out>/cases/<group>/<number>`, or `<out>/cases/<group>/<number>/<copy>` for a copy.
+1. It empties the folder of the case, `<out>/cases/<group>/<number>`, or `<out>/cases/<group>/<number>/<copy>` for a copy, with `cleared`.
 2. It adds the variable `{case}`. If a text of the case holds `{port}`, it adds `{port}` too: a new free port.
 3. With `--break`, it uses the false variant of the case.
 4. It writes the files, and fills the folders of the case.

@@ -4,7 +4,7 @@ The group `scope` checks `.toolchain/tools/scope.py`.
 Each case writes the list of the changed paths into `{case}/changed.txt` with `files`, and gives it to `scope.py` with `--changed`.
 The paths of the lists need not be there, since `scope.py` reads only their text. Only a config file and the case files must be there.
 Each case file of the data holds one case, which no case runs.
-`branched.py` makes a repository: it removes the folder of the repository if it is there, copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to `.toolchain/project.toml` of the copy without a commit, and then runs the command after `--`.
+`branched.py` makes a repository: it copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to `.toolchain/project.toml` of the copy without a commit, and then runs the command after `--`.
 
 | Data | Content |
 | --- | --- |
