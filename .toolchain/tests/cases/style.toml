@@ -332,6 +332,41 @@ static double sum_of(double *from)
 '''
 
 [[case]]
+name = "a hex float with a negative exponent is a number"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double scale(double x)
+{
+    return (x * 0x1p-500 + 0X1.8P+3);
+}
+'''
+
+[case.false.files]
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double scale(double x)
+{
+    return (x*0x1p-500 + 0X1.8P+3);
+}
+'''
+
+[[case]]
 name = "a declaration with an attribute counts its arguments"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
 claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "faults: 1"] }
