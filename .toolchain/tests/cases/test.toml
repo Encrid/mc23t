@@ -678,6 +678,20 @@ claims = { status_not = 0, has = ["writer: wrote into the build output "] }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/replacer.toml"] } }
 
 [[case]]
+name = "a case waits while the free memory is below the floor"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/floored/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/apart_one.toml", ".toolchain/tests/data/uses/apart_two.toml"], "{case}" = [".toolchain/tests/data/test/met.py"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["apart_one: 1 cases: 1 as written", "apart_two: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/unfloored/project.toml"] } }
+
+[[case]]
+name = "a floor of memory that is no count of bytes stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badfloor/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] }
+claims = { status_not = 0, has = ["[test] memory_floor is a count of bytes, 0 or more"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/unfloored/project.toml"] } }
+
+[[case]]
 name = "a count of 0 workers stops the run"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "0"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
