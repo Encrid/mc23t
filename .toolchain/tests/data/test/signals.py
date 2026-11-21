@@ -9,8 +9,13 @@ import time
 NAMES = {0: 'interrupt', 1: 'termination', 2: 'hang-up'}
 
 
+def say(text):
+    # os.write has no buffer, so a handler that writes during another write raises no reentrant error
+    os.write(1, (text + os.linesep).encode('ascii'))
+
+
 def got(name):
-    print('got ' + name, flush=True)
+    say('got ' + name)
     if name == 'hang-up':
         os._exit(0)
 
@@ -30,11 +35,11 @@ else:
         if signal.getsignal(number) != signal.SIG_IGN:
             signal.signal(number, lambda caught, frame, name=name: got(name))
 start = time.monotonic()
-print('ready', flush=True)
+say('ready')
 sys.stdin.readline()
 try:
     if time.monotonic() - start >= 1:
-        print('paused', flush=True)
-    print('done', flush=True)
+        say('paused')
+    say('done')
 except OSError:
     os._exit(3)
