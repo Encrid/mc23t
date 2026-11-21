@@ -217,6 +217,27 @@ claims = { status_not = 0, has = ["nowhere does not run here: build it, and test
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
 
 [[case]]
+name = "--build builds each artifact and runs no case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/fails.toml"] }
+claims = { status = 0, line = ["built 0 artifacts"], lacks = ["fails:"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "--build stops when an artifact is not linked"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/later/project.toml"] }
+claims = { status_not = 0, has = ["the cases need what is linked: later"] }
+false = { files = { "{case}/linked.txt" = "here" } }
+
+[[case]]
+name = "--build with --break stops"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build", "--break"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] }
+claims = { status_not = 0, has = ["--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"] }
+
+[[case]]
 name = "a case that needs what is not linked"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/later/project.toml"] }

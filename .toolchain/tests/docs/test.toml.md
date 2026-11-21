@@ -96,6 +96,9 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | no case | `test` writes `no case: tests/cases holds no case`, and ends with 0. | `passes.toml`. |
 | a false variant that still holds | `test --break` stops: `still as written with their claims made false: still`. | `passes.toml`. |
 | a target that does not run here | `nowhere/project.toml` is the project. `test --target nowhere` stops: `nowhere does not run here`. | No `--target`. |
+| --build builds each artifact and runs no case | With `fails.toml`, `--build` writes `built 0 artifacts`, and the case `fails` does not run. | With no `--build`, `fails` runs and fails. |
+| --build stops when an artifact is not linked | In `later`, `--build` stops: `the cases need what is linked: later`. | `linked.txt` is there. |
+| --build with --break stops | `--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break`. | `--build` alone. |
 | a case that needs what is not linked | `test` writes `compiled, not linked: later:`. Then it stops: `the cases need what is linked: later`. | `linked.txt` is there. |
 | the output of the cases | `test` runs the case `said`, and `{case}/out/{target}/said.txt` holds its output `ended after`. | `test --break`, which writes no `said.txt`. |
 | a claim of a pattern | The output matches `first.*second: \d+` over two lines. | The two lines in the other order. |

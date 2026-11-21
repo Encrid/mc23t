@@ -337,6 +337,7 @@ Use a sweep for the calls that fail for one reason, such as no memory. Use `fail
 | `python project.py test --group <group>` | Runs only the named group. You can use this option more than one time. |
 | `python project.py test --part <part>` | Builds the part and the parts that it uses, then runs only the groups in `tests/cases/<folder>`, with the folder of the part. |
 | `python project.py test --copies <number>` | Runs this number of copies of each case at the same time. Each copy must pass. |
+| `python project.py test --build` | Builds each artifact, the test ones too, and runs no case. |
 | `python project.py test --workers <number>` | Runs this number of cases at the same time. With 1, the cases run one after the other. |
 | `python project.py test --rounds <number>` | Runs all the cases this number of times, one round after the other. |
 

@@ -603,7 +603,9 @@ def tallied(args):
 
 def main():
     args = shared.arguments('-k', ('--copies', int), ('--rounds', int), ('--workers', int), broken='--break', toolchain='--toolchain',
-                            branches='--branches', leaks='--leaks')
+                            branches='--branches', leaks='--leaks', built='--build')
+    if args.built and (args.toolchain or args.branches or args.leaks or args.broken):
+        die('--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break')
     if args.leaks:
         return tallied(args)
     if args.branches:
@@ -616,6 +618,8 @@ def main():
     unlinked = [name for name, paths in made if not paths]
     if unlinked:
         die('the cases need what is linked: ' + ' '.join(unlinked))
+    if args.built:
+        return print('built %d artifacts' % len(made))
     folder = '.toolchain/tests/cases' if args.toolchain else config.get('test', {}).get('cases', 'tests/cases')
     groups = groups_of(config, values, folder)
     if not groups:
