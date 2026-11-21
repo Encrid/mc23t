@@ -649,6 +649,14 @@ claims = { status = 0, files = { "{case}/out/prog.txt" = "p" } }
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/overwrote.toml"] } }
 
 [[case]]
+name = "a case that writes into a linked build output fails"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/writer.toml"] }
+files = { "{case}/out/prog.txt" = "p" }
+claims = { status_not = 0, has = ["writer: wrote into the build output "] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/replacer.toml"] } }
+
+[[case]]
 name = "a count of 0 workers stops the run"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "0"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
