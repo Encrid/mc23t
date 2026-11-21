@@ -42,7 +42,8 @@ Each other path gives no group: a document and a workflow change no code.
 Only `check` reads the tables `[check]`, `[dup]`, `[prose]` and `[style]` of `.toolchain/project.toml`, and no case reads them.
 So a change of `.toolchain/project.toml` gives no group when the file differs from its form at the base only in these 4 tables.
 The base is the last commit that the branch shares with `origin/<branch>`, or with `<branch>` if no such commit exists.
-If the project is not a repository of its own, or if git does not give the base or the file at the base, the file gives its groups as each other file of the toolchain does.
+The file gives its groups as each other file of the toolchain does when the project is not a repository of its own.
+It does the same when git does not give the base, or the file at the base.
 
 A part that uses a changed part gives no group. Its groups test its own code.
 
