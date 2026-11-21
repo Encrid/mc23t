@@ -39,7 +39,7 @@
 | `verdict(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs the copies of one case at the same time, and gives their verdict. |
 | `uses_of(config, values, running)` | Gives the uses of each group of `running`, as *The uses* tells. It stops for each fault of *The uses*. |
 | `test(config, values, outputs, groups, broken, said, copies, counted, failing, workers)` | Runs the cases of all the groups with `workers` threads, as *The workers* tells, and writes each verdict. With `said`, it writes `said.txt`. It gives the names of the cases that failed. |
-| `free_memory()` | Gives the bytes that the system can still commit: on Windows, the free commit of `GlobalMemoryStatusEx`; on Linux, `MemAvailable` of `/proc/meminfo`. It gives nothing on another system, or if the read fails. |
+| `free_memory()` | Gives the bytes that the system can still commit: on Windows, the free commit of `GlobalMemoryStatusEx`; on Linux, `MemAvailable` of `/proc/meminfo`; on macOS, the free, inactive, speculative and purgeable pages of `vm_stat`. It gives nothing on another system, or if the read fails. |
 | `floor_of(config)` | Gives `[test] memory_floor`, or 2 GiB. It stops if the value is not a count of bytes: `[test] memory_floor is a count of bytes, 0 or more`. |
 | `Room(floor)` | Lets a case start only when the free memory is at least the floor, or when no other case of the run runs. |
 | `lanes_of(jobs, uses)` | Gives the lanes of the cases. The cases of the groups with the same uses are 1 lane. Each case of a group with no use is 1 lane. |
@@ -289,7 +289,7 @@ Thus the output of a run with many workers has the same lines in the same order 
 With `--workers 1`, the cases run one after the other.
 
 Each case also waits for room: it starts only when `free_memory` gives at least `[test] memory_floor`, or when no other case of the run runs. Thus the workers never take the last memory of the machine, also when another run holds it. A case still starts alone, so a run always ends.
-With no measure of the memory, for example on macOS, a case does not wait.
+With no measure of the memory, on a system that none of these 3 reads covers, a case does not wait.
 
 A case can share a thing of the machine that no use names, for example the clipboard. It can then fail when another case runs at the same time. Such a case gets a use.
 
