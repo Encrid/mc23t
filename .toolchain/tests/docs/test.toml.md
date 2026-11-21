@@ -50,6 +50,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `met.py` | A program that writes its mark into a folder, and looks for the mark of another case for some seconds. With `meet`, it ends with 0 if it sees the mark. With `apart`, it ends with 0 if it does not see the mark, and then removes its own mark. |
 | `met.toml` | The cases `a meets b` and `b meets a`, which wait 5 seconds for each other with `met.py`. |
 | `order_1.toml` and `order_2.toml` | The case `slow`, which waits 2 seconds, and the case `quick`. |
+| `floored/project.toml`, `unfloored/project.toml` and `badfloor/project.toml` | The project of `.toolchain/project.toml` with `memory_floor` 2 to the power 62, 0, and -1. |
 | `linked.toml` and `copied.toml` | The case `linked`, which places `prog.txt` into `{case}/got` and writes if the placed file is the same file as its source. In `linked.toml` the source is `{build}/prog.txt`, and in `copied.toml` it is `prog.txt` of the project. |
 | `writer.toml` and `replacer.toml` | The case `writer`, which places `{build}/prog.txt` into `{case}/got`. In `writer.toml` its command opens the placed file and writes `changed`; in `replacer.toml` it writes a new file and renames it over the placed one. |
 | `overwritten.toml` and `overwrote.toml` | The case `overwritten`. In `overwritten.toml`, it places `{build}/prog.txt` into `{case}/got`, and its `files` write `changed` into the placed file. In `overwrote.toml`, its `files` write `changed` into `{build}/prog.txt`. |
@@ -159,5 +160,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a file of the build folder is placed by a link | The folder of the build holds `prog.txt`, and `linked` writes `True`: `linked: as written`. | `copied.toml`: a copy is not the same file. |
 | a file of a case does not write into a linked file | After `overwritten`, `{case}/out/prog.txt` still holds `p`. | `overwrote.toml` writes into the build output. |
 | a case that writes into a linked build output fails | `writer` writes into the linked `prog.txt`: `writer: wrote into the build output <path>`, and `test` fails. | `replacer.toml`: a rename leaves the build output as it was. |
+| a case waits while the free memory is below the floor | With `floored`, no memory is ever enough, so `apart_one` and `apart_two` run one after the other with 2 workers, and pass. | `unfloored`: the 2 cases run at the same time, see each other, and fail. |
+| a floor of memory that is no count of bytes stops the run | `badfloor`: `[test] memory_floor is a count of bytes, 0 or more`. | `unfloored`. |
 | a count of 0 workers stops the run | `--workers 0`: `[test] workers and --workers are a count of 1 or more`. | `--workers 1`. |
 | a run that is killed gives its lock back | `crash.py` kills the process that holds `gpu`, and writes `free`. | The process is not killed: `taken`. |

@@ -352,6 +352,7 @@ A case that fails in some copies writes the number of these copies, for example 
 | --- | --- |
 | `timeout` | The maximum time of a case, in seconds. A case fails if its command does not end in time, also with `--break`. For a table, it is the maximum time of each row: *Tables*. |
 | `copies` | The number of copies of each case that run at the same time. `--copies` replaces it. |
+| `memory_floor` | Optional. The bytes of memory that must stay free when a case starts, while another case of the run runs. The default is 2 GiB, and 0 turns the wait off: `.toolchain/docs/test.py.md`, *The workers*. |
 | `workers` | Optional. The number of cases that run at the same time. The default is the count of the processors. `--workers` replaces it: `.toolchain/docs/test.py.md`, *The workers*. |
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
