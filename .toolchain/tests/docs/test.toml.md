@@ -47,6 +47,14 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `nowhere/project.toml` | The project of `.toolchain/project.toml`, and the target `nowhere`, whose `runs_on` is empty. |
 | `port/project.toml`, `unported.toml` and `ported.toml` | A project whose variable `address` holds `{port}`. The case `unported` names `{address}` only, and the case `ported` names `{port}` too. |
 | `patterned.toml` | The case `patterned`, whose `folders` copy each file of the pattern `data/*.txt` into `{case}/got`. |
+| `met.py` | A program that writes its mark into a folder, and looks for the mark of another case for some seconds. With `meet`, it ends with 0 if it sees the mark. With `apart`, it ends with 0 if it does not see the mark, and then removes its own mark. |
+| `met.toml` | The cases `a meets b` and `b meets a`, which wait 5 seconds for each other with `met.py`. |
+| `order_1.toml` and `order_2.toml` | The case `slow`, which waits 2 seconds, and the case `quick`. |
+| `uses/project.toml` | The project of `.toolchain/project.toml`, with the use `gpu` for `src/gpu/**` and the use `display` for `src/screen/**`. `uses/one` has only `gpu`, `uses/none` gives `gpu` no pattern, `uses/nofile` gives it `src/none/**`, and `uses/nouse` has no use. |
+| `uses/drawn.toml`, `uses/both.toml` and `uses/plain.toml` | The cases `drawn`, `both` and `plain`, which pass. Their groups test `src/gpu`, `src/gpu` and `src/screen`, and `src/other`. |
+| `uses/probe.toml` | The case `probe`, which writes `taken` if another process holds the lock of `gpu`, and `free` if not. |
+| `uses/apart_one.toml` and `uses/apart_two.toml` | The cases `one stays apart from two` and `two stays apart from one`, which look for each other for 2 seconds with `met.py apart`. Their groups test `src/gpu`, and `src/gpu` and `src/screen`. |
+| `uses/crash.py` | A program that holds the lock of `gpu` in another process, kills that process or not, and then tries the lock. It writes `free` if it gets the lock, and `taken` if not. |
 
 The cases of the parts run `test.py` on `.toolchain/tests/data/build/family`, as `.toolchain/tests/docs/build.toml.md` tells, or on `.toolchain/tests/data/test/parted`.
 `parted` has the parts `alpha` and `beta`, each with a program and a group. The folder of `beta` is `deep/beta`.
@@ -132,3 +140,15 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
 | 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |
 | a pattern of folders that matches no file stops the run | In the project of `uses/one/project.toml` with the group `patterned.toml`, `test` stops: `data/*.txt: no file matches the pattern`. | The file `{case}/data/a.txt` is there. |
+| a group waits for the lock of its use | `locks.py` holds `gpu` in a helper, and `test` writes `drawn: waits for the use gpu, which another run holds`, then `drawn: 1 cases: 1 as written`. | The helper holds `display`. |
+| a group with no use runs while a use is held | The helper holds `gpu`, and `plain` passes with no line of a wait. | The group `drawn`. |
+| a group takes its uses in the order of their names | The helper holds `display` and `gpu`. `both` waits for `display`, and not for `gpu`. | The helper holds only `gpu`. |
+| a group holds the lock of its use while its cases run | `probe` writes `taken`. | `uses/nouse`: no lock is taken. |
+| a group gives the lock of its use back after its cases | `drawn` and `both` pass in 1 run. | Only `drawn`. |
+| a use with no pattern stops the run | `[test] uses: gpu has no pattern`. | `uses/one`. |
+| a pattern of a use that matches no file stops the run | `[test] uses: src/none/** matches no file`. | `uses/one`. |
+| the cases of a group run at the same time | With `--workers 2`, the 2 cases of `met.toml` see each other: `met: 2 cases: 2 as written`. | `--workers 1`: `a meets b` waits 5 seconds alone, and fails. |
+| 2 groups that share a use take turns in 1 run | With `--workers 2`, `apart_one` and `apart_two` share `gpu`, so their cases do not see each other. No line of a wait comes, since only 1 run holds the locks. | `uses/nouse`: the 2 cases run at the same time, and see each other. |
+| the groups write their verdicts in their order | With `--workers 2`, `quick` ends first, and the output still holds `slow`, `order_1`, `quick` and `order_2` in this order. | Only `order_2.toml`. |
+| a count of 0 workers stops the run | `--workers 0`: `[test] workers and --workers are a count of 1 or more`. | `--workers 1`. |
+| a run that is killed gives its lock back | `crash.py` kills the process that holds `gpu`, and writes `free`. | The process is not killed: `taken`. |

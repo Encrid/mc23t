@@ -350,39 +350,72 @@ def uses_of(config, values, running):
     return named
 
 
-def test(config, values, outputs, groups, broken, said, copies, counted=False, failing=None):
+def test(config, values, outputs, groups, broken, said, copies, counted=False, failing=None, workers=1):
     wrong, texts, uses = [], [], uses_of(config, values, {group for group, _ in groups})
-    for group, cases in groups:
-        with locks.held(uses.get(group, []), group):
-            right, count, wrong, texts = tested(config, values, outputs, group, cases, broken, copies, counted,
-                                                failing, wrong, texts)
-        print('%s: %d claims made false: %d cases failed' % (group, count, right) if broken else
-              '%s: %d cases: %d as written' % (group, count, right))
+    jobs = [[(group, index, case, concurrent.futures.Future()) for index, case in enumerate(cases)]
+            for group, cases in groups]
+    lanes, stop = lanes_of(jobs, uses), threading.Event()
+
+    def ran(lane):
+        for group, index, case, future in lane:
+            if stop.is_set():
+                return
+            try:
+                with locks.held(uses.get(group, []), group):
+                    future.set_result(one(config, values, outputs, group, index, case, broken, copies, counted,
+                                          failing))
+            except BaseException as error:
+                future.set_exception(error)
+
+    with concurrent.futures.ThreadPoolExecutor(workers) as pool:
+        for lane in lanes:
+            pool.submit(ran, lane)
+        try:
+            for (group, _), mine in zip(groups, jobs):
+                right, count = 0, 0
+                for *_, future in mine:
+                    named, ends = future.result()
+                    texts += [said for _, said in ends]
+                    told(named, ends, broken)
+                    right += sum(ok for _, ok, _ in named)
+                    count += len(named)
+                    wrong += [name for name, ok, _ in named if not ok]
+                print('%s: %d claims made false: %d cases failed' % (group, count, right) if broken else
+                      '%s: %d cases: %d as written' % (group, count, right))
+        except BaseException:
+            stop.set()
+            raise
     if said:
         (Path(values['out']) / 'said.txt').write_text('\n'.join(texts), encoding='utf-8', newline='\n')
     return wrong
 
 
-def tested(config, values, outputs, group, cases, broken, copies, counted, failing, wrong, texts):
-    right, count = 0, 0
-    for index, case in enumerate(cases):
-        if 'rows' in case:
-            found, ends = tabled(config, values, outputs, group, index, case, broken, copies, counted, failing)
-            named = [(row['name'], ok, how) for row, (ok, how) in zip(case['rows'], found)]
+def lanes_of(jobs, uses):
+    shared, free = {}, []
+    for job in (job for mine in jobs for job in mine):
+        key = tuple(sorted(uses.get(job[0], [])))
+        if key:
+            shared.setdefault(key, []).append(job)
         else:
-            ok, how, ends = verdict(config, values, outputs, group, index, case, broken, copies, counted, failing)
-            named = [(case['name'], ok, how)]
-        texts += [said for _, said in ends]
-        for name, ok, how in named:
-            print('%s%s: %s' % (name, ', made false' if broken else '', how))
-        right += sum(ok for _, ok, _ in named)
-        count += len(named)
-        wrong += [name for name, ok, _ in named if not ok]
-        if not all(ok for _, ok, _ in named):
-            for whose, (code, said) in zip(('', 'the helper '), ends):
-                print('  %sended with %s, and printed:\n%s' % (whose, 'no status' if code is None else status(code),
-                                                              said.rstrip()))
-    return right, count, wrong, texts
+            free.append([job])
+    return list(shared.values()) + free
+
+
+def one(config, values, outputs, group, index, case, broken, copies, counted, failing):
+    if 'rows' in case:
+        found, ends = tabled(config, values, outputs, group, index, case, broken, copies, counted, failing)
+        return [(row['name'], ok, how) for row, (ok, how) in zip(case['rows'], found)], ends
+    ok, how, ends = verdict(config, values, outputs, group, index, case, broken, copies, counted, failing)
+    return [(case['name'], ok, how)], ends
+
+
+def told(named, ends, broken):
+    for name, ok, how in named:
+        print('%s%s: %s' % (name, ', made false' if broken else '', how))
+    if not all(ok for _, ok, _ in named):
+        for whose, (code, said) in zip(('', 'the helper '), ends):
+            print('  %sended with %s, and printed:\n%s' % (whose, 'no status' if code is None else status(code),
+                                                          said.rstrip()))
 
 
 def rowed(case, path):
@@ -509,11 +542,18 @@ def measured(args):
     hits = Path(values['out']) / 'hits.bin'
     hits.write_bytes(bytes(branches.parts(probes)[1]))
     os.environ['C23_BRANCHES'] = str(hits)
-    test(config, values, outputs, groups, False, False, 1)
+    test(config, values, outputs, groups, False, False, 1, workers=workers_of(args, config))
     excepted = scoped(args, config.get('branches', {}).get('exception', []), 'path', probes)
     if args.group:
         print('branches: measured the code of the groups %s' % ', '.join(args.group))
     branches.reported(probes, gaps, hits, excepted, values['system'], named)
+
+
+def workers_of(args, config):
+    count = args.workers if args.workers is not None else config.get('test', {}).get('workers', os.cpu_count() or 1)
+    if not (isinstance(count, int) and not isinstance(count, bool) and count > 0):
+        die('[test] workers and --workers are a count of 1 or more')
+    return count
 
 
 def tallied(args):
@@ -522,7 +562,7 @@ def tallied(args):
     config, values, (files, kinds), outputs, groups = changed(args, 'leaks', leaks.counted)
     folder = Path(values['out']) / 'cases'
     cleared(folder)
-    test(config, values, outputs, groups, False, False, 1, True)
+    test(config, values, outputs, groups, False, False, 1, True, workers=workers_of(args, config))
     cases = [(case['name'], folder / group / ('%d.leaks' % index)) for group, listed in groups
              for index, case in enumerate(listed)]
     excepted = scoped(args, config.get('leaks', {}).get('exception', []), 'case', [name for name, _ in cases])
@@ -530,7 +570,7 @@ def tallied(args):
 
 
 def main():
-    args = shared.arguments('-k', ('--copies', int), ('--rounds', int), broken='--break', toolchain='--toolchain',
+    args = shared.arguments('-k', ('--copies', int), ('--rounds', int), ('--workers', int), broken='--break', toolchain='--toolchain',
                             branches='--branches', leaks='--leaks')
     if args.leaks:
         return tallied(args)
@@ -561,7 +601,7 @@ def main():
         if rounds > 1:
             print('round %d of %d' % (done + 1, rounds))
         wrong = test(config, values, {name: paths[0] for name, paths in made}, groups, args.broken, own, copies,
-                     failing=failing)
+                     failing=failing, workers=workers_of(args, config))
         if wrong:
             die(('still as written with their claims made false: ' if args.broken else 'not as written: ')
                 + ', '.join(wrong))

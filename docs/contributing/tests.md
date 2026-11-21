@@ -337,6 +337,7 @@ Use a sweep for the calls that fail for one reason, such as no memory. Use `fail
 | `python project.py test --group <group>` | Runs only the named group. You can use this option more than one time. |
 | `python project.py test --part <part>` | Builds the part and the parts that it uses, then runs only the groups in `tests/cases/<folder>`, with the folder of the part. |
 | `python project.py test --copies <number>` | Runs this number of copies of each case at the same time. Each copy must pass. |
+| `python project.py test --workers <number>` | Runs this number of cases at the same time. With 1, the cases run one after the other. |
 | `python project.py test --rounds <number>` | Runs all the cases this number of times, one round after the other. |
 
 The copies of a case compete for the processors and the memory. Thus they find a fault that shows only under load.
@@ -350,6 +351,7 @@ A case that fails in some copies writes the number of these copies, for example 
 | --- | --- |
 | `timeout` | The maximum time of a case, in seconds. A case fails if its command does not end in time, also with `--break`. For a table, it is the maximum time of each row: *Tables*. |
 | `copies` | The number of copies of each case that run at the same time. `--copies` replaces it. |
+| `workers` | Optional. The number of cases that run at the same time. The default is the count of the processors. `--workers` replaces it: `.toolchain/docs/test.py.md`, *The workers*. |
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
 | `tables` | Optional. `true` makes `test` refuse a case that breaks a rule of *Its own process*. The default is `false`. |

@@ -1,0 +1,11 @@
+[[case]]
+name = "a meets b"
+run = ["{python}", "{root}/met.py", "{root}/marks", "a", "b", "5", "meet"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[[case]]
+name = "b meets a"
+run = ["{python}", "{root}/met.py", "{root}/marks", "b", "a", "5", "meet"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
