@@ -64,6 +64,8 @@ Else `main` does these steps:
 1. It builds with `build`, which stops if the target does not run on this machine. With `--toolchain`, it only calls `prepared` of `build.py`, and builds nothing.
    With `--toolchain`, the configuration has each target of `.toolchain/toolchain.toml`, so a test of the toolchain runs on each target.
 2. It stops if an artifact is not linked: `the cases need what is linked: <names>`.
+   With `--build`, it then writes `built <count> artifacts`, and ends. Thus a project can prove that each artifact builds, the test ones too, with no case.
+   `--build` stops with `--toolchain`, `--branches`, `--leaks` or `--break`: `--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break`.
 3. It reads the groups of `[test] cases` (the default is `tests/cases`). With `--toolchain`, it reads `.toolchain/tests/cases` of the repository `mc23t`.
 4. If there is no case, it writes `no case: <folder> holds no case`, and ends.
 5. With `--part`, it keeps only the groups of the named parts. With `--group`, it keeps only the named groups. With `-k`, it keeps only the cases whose name contains the text.
