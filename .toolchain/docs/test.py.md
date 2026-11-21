@@ -22,9 +22,10 @@
 | `holds(claims, lacks, code, said, values)` | Tells if each claim is true. |
 | `claimed(claims, lacks, code, answer, values)` | Tells if each claim of a row is true on its answer, as *A table* tells. |
 | `source_of(item, outputs, values)` | Gives the file of an artifact, or a file of the project. |
-| `placed(use, outputs, values)` | Writes the `files` of a case, and fills its `folders`. |
+| `placed(use, outputs, values)` | Fills the `folders` of a case with `put`, and then writes its `files`. It removes a file first, so that it never writes into a linked file. |
+| `put(source, target, values)` | Places a file: a link to a file of the build folder, or else a copy. It removes the target first. |
 | `sources_of(item, outputs, values)` | Gives the files of 1 item of `folders`: the artifact or the file, or each file of the project that a pattern with `*` matches. It stops the run if a pattern matches no file. |
-| `cleared(folder)` | Removes a folder with all its files, also a file that is read-only, such as an object of git. |
+| `cleared(folder)` | Removes a folder with all its files, also a file that is read-only on Windows, such as an object of git. It changes the mode of no other file, so a link keeps the mode of its build output. |
 | `scripted(running, script, outputs, values)` | Does the steps of a script. |
 | `made_false(case)` | Gives the false variant of a case. |
 | `typed_rows(use, broken, order, values)` | Gives the text that `test` writes to the command of a table. It is the input of each row of `order`, each on one line. With `broken`, it is the false input. |
@@ -129,6 +130,10 @@ With `failing`, a case that states `fail` or `sweep` runs on the build of the ru
 `tried` runs each command in the root, with a timer of `[test] timeout` seconds. For a table, the timer starts again at each answer: the time is for one row.
 The timer stops a command that does not end in time.
 `placed` and the steps `put` copy each file with its permissions. Thus a copy of a program can run on Linux and on macOS.
+
+`placed` links each file of the build folder, for example an artifact or a fetched program, in place of a copy. A link is the same file, so it keeps the permissions too.
+On Windows, a new copy of a program costs a scan of the antivirus at its first load. A link costs no copy and no new scan.
+If the system refuses a link, for example across 2 disks, `placed` copies the file.
 
 `made_false` makes the false variant: the keys of `false` replace the keys of the case.
 For `files` and for `folders`, each path of `false` replaces only that path.

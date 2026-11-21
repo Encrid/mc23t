@@ -7,6 +7,7 @@ import os
 import re
 import shutil
 import socket
+import stat
 import subprocess
 import threading
 import time
@@ -157,9 +158,19 @@ def cleared(folder):
     if not folder.exists():
         return
     for path in folder.rglob('*'):
-        if path.is_file():
-            os.chmod(path, 0o600)
+        if os.name == 'nt' and path.is_file() and not os.access(path, os.W_OK):
+            os.chmod(path, stat.S_IWRITE)
     shutil.rmtree(folder)
+
+
+def put(source, target, values):
+    target.unlink(missing_ok=True)
+    if Path(source).resolve().is_relative_to(Path(values['build'])):
+        try:
+            return os.link(source, target)
+        except OSError:
+            pass
+    shutil.copy(source, target)
 
 
 def sources_of(item, outputs, values):
@@ -175,9 +186,10 @@ def placed(use, outputs, values):
         located(folder, values).mkdir(parents=True, exist_ok=True)
         for item in held:
             for source in sources_of(item, outputs, values):
-                shutil.copy(source, located(folder, values) / source.name)
+                put(source, located(folder, values) / source.name, values)
     for path, text in use.get('files', {}).items():
         located(path, values).parent.mkdir(parents=True, exist_ok=True)
+        located(path, values).unlink(missing_ok=True)
         located(path, values).write_text(expand(text, values), encoding='utf-8', newline='\n')
 
 
