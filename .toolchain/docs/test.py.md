@@ -36,8 +36,11 @@
 | `tabled(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs the copies of a table in its order, and then the table in the reverse order. It gives the verdict of each row, and the output of the run that failed. |
 | `verdict(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs the copies of one case at the same time, and gives their verdict. |
 | `uses_of(config, values, running)` | Gives the uses of each group of `running`, as *The uses* tells. It stops for each fault of *The uses*. |
-| `test(config, values, outputs, groups, broken, said, copies, counted, failing)` | Runs all the groups, each with the locks of its uses, and writes each verdict. With `said`, it writes `said.txt`. It gives the names of the cases that failed. |
-| `tested(config, values, outputs, group, cases, broken, copies, counted, failing, wrong, texts)` | Runs the cases of one group, and writes the verdict of each case. It gives the count of the cases that passed, the count of the cases, the names that failed, and the outputs. |
+| `test(config, values, outputs, groups, broken, said, copies, counted, failing, workers)` | Runs the cases of all the groups with `workers` threads, as *The workers* tells, and writes each verdict. With `said`, it writes `said.txt`. It gives the names of the cases that failed. |
+| `lanes_of(jobs, uses)` | Gives the lanes of the cases. The cases of the groups with the same uses are 1 lane. Each case of a group with no use is 1 lane. |
+| `one(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs one case or table, and gives the name, the verdict and the outputs of each case or row. |
+| `told(named, ends, broken)` | Writes the verdict of each case or row, and the output of a run that failed. |
+| `workers_of(args, config)` | Gives `--workers`, or `[test] workers`, or the count of the processors. It stops if the count is not 1 or more: `[test] workers and --workers are a count of 1 or more`. |
 | `narrowed(case, text)` | Gives a case whose name contains `text`, or a table with only its rows whose name contains it, or nothing. |
 | `chosen(groups, text)` | Gives only the cases and the rows whose name contains `text`. It stops if no case has it: `no case has <text> in its name`. |
 | `owner(config, group)` | Gives the part of a group from `part_of` of `shared.py`, with a space before and after it, or `False`. |
@@ -68,6 +71,7 @@ Else `main` does these steps:
 
 With `--break`, the false variant of a case tells if the case states `fail` or `sweep` at step 6.
 The number of copies is `--copies`, or `[test] copies`. If neither gives it, `main` stops: `.toolchain/project.toml: write [test] copies`.
+The number of workers is `--workers`, or `[test] workers`, or the count of the processors: *The workers*.
 
 `main` stops at step 7 if a case failed. Thus step 8 runs only if each case passed.
 `.toolchain/docs/said.py.md` gives the checks of step 8.
@@ -255,6 +259,22 @@ With `--part`, step 5 reads only the exemptions whose `case` matches a case of t
 The message of step 1 is `--leaks runs each case one time: it takes no --break, --toolchain, --copies, --rounds or --branches`.
 `.toolchain/docs/leaks.py.md` tells what the run counts, and what the report contains.
 
+## The workers
+
+`test` runs the cases of all the groups in a pool of threads. The number of threads is the number of workers.
+
+The cases of the groups with the same uses are 1 lane, which runs its cases one after the other. Each case of a group with no use is a lane of its own.
+A worker runs 1 lane at a time. Thus the cases of the groups with no use run at the same time.
+The cases of 1 lane hold only 1 worker, also when they wait for a use.
+
+Each case takes the locks of the uses of its group: *The uses*. Thus 2 lanes that share a use take turns, for example `gpu` and `gpu display`.
+
+`test` writes the verdicts in the order of the groups, and of the cases in each group. It writes the line of a group after its last case.
+Thus the output of a run with many workers has the same lines in the same order as a run with 1 worker.
+With `--workers 1`, the cases run one after the other.
+
+A case can share a thing of the machine that no use names, for example the clipboard. It can then fail when another case runs at the same time. Such a case gets a use.
+
 ## The uses
 
 A use is a resource of the machine that 2 runs must not share at the same time, for example the GPU or the display.
@@ -263,8 +283,8 @@ A group has a use when it tests a file that a pattern of the use matches.
 A group of the whole with no `code` has each use.
 The rule of a tested file is the rule of `tests` of `scope.py`: `.toolchain/docs/scope.py.md`, *The code of a group*.
 
-Before the cases of a group, `test` takes the lock of each use of the group, in the order of the names. It gives them back after the group. `locks.py` holds the locks: `.toolchain/docs/locks.py.md`.
-Thus the runs of 2 clones on 1 machine go on at the same time, and only the groups that share a use take turns.
+Before each case, `test` takes the lock of each use of its group, in the order of the names. It gives them back after the case. `locks.py` holds the locks: `.toolchain/docs/locks.py.md`.
+Thus the runs of 2 clones on 1 machine go on at the same time. Only the cases of the groups that share a use take turns.
 While a group waits, `test` writes `<group>: waits for the use <name>, which another run holds`.
 
 `test` stops for each of these faults of `[test] uses`:

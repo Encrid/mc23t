@@ -611,6 +611,35 @@ claims = { status_not = 0, has = ["[test] uses: src/none/** matches no file"] }
 false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
 
 [[case]]
+name = "the cases of a group run at the same time"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/met.toml"], "{case}" = [".toolchain/tests/data/test/met.py"] }
+claims = { status = 0, line = ["met: 2 cases: 2 as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "1"] }
+
+[[case]]
+name = "2 groups that share a use take turns in 1 run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/apart_one.toml", ".toolchain/tests/data/uses/apart_two.toml"], "{case}" = [".toolchain/tests/data/test/met.py"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["apart_one: 1 cases: 1 as written", "apart_two: 1 cases: 1 as written"], lacks = ["waits for the use"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nouse/project.toml"] } }
+
+[[case]]
+name = "the groups write their verdicts in their order"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml", ".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, order = ["slow: as written", "order_1: 1 cases: 1 as written", "quick: as written", "order_2: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a count of 0 workers stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "0"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status_not = 0, has = ["[test] workers and --workers are a count of 1 or more"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "1"] }
+
+[[case]]
 name = "a pattern of folders that matches no file stops the run"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 env = { MC23T_LOCKS = "{case}/locks" }
