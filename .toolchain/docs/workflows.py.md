@@ -34,6 +34,13 @@ Each such job waits for all the jobs of `gate`, and passes only if each of them 
 
 ## The cache of zig
 
+The checkout of `ci.yml` and of `warm.yml` keeps the folder `build`: it states `clean: false`, and the step `Clean` then runs `git clean -ffdx -- . ':!/build/'`.
+Thus each other file that git does not track goes. A runner that keeps its workspace keeps its caches of zig, its fetched sources and its outputs.
+
+zig hashes the content of each input, and `fetch` checks the stamp of each source. Thus a kept cache or source gives the same result as a new one.
+A hosted runner of GitHub starts each job with an empty workspace, so it keeps nothing, and `actions/cache` gives it the global cache.
+`release.yml` cleans its whole workspace, so that a release comes from no kept file.
+
 The jobs of `ci.yml`, `release.yml` and `warm.yml` keep the global cache of zig with `actions/cache`.
 Its folder is `[build] cache` of `.toolchain/toolchain.toml`.
 The key is the digest of `.toolchain/toolchain.toml`, which pins the version of zig, and the target. A job that fails saves no cache.
