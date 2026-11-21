@@ -5,6 +5,7 @@ Its one case is a table. It copies the files of the preset `wasm_module` and the
 Then it runs `tools/drive.py` of `.toolchain/tests/data/wasm`, which fetches the sources of the project 1 time, and answers each row.
 
 `drive.py` reads 1 line for each row: a run, and the words of `-k`. `build` runs `build.py`, `branches` runs `test.py --branches`, and `leaks` runs `test.py --leaks`.
+`paths` runs `build.py`, and `paths debug` runs `build.py --debug`. Each writes how many times the module holds the folder of the project.
 It writes the line of the group `stand_in` and the last line of the run, then the exports and the area of the module with `tools/area.py`.
 
 The run `fail` builds the module of `test --branches` 1 time, and keeps it. Then `tools/host.py` runs it, as a host of wasm modules does.
@@ -25,6 +26,7 @@ Then it writes `pick:` and the 3 results, and `plan:` and the text of `C23_FAIL`
 | Row | Claim | False input |
 | --- | --- | --- |
 | a wasm module with no probes exports nothing | The normal build gives a module whose only exports are `memory` and `pick`. | `branches` |
+| a wasm module of a release holds no path of its machine | `paths`: `paths of the machine: 0`, since `wasm_compile` takes `{debug_info}`. | `paths debug`: the debug information holds the folder of the project. |
 | a probed wasm module exports the area of its outcomes | After `--branches`, the module exports `c23b_outcomes`. Its area has the version 1 and the room 256, and holds 2 chunks of 6 bytes, at the bytes 0 and 6 of the file of the hits. | `build` |
 | the outcomes that a host keeps reach hits.bin | With the stand-in, `--branches` writes `branches: 9 outcomes, 9 reached`. | `branches past`: only the stand-in that writes past the end runs, so no outcome is reached. |
 | a probed wasm module exports the counts of its leaks | After `--leaks -k past`, the area holds the chunk of counts of `src/probe.c`, with 2 counts, and the case of the stand-in passes. With no `-k`, the case `a host keeps the outcomes of the module` writes `refused`, because `--leaks` sets no `C23_BRANCHES`. | `branches past` |
