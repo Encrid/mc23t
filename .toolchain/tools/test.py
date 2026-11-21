@@ -167,10 +167,20 @@ def put(source, target, values):
     target.unlink(missing_ok=True)
     if Path(source).resolve().is_relative_to(Path(values['build'])):
         try:
-            return os.link(source, target)
+            os.link(source, target)
+            return True
         except OSError:
             pass
     shutil.copy(source, target)
+    return False
+
+
+def stamp(path):
+    try:
+        found = os.stat(path)
+    except OSError:
+        return None
+    return found.st_size, found.st_mtime_ns
 
 
 def sources_of(item, outputs, values):
@@ -182,15 +192,18 @@ def sources_of(item, outputs, values):
 
 
 def placed(use, outputs, values):
+    linked = {}
     for folder, held in use.get('folders', {}).items():
         located(folder, values).mkdir(parents=True, exist_ok=True)
         for item in held:
             for source in sources_of(item, outputs, values):
-                put(source, located(folder, values) / source.name, values)
+                if put(source, located(folder, values) / source.name, values):
+                    linked[Path(source)] = stamp(source)
     for path, text in use.get('files', {}).items():
         located(path, values).parent.mkdir(parents=True, exist_ok=True)
         located(path, values).unlink(missing_ok=True)
         located(path, values).write_text(expand(text, values), encoding='utf-8', newline='\n')
+    return linked
 
 
 def scripted(running, script, outputs, values):
@@ -198,6 +211,7 @@ def scripted(running, script, outputs, values):
         if 'wait' in step and not waited(running, expand(step['wait'], values)):
             return
         for path, item in step.get('put', {}).items():
+            located(path, values).unlink(missing_ok=True)
             shutil.copy(source_of(item, outputs, values), located(path, values))
         for path in step.get('remove', []):
             located(path, values).unlink()
@@ -234,7 +248,7 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
         mine['port'] = free_port()
     counting = {'C23_LEAKS': folder.as_posix() + '.leaks'} if counted else {}
     plan = ''.join(' %s=%s' % pair for pair in use.get('fail', {}).items()) or False
-    placed(use, outputs, mine)
+    linked = placed(use, outputs, mine)
     root, timeout, helper = values['root'], config['test']['timeout'], use.get('helper')
     beside = started(expanded(helper['run'], mine), root, timeout, environment(counting, mine)) if helper else None
     if helper:
@@ -248,11 +262,14 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
     ends = [ended(running, typing, order is not None)]
     if helper:
         ends.append(ended(beside, expand(helper.get('stdin', ''), mine)))
+    mine[WROTE] = sorted(path.as_posix() for path, was in linked.items() if stamp(path) != was)
     return ends, [use.get('claims', {})] + ([helper.get('claims', {})] if helper else []), mine
 
 
 def judged(config, group, broken, run):
     ends, claims, mine = run
+    if mine[WROTE]:
+        return False, 'wrote into the build output %s' % ', '.join(mine[WROTE]), ends
     lacks = [rule['lacks'] for rule in config['test'].get('rule', []) if group not in rule.get('exempt', [])]
     if any(code is None for code, _ in ends):
         return False, 'did not end in %d seconds' % config['test']['timeout'], ends
@@ -265,6 +282,8 @@ def judged(config, group, broken, run):
 def answered(config, group, broken, run, rows, order):
     ends, claims, mine = run
     code, said = ends[0]
+    if mine[WROTE]:
+        return [(False, 'wrote into the build output %s' % ', '.join(mine[WROTE]))] * len(rows)
     lacks = [rule['lacks'] for rule in config['test'].get('rule', []) if group not in rule.get('exempt', [])]
     blocks = said.split('\n\n')[:-1]
     if any(end is None for end, _ in ends):
@@ -331,6 +350,7 @@ def verdict(config, values, outputs, group, index, case, broken, copies, counted
     return ok, how + (' in %d of %d copies' % (len(bad), count) if count > 1 else ''), ends
 
 
+WROTE = 'the outputs that a case wrote'
 USE = re.compile(r'[A-Za-z0-9_-]+')
 
 

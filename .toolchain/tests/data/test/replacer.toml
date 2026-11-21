@@ -1,0 +1,8 @@
+[[case]]
+name = "writer"
+run = ["{python}", "-c", "import os, sys; open(sys.argv[1] + '.new', 'w').write('changed'); os.replace(sys.argv[1] + '.new', sys.argv[1])", "{case}/got/prog.txt"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[case.folders]
+"{case}/got" = ["{build}/prog.txt"]

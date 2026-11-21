@@ -22,8 +22,9 @@
 | `holds(claims, lacks, code, said, values)` | Tells if each claim is true. |
 | `claimed(claims, lacks, code, answer, values)` | Tells if each claim of a row is true on its answer, as *A table* tells. |
 | `source_of(item, outputs, values)` | Gives the file of an artifact, or a file of the project. |
-| `placed(use, outputs, values)` | Fills the `folders` of a case with `put`, and then writes its `files`. It removes a file first, so that it never writes into a linked file. |
-| `put(source, target, values)` | Places a file: a link to a file of the build folder, or else a copy. It removes the target first. |
+| `placed(use, outputs, values)` | Fills the `folders` of a case with `put`, and then writes its `files`. It removes a file first, so that it never writes into a linked file. It gives the stamp of each file that it linked. |
+| `put(source, target, values)` | Places a file: a link to a file of the build folder, or else a copy. It removes the target first, and tells if it made a link. |
+| `stamp(path)` | Gives the size and the time of the last write of a file, or nothing if it is not there. |
 | `sources_of(item, outputs, values)` | Gives the files of 1 item of `folders`: the artifact or the file, or each file of the project that a pattern with `*` matches. It stops the run if a pattern matches no file. |
 | `cleared(folder)` | Removes a folder with all its files, also a file that is read-only on Windows, such as an object of git. It changes the mode of no other file, so a link keeps the mode of its build output. |
 | `scripted(running, script, outputs, values)` | Does the steps of a script. |
@@ -134,6 +135,10 @@ The timer stops a command that does not end in time.
 `placed` links each file of the build folder, for example an artifact or a fetched program, in place of a copy. A link is the same file, so it keeps the permissions too.
 On Windows, a new copy of a program costs a scan of the antivirus at its first load. A link costs no copy and no new scan.
 If the system refuses a link, for example across 2 disks, `placed` copies the file.
+
+A link shares its bytes with the build output. A case that opens a placed file for a write changes the output for each later case. A replace by a rename is safe.
+So `tried` takes the stamp of each linked file again when the case ends. If a stamp changed, the case fails: `wrote into the build output <paths>`.
+The step `put` of a script removes its target first, as `placed` does.
 
 `made_false` makes the false variant: the keys of `false` replace the keys of the case.
 For `files` and for `folders`, each path of `false` replaces only that path.

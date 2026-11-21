@@ -51,6 +51,7 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `met.toml` | The cases `a meets b` and `b meets a`, which wait 5 seconds for each other with `met.py`. |
 | `order_1.toml` and `order_2.toml` | The case `slow`, which waits 2 seconds, and the case `quick`. |
 | `linked.toml` and `copied.toml` | The case `linked`, which places `prog.txt` into `{case}/got` and writes if the placed file is the same file as its source. In `linked.toml` the source is `{build}/prog.txt`, and in `copied.toml` it is `prog.txt` of the project. |
+| `writer.toml` and `replacer.toml` | The case `writer`, which places `{build}/prog.txt` into `{case}/got`. In `writer.toml` its command opens the placed file and writes `changed`; in `replacer.toml` it writes a new file and renames it over the placed one. |
 | `overwritten.toml` and `overwrote.toml` | The case `overwritten`. In `overwritten.toml`, it places `{build}/prog.txt` into `{case}/got`, and its `files` write `changed` into the placed file. In `overwrote.toml`, its `files` write `changed` into `{build}/prog.txt`. |
 | `uses/project.toml` | The project of `.toolchain/project.toml`, with the use `gpu` for `src/gpu/**` and the use `display` for `src/screen/**`. `uses/one` has only `gpu`, `uses/none` gives `gpu` no pattern, `uses/nofile` gives it `src/none/**`, and `uses/nouse` has no use. |
 | `uses/drawn.toml`, `uses/both.toml` and `uses/plain.toml` | The cases `drawn`, `both` and `plain`, which pass. Their groups test `src/gpu`, `src/gpu` and `src/screen`, and `src/other`. |
@@ -154,5 +155,6 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | the groups write their verdicts in their order | With `--workers 2`, `quick` ends first, and the output still holds `slow`, `order_1`, `quick` and `order_2` in this order. | Only `order_2.toml`. |
 | a file of the build folder is placed by a link | The folder of the build holds `prog.txt`, and `linked` writes `True`: `linked: as written`. | `copied.toml`: a copy is not the same file. |
 | a file of a case does not write into a linked file | After `overwritten`, `{case}/out/prog.txt` still holds `p`. | `overwrote.toml` writes into the build output. |
+| a case that writes into a linked build output fails | `writer` writes into the linked `prog.txt`: `writer: wrote into the build output <path>`, and `test` fails. | `replacer.toml`: a rename leaves the build output as it was. |
 | a count of 0 workers stops the run | `--workers 0`: `[test] workers and --workers are a count of 1 or more`. | `--workers 1`. |
 | a run that is killed gives its lock back | `crash.py` kills the process that holds `gpu`, and writes `free`. | The process is not killed: `taken`. |
