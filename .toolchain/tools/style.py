@@ -224,7 +224,7 @@ def check_lines(src):
             if (before.strip() and not before.endswith(' ')) or (after.strip() and not after.startswith(' ')):
                 src.say('L3', n, "no space on both sides of '%s'" % m.group(0))
                 break
-        if re.search(r'[\w\]][+\-*&|][\w(]|\)[+|][\w(]', re.sub(r'\d[eE][+-]\d', 'x', spaced)) and not re.search(r'\+\+|--', spaced):
+        if re.search(r'[\w\]][+\-*&|][\w(]|\)[+|][\w(]', re.sub(r'0[xX][0-9a-fA-F.]*[pP][+-]\d|\d[eE][+-]\d', 'x', spaced)) and not re.search(r'\+\+|--', spaced):
             if not re.search(r'\(\s*\w[\w\s]*\*+\s*\)', spaced):
                 src.say('L3', n, 'a binary operator with no space on both sides')
         if re.search(r'[A-Za-z0-9_]\*+\s+[A-Za-z_(]', code) and re.search(r'\b(?:%s)\*' % BASE, code):
