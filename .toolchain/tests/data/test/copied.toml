@@ -1,0 +1,8 @@
+[[case]]
+name = "linked"
+run = ["{python}", "-c", "import os, sys; print(os.path.samefile(sys.argv[1], sys.argv[2]))", "{case}/got/prog.txt", "{root}/prog.txt"]
+claims = { status = 0, line = ["True"] }
+false = { run = ["{python}", "-c", "print('False')"] }
+
+[case.folders]
+"{case}/got" = ["prog.txt"]
