@@ -59,6 +59,16 @@ claims = { status = 1, line = ["src/macros.c:28:14: this condition is in a macro
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/expanded", "--out", "{case}/out", "--branches", "-k", "none"] }
 
 [[case]]
+name = "an exemption with the side macro excuses a condition in a macro"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--branches"]
+folders = { "{case}/src" = [".toolchain/tests/data/branches/expanded/src/macros.c"], "{case}/tests/cases" = [".toolchain/tests/data/branches/expanded/tests/cases/macros.toml"] }
+claims = { status = 0, line = ["branches: 17 outcomes, 17 reached, 3 exempt"] }
+false = { files = { "{case}/.toolchain/project.toml" = "[project]\nname = \"expanded\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"macros\"\nkind = \"program\"\nsources = [\"src/*.c\"]\n\n[test]\ntimeout = 60\ncopies = 1\n\n[[branches.exception]]\npath = \"src/macros.c\"\nline = 28\ncol = 14\nside = \"true\"\nwhy = \"A side that is not macro does not excuse a condition in a macro.\"\n" } }
+
+[case.files]
+"{case}/.toolchain/project.toml" = "[project]\nname = \"expanded\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"macros\"\nkind = \"program\"\nsources = [\"src/*.c\"]\n\n[test]\ntimeout = 60\ncopies = 1\n\n[[branches.exception]]\npath = \"src/macros.c\"\nline = 28\ncol = 14\nside = \"macro\"\nwhy = \"The body of a macro of a third party.\"\n\n[[branches.exception]]\npath = \"src/macros.c\"\nline = 30\ncol = 9\nside = \"macro\"\nwhy = \"The body of a macro of a third party.\"\n\n[[branches.exception]]\npath = \"src/macros.c\"\nline = 32\ncol = 5\nside = \"macro\"\nwhy = \"The body of a macro of a third party.\"\n"
+
+[[case]]
 name = "a condition in a nested if after 3 operands"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/nested", "--out", "{case}/out", "--branches"]
 claims = { status = 0, line = ["branches: 16 outcomes, 16 reached"] }
