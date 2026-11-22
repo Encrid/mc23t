@@ -239,3 +239,65 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/parted/.toolchain/project.toml"], "{case}/src/alpha" = [".toolchain/tests/data/fail/parted/src/alpha/alpha.c"], "{case}/src/beta" = [".toolchain/tests/data/fail/parted/src/beta/beta.c"], "{case}/tests/cases/beta" = [".toolchain/tests/data/fail/named/beta.toml"] }
 claims = { status_not = 0, has = ["the case own part states fail_parts gamma, and each must name a part of the project"] }
 false = { folders = { "{case}/tests/cases/beta" = [".toolchain/tests/data/fail/parted/tests/cases/beta/beta.toml"] } }
+
+[[case]]
+name = "a hold makes one thread wait for a call of another, so the order of 2 threads is the same in each run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/held", "--out", "{case}/out"]
+claims = { status = 0, line = ["held: 3 cases: 3 as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/held", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "a hold with no times is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/keys.toml"] }
+claims = { status_not = 0, has = ["the case wrong states hold, and a hold has exactly the keys file, call, at, until and times"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] } }
+
+[[case]]
+name = "a hold of a call that [fail.calls] does not list is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/unlisted.toml"] }
+claims = { status_not = 0, has = ["the case wrong holds at call puts, and [fail.calls] does not list it"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] } }
+
+[[case]]
+name = "a hold in a file that is not a C file is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/file.toml"] }
+claims = { status_not = 0, has = ["the case wrong holds in src/held.h, and the file of a hold is a C file of the project"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] } }
+
+[[case]]
+name = "a hold at the call 0 is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/count.toml"] }
+claims = { status_not = 0, has = ["the case wrong states the hold at 0, and it is a count of 1 or more"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] } }
+
+[[case]]
+name = "a fail of a call that gives no result is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/void.toml"] }
+claims = { status_not = 0, has = ["the case wrong makes done fail, and done gives no result, so no case can make it fail"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] } }
+
+[[case]]
+name = "a call with no result and a value in [fail.calls] is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/wrong/voided/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"] }
+claims = { status_not = 0, has = ["done gives no result, so its value in [fail.calls] is the empty text"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"] } }
+
+[[case]]
+name = "a call with a result and the empty text in [fail.calls] is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/wrong/resulted/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/holding.toml"] }
+claims = { status_not = 0, has = ["wait_turn gives a result, so its value in [fail.calls] is not the empty text"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"] } }
+
+[[case]]
+name = "a file of the layer whose path holds a space is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/wrong/spaced/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/posix" = [".toolchain/tests/data/fail/held/src/posix/thread.c"], "{case}/src/windows" = [".toolchain/tests/data/fail/held/src/windows/thread.c"], "{case}/tests/cases" = [".toolchain/tests/data/fail/held/wrong/refused.toml"], "{case}/src/a b" = [".toolchain/tests/data/fail/held/src/worker.c"] }
+claims = { status_not = 0, has = ["src/a b/worker.c holds a space, and the layer names each file in a key of C23_FAIL"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/held/.toolchain/project.toml"], "{case}/src" = [".toolchain/tests/data/fail/held/src/held.h", ".toolchain/tests/data/fail/held/src/turns.c", ".toolchain/tests/data/fail/held/src/worker.c", ".toolchain/tests/data/fail/held/src/held.c"], "{case}/src/a b" = [] } }
