@@ -2,6 +2,7 @@
 #
 # Under the GNU Affero General Public License, version 3 only: see license.
 import concurrent.futures
+import copy
 import fnmatch
 import os
 import re
@@ -248,6 +249,7 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
         mine['port'] = free_port()
     counting = {'C23_LEAKS': folder.as_posix() + '.leaks'} if counted else {}
     plan = ''.join(' %s=%s' % pair for pair in use.get('fail', {}).items()) or False
+    part = ''.join(' %s ' % name for name in use['fail_parts']) if 'fail_parts' in use else part
     linked = placed(use, outputs, mine)
     root, timeout, helper = values['root'], config['test']['timeout'], use.get('helper')
     beside = started(expanded(helper['run'], mine), root, timeout, environment(counting, mine)) if helper else None
@@ -506,6 +508,10 @@ def groups_of(config, values, folder):
                     % (path, case['name'], case['process'], ', '.join(PROCESS)))
             if case.get('process') == 'script' and 'script' not in case and 'stdin' not in case:
                 die('%s: the case %s states the process script, and it has no script and no stdin' % (path, case['name']))
+            for named in (case.get('fail_parts'), case.get('false', {}).get('fail_parts')):
+                if named is not None and (not named or any(name not in config.get('parts', {}) for name in named)):
+                    die('%s: the case %s states fail_parts %s, and each must name a part of the project'
+                        % (path, case['name'], ' '.join(named) or 'with no part'))
             for call in [*case.get('fail', {}), *case.get('false', {}).get('fail', {}), *case.get('sweep', [])]:
                 if call not in calls:
                     die('%s: the case %s makes %s fail, and [fail.calls] does not list it' % (path, case['name'], call))
@@ -631,7 +637,11 @@ def main():
     failing = None
     if any(use.get('fail') or use.get('sweep') for use in ((made_false(case) if args.broken else case)
                                                             for _, cases in groups for case in cases)):
-        _, mine, _, outputs, _ = changed(args, 'fail', fail.failed, (config, values))
+        wider = copy.copy(args)
+        if args.part:
+            wider.part = sorted(set(args.part) | {name for _, cases in groups for case in cases
+                                                  for use in (case, made_false(case)) for name in use.get('fail_parts', [])})
+        _, mine, _, outputs, _ = changed(wider, 'fail', fail.failed, (config, values))
         failing = mine, outputs
     for done in range(rounds):
         if rounds > 1:

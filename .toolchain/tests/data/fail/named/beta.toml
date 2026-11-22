@@ -1,0 +1,7 @@
+[[case]]
+name = "own part"
+run = ["{out}/beta{exe}"]
+fail = { malloc = 1 }
+fail_parts = ["gamma"]
+claims = { status = 0, line = ["no memory"] }
+false = { fail = {} }

@@ -6,6 +6,14 @@ claims = { status = 0, line = ["made"] }
 false = { run = ["{out}/alpha{exe}"] }
 
 [[case]]
+name = "named parts"
+run = ["{out}/beta{exe}"]
+fail = { malloc = 1 }
+fail_parts = ["alpha", "beta"]
+claims = { status = 0, line = ["no memory"] }
+false = { fail_parts = ["alpha"] }
+
+[[case]]
 name = "alpha"
 run = ["{out}/alpha{exe}"]
 claims = { status = 0, line = ["alpha"] }
