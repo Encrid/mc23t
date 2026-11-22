@@ -1,0 +1,21 @@
+[project]
+name = "mayreach"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[[artifact]]
+name = "defend"
+kind = "program"
+sources = ["src/*.c"]
+include = ["src"]
+
+[[branches.exception]]
+path = "src/defend.c"
+line = 10
+col = 9
+side = "true"
+why = "A value from outside the code can be negative in some runs."
+may_reach = true
+
+[test]
+timeout = 60
+copies = 1
