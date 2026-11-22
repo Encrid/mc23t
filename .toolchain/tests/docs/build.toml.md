@@ -138,6 +138,7 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | a library of x86_64-windows-gnu takes its moves and its fills from Windows | `inspect.py imports` writes `KERNEL32.dll: RtlMoveMemory` and `KERNEL32.dll: RtlFillMemory` for `small.dll`. | `bare.dll`, which imports neither. |
 | a library moves, fills, compares and counts each byte, and touches no byte outside its buffers | `test` on `runtime` builds for the target of the machine, and the case `checker` writes `bad 0`: `checker: 1 cases: 1 as written`. | `--break`: `checker` gets the argument `wrong`, and writes `bad 1`. |
 | an unchanged artifact does not build again | 2 builds with no change: the step of `note` runs one time, so `log.txt` holds 1 start and 1 end. | `note.txt` changes between the 2 builds. |
+| a change of the free memory builds no artifact again | The first build runs with no free memory, so 1 job, and the second with 100 GiB, so more jobs. The step of `note` runs one time: `jobs` is no part of the spec of an artifact. | `note.txt` changes between the 2 builds. |
 | the runner mpbt builds each artifact each time | `[build] runner = "mpbt"`: the step runs in each of the 2 builds. | The runner `zig`. |
 | a runner that is not a runner | `[build] runner = "make"`: `[build] runner: make is not a runner: mpbt zig`. | The runner `zig`. |
 | a change of a value of a step builds the artifact again | `word` changes from `one` to `two` between the 2 builds, so the command of the step changes, and it runs 2 times. | `word` does not change. |
@@ -155,5 +156,12 @@ Thus each machine checks a file that holds a path of its machine without the fix
 | the default of float joins no product and no sum | `build.py` builds `mad` of `.toolchain/tests/data/build/contract`. Its function `add_product` gives `a * b + c`, with the target feature `fma` on x86_64. Thus on x86_64, the 2 cases need a processor with FMA, as each runner of CI has. `mad` writes `separate`: the result is the product, rounded, plus `c`. | The artifact has the flag `-ffp-contract=on`. |
 | the flags of an artifact override float | The same build, with `--set override=-ffp-contract=on`. `{flags}` comes after `{float}`, thus `mad` writes `fused`: 1 fused multiply-add. | The artifact has no flag of its own. |
 | a count of jobs that is not a whole number above 0 | `--set jobs=0`: `build.py` stops with `[variables] jobs is 0, and it must be a whole number above 0`. | `--set jobs=1`: the build runs 1 job at a time, and ends with 0. |
+| a run with no free memory runs 1 job | `jobs.py` calls `jobs_of` with `jobs` 8 and `C23_FREE_MEMORY` 0, and writes `1`: a run always has 1 job. | 3 GiB of free memory gives 2 jobs. |
+| the free memory divides the jobs | With 3 GiB of free memory and the default `job_memory` of 1.5 GiB, `jobs_of` gives `2`. | No free memory gives 1 job. |
+| a free memory that is not a count of bytes | `C23_FREE_MEMORY` is `lots`: the tool stops with `C23_FREE_MEMORY is lots, and it must be a count of bytes`. | `C23_FREE_MEMORY` is `0`. |
+
+`rebuilt.py` sets the variable of the environment that its first argument names after a `$`, between the 2 builds.
+The cases of the jobs run `.toolchain/tests/data/build/jobs.py` with the folder of the tools and `jobs`, and set the free memory with `C23_FREE_MEMORY`.
+The case `the free memory divides the jobs` needs a machine with 2 processors or more, as each runner of CI has.
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.

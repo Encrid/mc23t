@@ -4,7 +4,6 @@
 import concurrent.futures
 import fnmatch
 import os
-import platform
 import re
 import shutil
 import socket
@@ -352,7 +351,6 @@ def verdict(config, values, outputs, group, index, case, broken, copies, counted
 
 
 WROTE = 'the outputs that a case wrote'
-WAIT = 0.2
 USE = re.compile(r'[A-Za-z0-9_-]+')
 
 
@@ -388,7 +386,7 @@ def test(config, values, outputs, groups, broken, said, copies, counted=False, f
     wrong, texts, uses = [], [], uses_of(config, values, {group for group, _ in groups})
     jobs = [[(group, index, case, concurrent.futures.Future()) for index, case in enumerate(cases)]
             for group, cases in groups]
-    lanes, stop, room = lanes_of(jobs, uses), threading.Event(), Room(floor_of(config))
+    lanes, stop, room = lanes_of(jobs, uses), threading.Event(), shared.Room(shared.floor_of(config))
 
     def ran(lane):
         for group, index, case, future in lane:
@@ -422,53 +420,6 @@ def test(config, values, outputs, groups, broken, said, copies, counted=False, f
     if said:
         (Path(values['out']) / 'said.txt').write_text('\n'.join(texts), encoding='utf-8', newline='\n')
     return wrong
-
-
-def free_memory():
-    if os.name == 'nt':
-        import ctypes
-
-        class Status(ctypes.Structure):
-            _fields_ = [('length', ctypes.c_ulong), ('load', ctypes.c_ulong)] + [
-                (name, ctypes.c_ulonglong) for name in ('phys', 'free_phys', 'commit', 'free_commit', 'virtual',
-                                                        'free_virtual', 'free_extended')]
-        status = Status(length=ctypes.sizeof(Status))
-        return status.free_commit if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)) else None
-    if platform.system() == 'Darwin':
-        try:
-            said = subprocess.run(['vm_stat'], capture_output=True, text=True, check=True).stdout
-            size = int(re.search(r'page size of (\d+)', said).group(1))
-        except (OSError, subprocess.CalledProcessError, AttributeError):
-            return None
-        return size * sum(int(n) for n in re.findall(r'Pages (?:free|inactive|speculative|purgeable):\s+(\d+)', said))
-    try:
-        with open('/proc/meminfo', encoding='ascii') as info:
-            return next(int(line.split()[1]) * 1024 for line in info if line.startswith('MemAvailable:'))
-    except (OSError, StopIteration, ValueError):
-        return None
-
-
-def floor_of(config):
-    floor = config['test'].get('memory_floor', 2 << 30)
-    if not (isinstance(floor, int) and not isinstance(floor, bool) and floor >= 0):
-        die('[test] memory_floor is a count of bytes, 0 or more')
-    return floor
-
-
-class Room:
-    def __init__(self, floor):
-        self.floor, self.busy, self.gate = floor, 0, threading.Condition()
-
-    def __enter__(self):
-        with self.gate:
-            while self.floor and self.busy and (free_memory() or self.floor) < self.floor:
-                self.gate.wait(WAIT)
-            self.busy += 1
-
-    def __exit__(self, *_):
-        with self.gate:
-            self.busy -= 1
-            self.gate.notify_all()
 
 
 def lanes_of(jobs, uses):
