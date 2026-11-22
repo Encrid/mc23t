@@ -17,7 +17,7 @@ It is the same in each project, and a project does not change it.
 
 | Key | Value |
 | --- | --- |
-| `archives` | The folder of the archives that `fetch` downloads, from the folder of `project.py`: `.toolchain/docs/fetch.py.md`, *The shared archives*. |
+| `archives` | The folder of the archives that `fetch` downloads: `.toolchain/docs/fetch.py.md`, *The shared archives*. |
 | `timeout` | The seconds that a download waits for its next bytes. |
 
 ## [build]

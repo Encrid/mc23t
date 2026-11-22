@@ -64,3 +64,15 @@ name = "a download that gets all the bytes writes the archive again"
 run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "archive"]
 claims = { status = 0, line = ["sample.zip"] }
 false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/kept.py", "{root}/.toolchain/tools", "{case}", "{root}/.toolchain/tests/data/fetch/sample.zip", "part", "gone"] }
+
+[[case]]
+name = "a worktree keeps its archives in the folder of its main checkout"
+run = ["{python}", "{root}/.toolchain/tests/data/fetch/archives.py", "{root}/.toolchain/tools", "{case}", "worktree"]
+claims = { status = 0, line = ["main/build/archives"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/archives.py", "{root}/.toolchain/tools", "{case}", "inner"] }
+
+[[case]]
+name = "a project in a folder of another repository keeps its own archives"
+run = ["{python}", "{root}/.toolchain/tests/data/fetch/archives.py", "{root}/.toolchain/tools", "{case}", "inner"]
+claims = { status = 0, line = ["main/inner/build/archives"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/fetch/archives.py", "{root}/.toolchain/tools", "{case}", "worktree"] }
