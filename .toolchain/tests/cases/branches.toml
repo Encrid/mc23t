@@ -29,6 +29,30 @@ claims = { status = 0, line = ["branches: 4 outcomes, 3 reached, 1 exempt"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/badexempt", "--out", "{case}/out", "--branches"] }
 
 [[case]]
+name = "an exemption that may reach is no fault when a case reaches its branch"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}/proj", "--out", "{case}/out", "--branches"]
+folders = { "{case}/proj/src" = [".toolchain/tests/data/branches/mayreach/src/defend.c"], "{case}/proj/tests/cases" = [".toolchain/tests/data/branches/mayreach/tests/cases/defend.toml"] }
+files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 10\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\nmay_reach = true\n\n[test]\ntimeout = 60\ncopies = 1\n" }
+claims = { status = 0, line = ["branches: 4 outcomes, 4 reached"] }
+false = { files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 10\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\n\n[test]\ntimeout = 60\ncopies = 1\n" } }
+
+[[case]]
+name = "an exemption that may reach names a branch of the code"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}/proj", "--out", "{case}/out", "--branches"]
+folders = { "{case}/proj/src" = [".toolchain/tests/data/branches/mayreach/src/defend.c"], "{case}/proj/tests/cases" = [".toolchain/tests/data/branches/mayreach/tests/cases/defend.toml"] }
+files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 99\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\nmay_reach = true\n\n[test]\ntimeout = 60\ncopies = 1\n" }
+claims = { status = 1, has = ["src/defend.c:99:9: this exemption names no outcome"] }
+false = { files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 10\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\nmay_reach = true\n\n[test]\ntimeout = 60\ncopies = 1\n" } }
+
+[[case]]
+name = "may_reach is true or false"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}/proj", "--out", "{case}/out", "--branches"]
+folders = { "{case}/proj/src" = [".toolchain/tests/data/branches/mayreach/src/defend.c"], "{case}/proj/tests/cases" = [".toolchain/tests/data/branches/mayreach/tests/cases/defend.toml"] }
+files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 10\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\nmay_reach = \"yes\"\n\n[test]\ntimeout = 60\ncopies = 1\n" }
+claims = { status = 1, has = ["src/defend.c:10:9: may_reach is true or false"] }
+false = { files = { "{case}/proj/.toolchain/project.toml" = "[project]\nname = \"mayreach\"\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[artifact]]\nname = \"defend\"\nkind = \"program\"\nsources = [\"src/*.c\"]\ninclude = [\"src\"]\n\n[[branches.exception]]\npath = \"src/defend.c\"\nline = 10\ncol = 9\nside = \"true\"\nwhy = \"A value from outside the code can be negative in some runs.\"\nmay_reach = true\n\n[test]\ntimeout = 60\ncopies = 1\n" } }
+
+[[case]]
 name = "an exemption for a different system does not apply"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/branches/systemed", "--out", "{case}/out", "--branches"]
 claims = { status = 1, line = ["src/defend.c:10:9: no case makes this condition true"], lacks = ["excuses no unreached outcome"] }
