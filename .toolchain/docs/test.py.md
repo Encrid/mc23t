@@ -128,6 +128,8 @@ With `counted`, the command and the helper get the variable `C23_LEAKS`: the pat
 If the case states `fail`, the command gets the variable `C23_FAIL`: `.toolchain/docs/fail.py.md`, *The layer*. Else `tried` removes `C23_FAIL` from the environment of the command.
 
 A case that states `fail` or `sweep` also gives the command `C23_FAIL_PART`, the part that `owner` gives for the group of the case. With no such part, `tried` removes `C23_FAIL_PART` too.
+A case that states `fail_parts` gives the parts that it names in place of its own: `.toolchain/docs/fail.py.md`, *The layer*.
+`groups_of` stops if `fail_parts` is empty or names no part of the project: `<file>: the case <name> states fail_parts <names>, and each must name a part of the project`.
 With `failing`, a case that states `fail` or `sweep` runs on the build of the run `fail`. Its folder, its `{out}` and its artifacts are those of that run.
 
 `tried` runs each command in the root, with a timer of `[test] timeout` seconds. For a table, the timer starts again at each answer: the time is for one row.

@@ -226,3 +226,16 @@ name = "a program of rows gives back what it takes"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--leaks"]
 claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/rowed", "--out", "{case}/out", "--break"] }
+
+[[case]]
+name = "a case refuses the calls of the parts that it names"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "named parts"]
+claims = { status = 0, line = ["named parts: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/parted", "--out", "{case}/out", "-k", "named parts", "--break"] }
+
+[[case]]
+name = "fail_parts that names no part of the project"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/fail/parted/.toolchain/project.toml"], "{case}/src/alpha" = [".toolchain/tests/data/fail/parted/src/alpha/alpha.c"], "{case}/src/beta" = [".toolchain/tests/data/fail/parted/src/beta/beta.c"], "{case}/tests/cases/beta" = [".toolchain/tests/data/fail/named/beta.toml"] }
+claims = { status_not = 0, has = ["the case own part states fail_parts gamma, and each must name a part of the project"] }
+false = { folders = { "{case}/tests/cases/beta" = [".toolchain/tests/data/fail/parted/tests/cases/beta/beta.toml"] } }
