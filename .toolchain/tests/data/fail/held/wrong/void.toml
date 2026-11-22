@@ -1,0 +1,6 @@
+[[case]]
+name = "wrong"
+run = ["{out}/held{exe}"]
+fail = { done = 1 }
+claims = { status = 0 }
+false = { fail = {} }

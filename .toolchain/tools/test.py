@@ -226,6 +226,24 @@ def scripted(running, script, outputs, values):
             time.sleep(step['pause'])
 
 
+def held(hold):
+    return ' hold@%(file)s@%(call)s=%(at)d until@%(until)s=1 @times=%(times)d' % hold if hold else ''
+
+
+def hold_checked(hold, name, path, calls, root):
+    if not isinstance(hold, dict) or set(hold) != {'file', 'call', 'at', 'until', 'times'}:
+        die('%s: the case %s states hold, and a hold has exactly the keys file, call, at, until and times' % (path, name))
+    for key in ('call', 'until'):
+        if hold[key] not in calls:
+            die('%s: the case %s holds at %s %s, and [fail.calls] does not list it' % (path, name, key, hold[key]))
+    if not (isinstance(hold['file'], str) and hold['file'].endswith('.c') and ' ' not in hold['file']
+            and (root / hold['file']).is_file()):
+        die('%s: the case %s holds in %s, and the file of a hold is a C file of the project' % (path, name, hold['file']))
+    for key in ('at', 'times'):
+        if not (isinstance(hold[key], int) and not isinstance(hold[key], bool) and hold[key] >= 1):
+            die('%s: the case %s states the hold %s %s, and it is a count of 1 or more' % (path, name, key, hold[key]))
+
+
 def made_false(case):
     false = case.get('false', {})
     merged = dict(case, **false)
@@ -240,7 +258,7 @@ def typed_rows(use, broken, order, values):
 
 def tried(config, values, outputs, where, case, broken, counted=False, failing=None, part=False, order=None):
     use = made_false(case) if broken else case
-    values, outputs = failing if failing and (use.get('fail') or use.get('sweep')) else (values, outputs)
+    values, outputs = failing if failing and (use.get('fail') or use.get('sweep') or use.get('hold')) else (values, outputs)
     folder = Path(values['out']) / 'cases' / where
     cleared(folder)
     folder.mkdir(parents=True, exist_ok=True)
@@ -248,7 +266,7 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
     if '{port}' in str(use):
         mine['port'] = free_port()
     counting = {'C23_LEAKS': folder.as_posix() + '.leaks'} if counted else {}
-    plan = ''.join(' %s=%s' % pair for pair in use.get('fail', {}).items()) or False
+    plan = ''.join(' %s=%s' % pair for pair in use.get('fail', {}).items()) + held(use.get('hold')) or False
     part = ''.join(' %s ' % name for name in use['fail_parts']) if 'fail_parts' in use else part
     linked = placed(use, outputs, mine)
     root, timeout, helper = values['root'], config['test']['timeout'], use.get('helper')
@@ -515,6 +533,12 @@ def groups_of(config, values, folder):
             for call in [*case.get('fail', {}), *case.get('false', {}).get('fail', {}), *case.get('sweep', [])]:
                 if call not in calls:
                     die('%s: the case %s makes %s fail, and [fail.calls] does not list it' % (path, case['name'], call))
+                if calls[call] == '':
+                    die('%s: the case %s makes %s fail, and %s gives no result, so no case can make it fail'
+                        % (path, case['name'], call, call))
+            for hold in (case.get('hold'), case.get('false', {}).get('hold')):
+                if hold is not None:
+                    hold_checked(hold, case['name'], path, calls, root)
         if config.get('test', {}).get('tables'):
             ruled(path, cases)
         found.append((Path(path).relative_to(folder).with_suffix('').as_posix(), cases))
@@ -635,7 +659,7 @@ def main():
     own = not (args.broken or args.toolchain or args.k or args.part or args.group)
     rounds = args.rounds or 1
     failing = None
-    if any(use.get('fail') or use.get('sweep') for use in ((made_false(case) if args.broken else case)
+    if any(use.get('fail') or use.get('sweep') or use.get('hold') for use in ((made_false(case) if args.broken else case)
                                                             for _, cases in groups for case in cases)):
         wider = copy.copy(args)
         if args.part:

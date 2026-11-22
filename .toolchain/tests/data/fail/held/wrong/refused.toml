@@ -1,0 +1,6 @@
+[[case]]
+name = "refused"
+run = ["{out}/held{exe}"]
+fail = { wait_turn = 1 }
+claims = { status = 0 }
+false = { fail = {} }

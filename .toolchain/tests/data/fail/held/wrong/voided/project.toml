@@ -1,0 +1,36 @@
+[project]
+name = "held"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[fail.calls]
+wait_turn = "-1"
+done = "0"
+
+[targets.x86_64-windows-gnu]
+threads = []
+
+[targets.aarch64-windows-gnu]
+threads = []
+
+[targets.x86_64-linux-gnu]
+threads = ["-lpthread"]
+
+[targets.aarch64-linux-gnu]
+threads = ["-lpthread"]
+
+[targets.x86_64-macos]
+threads = []
+
+[targets.aarch64-macos]
+threads = []
+
+[[artifact]]
+name = "held"
+kind = "program"
+sources = ["src/*.c", "src/{system}/*.c"]
+include = ["src"]
+flags = ["{threads}"]
+
+[test]
+timeout = 60
+copies = 1
