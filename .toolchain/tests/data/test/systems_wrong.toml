@@ -1,0 +1,6 @@
+[[case]]
+name = "on linux"
+run = ["{python}", "-c", ""]
+systems = ["linux"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

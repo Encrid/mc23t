@@ -546,6 +546,20 @@ claims = { status_not = 0, has = ["tests/cases/own_script.toml: the case silent 
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
 
 [[case]]
+name = "a case runs only on the systems that it states"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/systems.toml"] }
+claims = { status = 0, has = ["on {system}: as written", "systems: 1 cases for another system: ", "systems: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/systems_none.toml"] } }
+
+[[case]]
+name = "a system that no target has is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/systems_wrong.toml"] }
+claims = { status_not = 0, has = ["tests/cases/systems_wrong.toml: the case on linux states systems ['linux'], and each must be the system of a target: posix windows"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/systems.toml"] } }
+
+[[case]]
 name = "a table that states a process, in a project with tables"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_own.toml"] }

@@ -32,6 +32,9 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `tabled/project.toml` | The project of `project.toml`, with `tables = true` in `[test]`. |
 | `own_stated.toml` | The case `stated`, which passes and states `process = "status"`. The case `fed`, which passes with a `stdin` and states `process = "script"`. |
 | `own_word.toml` | The case `worded`, which states `process = "speed"`. |
+| `systems.toml` | The case `on windows`, with `systems = ["windows"]`, and the case `on posix`, with `systems = ["posix"]`. Each passes. |
+| `systems_none.toml` | The same 2 cases, with no `systems`. |
+| `systems_wrong.toml` | The case `on linux`, with `systems = ["linux"]`. |
 | `own_script.toml` | The case `silent`, which states `process = "script"` with no `script` and no `stdin`. |
 | `table_own.toml` | The table of `table.toml`, which also states `process`. |
 | `swept_by_hand.toml` | 3 cases with one command. Each one states `process`, and makes one call of `malloc` fail: the first, the second, the third. |
@@ -146,6 +149,8 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a case with no reason for its own process, in a project with tables | `test` stops: `the case passes has its own process and states no reason`. | The project with no `tables`. |
 | a case that states the reason of its own process | With `tables`, `stated: as written` and `fed: as written`. | `passes.toml`, which states no `process`. |
 | a process that is no reason | `test` stops, also with no `tables`: `the case worded states the process speed`. | `own_stated.toml`. |
+| a case runs only on the systems that it states | `test` on `systems.toml` writes `on {system}: as written`, `systems: 1 cases for another system: ` and `systems: 1 cases: 1 as written`. | `systems_none.toml`: both cases run, and none is left out. |
+| a system that no target has is refused | `test` stops: `the case on linux states systems ['linux'], and each must be the system of a target: posix windows`. | `systems.toml`. |
 | a case that states the process script, with no script and no standard input | `test` stops, also with no `tables`: `the case silent states the process script, and it has no script and no stdin`. | `own_stated.toml`. |
 | a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
 | 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |

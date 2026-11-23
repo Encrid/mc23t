@@ -1,0 +1,13 @@
+[[case]]
+name = "on windows"
+run = ["{python}", "-c", ""]
+systems = ["windows"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
+
+[[case]]
+name = "on posix"
+run = ["{python}", "-c", ""]
+systems = ["posix"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }
