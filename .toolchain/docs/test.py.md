@@ -30,8 +30,9 @@
 | `cleared(folder)` | Removes a folder with all its files, also a file that is read-only on Windows, such as an object of git. It changes the mode of no other file, so a link keeps the mode of its build output. |
 | `renamed(source, target)` | Renames a file onto its target. On Windows, it renames with the POSIX semantics, so the rename succeeds while a program holds the target open with a share of the delete. If the file system refuses it, it renames with `os.replace`. |
 | `scripted(running, script, outputs, values)` | Does the steps of a script. |
-| `held(hold)` | Gives the text of a hold in `C23_FAIL`, or the empty text with no hold: *The hold*. |
-| `hold_checked(hold, name, path, calls, root)` | Stops if the hold of the case `name` of the file `path` has a fault: *The hold*. |
+| `expanded_hold(hold, values)` | Gives the hold with the variables replaced in `file`, `call` and `until`: *The hold*. |
+| `held(hold, values)` | Gives the text of a hold in `C23_FAIL`, or the empty text with no hold: *The hold*. |
+| `hold_checked(hold, name, path, calls, values)` | Stops if the hold of the case `name` of the file `path` has a fault: *The hold*. |
 | `made_false(case)` | Gives the false variant of a case. |
 | `typed_rows(use, broken, order, values)` | Gives the text that `test` writes to the command of a table. It is the input of each row of `order`, each on one line. With `broken`, it is the false input. |
 | `tried(config, values, outputs, where, case, broken, counted, failing, part, order)` | Runs one case. With `order`, the case is a table, and the command gets the inputs of its rows in that order. With `counted`, it sets the variable `C23_LEAKS` of the case. `failing` gives the variables and the artifacts of the run `fail`, or `None`. `part` is the part of the case, or `False`. |
@@ -174,6 +175,8 @@ The key `hold` of a case is a table with exactly 5 keys:
 | `at` | The number of the call in `file` that waits, 1 or more. |
 | `until` | The function whose calls release the wait, in any file of the layer. `[fail.calls]` lists it. |
 | `times` | The count of the calls of `until` that releases the wait, 1 or more. |
+
+`file`, `call` and `until` can hold variables, for example a value of the target: `docs/contributing/tests.md`, *Variables*. So 1 case can hold a different file or call on each system. `hold_checked` checks the texts after it replaces the variables.
 
 `hold_checked` stops `test` with the file and the name of the case if:
 
