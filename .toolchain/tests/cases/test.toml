@@ -6,6 +6,14 @@ claims = { status = 0, order = ["hello, you", "written at the prompt"], files = 
 false = { script = [{ wait = "? name", type = "nobody" }] }
 
 [[case]]
+name = "a put replaces a file that the program holds open"
+run = ["{python}", "{root}/.toolchain/tests/data/test/held_put/holder.py", "{case}/x.txt"]
+files = { "{case}/x.txt" = "old" }
+script = [{ wait = "open", put = { "{case}/x.txt" = ".toolchain/tests/data/test/held_put/new.txt" }, type = "go" }]
+claims = { status = 0, line = ["held old, now new"] }
+false = { script = [{ wait = "open", type = "go" }] }
+
+[[case]]
 name = "a helper"
 run = ["{python}", "-c", "import sys; print(open(sys.argv[1]).read())", "{case}/said.txt"]
 helper = { run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write('hello, helper'); print('written', flush=True); input()", "{case}/said.txt"], wait = "written", stdin = "\n", claims = { status = 0 } }
