@@ -34,8 +34,16 @@ else:
     for number, name in ((signal.SIGINT, 'interrupt'), (signal.SIGTERM, 'termination'), (signal.SIGHUP, 'hang-up')):
         if signal.getsignal(number) != signal.SIG_IGN:
             signal.signal(number, lambda caught, frame, name=name: got(name))
+    import select
+    wake, woken = os.pipe()
+    os.set_blocking(woken, False)
+    signal.set_wakeup_fd(woken)
 start = time.monotonic()
 say('ready')
+if os.name != 'nt':
+    # a signal just before read() only sets a flag, and read() would block with the handler pending
+    while 0 not in select.select([0, wake], [], [])[0]:
+        os.read(wake, 64)
 sys.stdin.readline()
 try:
     if time.monotonic() - start >= 1:
