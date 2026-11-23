@@ -4,6 +4,7 @@ The group `scope` checks `.toolchain/tools/scope.py`.
 Each case writes the list of the changed paths into `{case}/changed.txt` with `files`, and gives it to `scope.py` with `--changed`.
 The paths of the lists need not be there, since `scope.py` reads only their text. Only a config file and the case files must be there.
 Each case file of the data holds one case, which no case runs.
+`branched.py` makes a repository: it copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to `.toolchain/project.toml` of the copy without a commit, and then runs the command after `--`.
 
 | Data | Content |
 | --- | --- |
@@ -25,13 +26,15 @@ Each case file of the data holds one case, which no case runs.
 | a group names the code that it tests | In `grouped`, `src/store/a.c` and `tests/store/main.c` give `--group store`. | The file of the group `whole`. |
 | a project of one piece names each group for a changed source | In `mono`, a source and a config file give `--group one --group two`. | A readme. |
 | a file of the toolchain names the groups of the whole | `.toolchain/tools/build.py` and `.toolchain/toolchain.toml` give `--group all`. | A document of the toolchain. |
-| a file of the toolchain names no group in a project with no group of the whole | In `mono`, `.toolchain/tools/build.py` and `project.py` write nothing. | A source. |
+| a file of the toolchain names each group in a project with no group of the whole | In `mono`, `.toolchain/tools/build.py` and `project.py` give `--group one --group two`. | A readme writes nothing. |
 | a document and a workflow name no group | A readme, 2 documents of a part, a workflow and a document of the toolchain write nothing. | A source of `b` too. |
-| a pull request into main names the groups of the whole | `--into main` gives `--group all`. | `--into dev`. |
-| a pull request into main names no group in a project with no group of the whole | In `mono`, `--into main` writes nothing. | `--into dev`. |
+| a pull request into main names the groups of the changed files and the groups of the whole | `--into main` gives `--group all --group b/b --group b/more`. | `--into dev`: only `--group b/b --group b/more`. |
+| a pull request into main names each group in a project with no group of the whole | In `mono`, `--into main` gives `--group one --group two`, also for a readme. | `--into dev`: the readme writes nothing. |
 | a project with no case group names nothing | The project `plain` writes nothing. | The project `parted`. |
 | an empty list names nothing | No path writes nothing. | A source of `b`. |
 | a source that no group tests stops the tool | In `owned`, `src/y/a.c` stops the tool: `src/y/a.c: no case group tests this file`. | `src/x/a.c`. |
 | a code that is no list of patterns | In `miscoded`, the tool stops: `tests/cases/x.toml: code is a list of patterns`. | The project `owned`. |
 | a whole that is not true or false | In `miswhole`, the tool stops: `tests/cases/x.toml: whole is true or false`. | The project `mono`. |
 | a list that is not there stops the tool | `cannot read the list <path>`. | The list is there. |
+| a change of the project file in the tables of the checks names no group | `branched.py` adds a table `[[style.exception]]` to `parted`, and `.toolchain/project.toml` writes nothing. | It adds a table `[test]`, and the file gives `--group all`. |
+| a project file outside a repository names the groups of the whole | `parted` is no repository of its own, so `.toolchain/project.toml` gives `--group all`. | A repository with a change of `[style]` only. |

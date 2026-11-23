@@ -114,7 +114,7 @@ If `tests/cases` holds no case, `test` writes `no case: tests/cases holds no cas
 In a project with parts, the groups of a part are in `tests/cases/<folder>`, with the folder of the part: `.toolchain/docs/project.toml.md`, *[parts]*.
 
 A group states the code that it tests with the key `code`, a list of patterns at the top of its file. A group with no `code` tests the code of its part, or of its project if the project has no part.
-A group that tests the project as a whole states `whole = true`, and runs when `dev` goes into `main`.
+A group that tests the project as a whole states `whole = true`, and runs when `dev` goes into `main`. In a project with no such group, each group runs then.
 A change runs only the groups that test a changed file: `.toolchain/docs/scope.py.md`.
 
 ## The keys of a case
@@ -129,13 +129,16 @@ A change runs only the groups that test a changed file: `.toolchain/docs/scope.p
 | `ignore` | `["interrupt"]` if the command starts with the interrupt ignored: *Scripts*. |
 | `helper` | A second command that runs at the same time. |
 | `files` | The text files that `test` writes before the command starts. The key is the path, and the value is the text. |
-| `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to copy into the folder. |
+| `folders` | The folders that `test` makes before the command starts. The key is the path. The value is a list of artifacts or files to place into the folder. A file of the build folder is linked, and each other file is copied. A file of the list with `*` is a pattern of the project. `test` places each file that the pattern matches, and stops if it matches none. |
 | `sweep` | The functions whose calls the command refuses one after the other: *A sweep*. |
 | `fail` | The calls that fail in the command. The key is a function, and the value is the number of its call that fails: *Failed calls*. |
+| `fail_parts` | The parts whose calls `fail` refuses, in place of the part of the case. Use it when a program links a library of another part. |
+| `hold` | A call that waits for the calls of another thread: *A hold*. |
 | `claims` | The claims about the command. A case must make one claim or more. |
 | `false` | The false variant of the case. Each case must have one. |
 | `rows` | The rows of a table: *Tables*. A case with `rows` has no `false`, no `stdin` and no `script`. |
 | `process` | The reason why a case with no `rows` has its own process: *Its own process*. |
+| `systems` | The systems on which the case runs, for example `["windows"]`. Each is the `system` of a target. On another system, the case does not run, and `test` writes `<group>: <n> cases for another system: <names>`. A false variant cannot state it. |
 | `alone` | `true` if the case must not run at the same time as a copy of itself. Such a case runs one time with `--copies`. |
 
 Each case starts in an empty folder, `{case}`. The command runs in the folder of the project.
@@ -175,6 +178,7 @@ A text of a case can contain variables, for example `{out}`. `test` replaces eac
 | `{python}` | The Python program that runs the tools. |
 
 Each key of `[variables]` of `.toolchain/project.toml` is a variable too.
+So is each key of the table of the target, for example `{system}`, which is `windows` or `posix`.
 
 ## Scripts
 
@@ -236,6 +240,7 @@ Thus write such a condition outside the macro.
 
 The probes change the program, thus the run does not judge the claims. It writes the verdicts only for information.
 An outcome counts as soon as a case reaches it, also if the program then ends with `_Exit` or `abort`.
+In a wasm module, an outcome counts when the host of the module destroys the instance: `.toolchain/docs/branches.py.md`, *A wasm module*.
 `.toolchain/docs/branches.py.md` tells how the probes work.
 
 ## The leaks
@@ -324,6 +329,25 @@ do {
 Use a sweep for the calls that fail for one reason, such as no memory. Use `fail` for one call whose failure is a behavior of its own.
 `.toolchain/docs/sweep.h.md` tells how a sweep works.
 
+## A hold
+
+A case can give 2 threads the same order in each run. Then a race between them fails in each run, and not by chance.
+The key `hold` makes call `at` of `call` in `file` wait until `until` has run `times` times, in any file:
+
+```toml
+[[case]]
+name = "the worker writes after main"
+run = ["{out}/held{exe}"]
+hold = { file = "src/worker.c", call = "wait_turn", at = 1, until = "done", times = 1 }
+claims = { status = 0, matches = ["main\\s+worker"] }
+false = { hold = { file = "src/held.c", call = "wait_turn", at = 1, until = "done", times = 1 } }
+```
+
+`file`, `call` and `until` can hold variables, for example `src/{system}/read.c`, so 1 case holds the file of each system.
+`[fail.calls]` lists `call` and `until`. A function with no result has the empty text as its value, so a case can hold it, and no case can make it fail.
+Put the hold before the lock of the thread that waits. Else the other thread can wait for the lock, and the case ends only at its timeout.
+`.toolchain/docs/fail.py.md`, *The hold*, tells how a call waits.
+
 ## Run the tests
 
 | Command | Result |
@@ -336,6 +360,8 @@ Use a sweep for the calls that fail for one reason, such as no memory. Use `fail
 | `python project.py test --group <group>` | Runs only the named group. You can use this option more than one time. |
 | `python project.py test --part <part>` | Builds the part and the parts that it uses, then runs only the groups in `tests/cases/<folder>`, with the folder of the part. |
 | `python project.py test --copies <number>` | Runs this number of copies of each case at the same time. Each copy must pass. |
+| `python project.py test --build` | Builds each artifact, the test ones too, and runs no case. |
+| `python project.py test --workers <number>` | Runs this number of cases at the same time. With 1, the cases run one after the other. |
 | `python project.py test --rounds <number>` | Runs all the cases this number of times, one round after the other. |
 
 The copies of a case compete for the processors and the memory. Thus they find a fault that shows only under load.
@@ -349,9 +375,14 @@ A case that fails in some copies writes the number of these copies, for example 
 | --- | --- |
 | `timeout` | The maximum time of a case, in seconds. A case fails if its command does not end in time, also with `--break`. For a table, it is the maximum time of each row: *Tables*. |
 | `copies` | The number of copies of each case that run at the same time. `--copies` replaces it. |
+| `memory_floor` | Optional. The bytes of memory that must stay free when a case starts, while another case of the run runs. The default is 2 GiB, and 0 turns the wait off: `.toolchain/docs/test.py.md`, *The workers*. |
+| `workers` | Optional. The number of cases that run at the same time. The default is the count of the processors. `--workers` replaces it: `.toolchain/docs/test.py.md`, *The workers*. |
+| `env` | Optional. Changes to the environment of each case, as the `env` of a case: a text, or `false` to remove the variable. The `env` of a case replaces them. A project states here what keeps a verdict the same on each machine. |
+| `slow` | Optional. The seconds above which a case is slow, and `test` writes its line. The default is 10: `.toolchain/docs/test.py.md`, *The times*. |
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
 | `tables` | Optional. `true` makes `test` refuse a case that breaks a rule of *Its own process*. The default is `false`. |
+| `uses` | Optional. The resources of the machine that 2 runs must not share, such as the GPU. The key is the name of a use, and the value is a list of patterns of the code. A group that tests a matched file waits for the other runs that hold the use: `.toolchain/docs/test.py.md`, *The uses*. |
 
 A rule adds a claim to each case: the output does not contain the text `lacks`.
 The rule does not apply to the groups of `exempt`.

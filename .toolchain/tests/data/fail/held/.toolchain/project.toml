@@ -1,0 +1,48 @@
+[project]
+name = "held"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[fail.calls]
+wait_turn = "-1"
+done = ""
+
+[targets.x86_64-windows-gnu]
+threads = []
+worker_file = "src/worker.c"
+release = "done"
+
+[targets.aarch64-windows-gnu]
+threads = []
+worker_file = "src/worker.c"
+release = "done"
+
+[targets.x86_64-linux-gnu]
+threads = ["-lpthread"]
+worker_file = "src/worker.c"
+release = "done"
+
+[targets.aarch64-linux-gnu]
+threads = ["-lpthread"]
+worker_file = "src/worker.c"
+release = "done"
+
+[targets.x86_64-macos]
+threads = []
+worker_file = "src/worker.c"
+release = "done"
+
+[targets.aarch64-macos]
+threads = []
+worker_file = "src/worker.c"
+release = "done"
+
+[[artifact]]
+name = "held"
+kind = "program"
+sources = ["src/*.c", "src/{system}/*.c"]
+include = ["src"]
+flags = ["{threads}"]
+
+[test]
+timeout = 60
+copies = 1

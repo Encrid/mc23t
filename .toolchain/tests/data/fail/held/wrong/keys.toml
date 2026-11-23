@@ -1,0 +1,6 @@
+[[case]]
+name = "wrong"
+run = ["{out}/held{exe}"]
+hold = { file = "src/worker.c", call = "wait_turn", at = 1, until = "done" }
+claims = { status = 0 }
+false = { fail = {} }

@@ -76,6 +76,8 @@ The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
 | a listed call through a pointer variable fails at its number | `test -k pointed` on `pointed` writes `pointed: as written`: `src/table.c` defines the pointer, and `src/pointed.c` calls it and gets -1. | `--break`. |
 | a listed call through a pointer variable with no number calls its function | `test -k whole` on `pointed` writes `whole: as written`: the call through the pointer gives 42. | `--break`. |
 | a full run refuses a call only in the programs of the part of the case | `test` on `parted` writes `other part: as written` and `own part: as written`. | `--break`. |
+| a case refuses the calls of the parts that it names | `test -k "named parts"` on `parted`: the case of `alpha` runs `beta` with `fail_parts` `alpha` and `beta`, so the 1st `malloc` of `beta` fails, and the case writes `named parts: as written`. | `--break`: `fail_parts` names only `alpha`, so `beta` writes `made`. |
+| fail_parts that names no part of the project | A copy of `parted` with `.toolchain/tests/data/fail/named/beta.toml`, whose case names the part `gamma`: `test` stops with `the case own part states fail_parts gamma, and each must name a part of the project`. | The case file of `parted`, with no `fail_parts`. |
 | a run of a part gives what a full run gives | `test --part alpha` on `parted` writes `other part: as written`. | `--break`. |
 | the run of branches refuses a call only in the part of the case | `test --branches` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |
 | the run of leaks refuses a call only in the part of the case | `test --leaks` on `parted` writes `other part: as written` and `own part: as written`. | `-k own`, thus `other part` does not run. |
@@ -83,6 +85,20 @@ The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
 | the break run of a sweep runs its false variant on the build that can fail | `test --break` on `swept` writes `each refused malloc of take_two gives nothing, made false: fails, as it must`: the false variant sweeps `take_one`, which has 1 `malloc`. | A run with no `--break`. |
 | a sweep gives back what the code takes in each turn | `test --leaks` on `swept` writes `leaks: 1 cases, 1 give back what they take`. | `--break`, which `--leaks` refuses. |
 | a sweep of a call that no list has | `test` stops for `tests/unlisted.toml` of `swept`, which sweeps `take_one`: `makes take_one fail, and [fail.calls] does not list it`. | The case file `swept.toml`. |
+| a hold makes one thread wait for a call of another, so the order of 2 threads is the same in each run | `test` on `held` writes `held: 3 cases: 3 as written`. The case `worker` names its file and its release by the values `{worker_file}` and `{release}` of each target. | `--break`: each hold is in the file of the other thread, so the order turns. |
+| a hold with no times is refused | A copy of `held` with `wrong/keys.toml`: `test` stops with `a hold has exactly the keys file, call, at, until and times`. | The case file `wrong/refused.toml`, with no hold. |
+| a hold of a call that [fail.calls] does not list is refused | A copy of `held` with `wrong/unlisted.toml`, which holds `puts`: `test` stops with `holds at call puts, and [fail.calls] does not list it`. | The case file `wrong/refused.toml`. |
+| a hold in a file that is not a C file is refused | A copy of `held` with `wrong/file.toml`, which holds in `src/held.h`: `test` stops. | The case file `wrong/refused.toml`. |
+| a hold at the call 0 is refused | A copy of `held` with `wrong/count.toml`: `test` stops with `states the hold at 0, and it is a count of 1 or more`. | The case file `wrong/refused.toml`. |
+| a fail of a call that gives no result is refused | A copy of `held` with `wrong/void.toml`, which makes `done` fail: `test` stops with `done gives no result, so no case can make it fail`. | The case file `wrong/refused.toml`. |
+| a call with no result and a value in [fail.calls] is refused | A copy of `held` whose `[fail.calls]` gives `done` the value `0`: `test` stops with `done gives no result, so its value in [fail.calls] is the empty text`. | The project file of `held`. |
+| a call with a result and the empty text in [fail.calls] is refused | A copy of `held` whose `[fail.calls]` gives `wait_turn` the empty text, with `wrong/holding.toml`: `test` stops. | The project file of `held`. |
+| a file of the layer whose path holds a space is refused | A copy of `held` with `worker.c` in `src/a b`: `test` stops with `src/a b/worker.c holds a space`. | The project file and the folders of `held`. |
+
+The program `held` runs `worker` of `src/worker.c` on a 2nd thread, and `mine` of `src/held.c` on the main thread.
+Each one calls `wait_turn`, then writes its name, then calls `done`, which gives no result.
+The case `worker` holds `wait_turn` of `src/worker.c` until 1 call of `done`, and claims `main` before `worker`. The case `main` holds the other thread.
+The case `refused` makes the 1st `wait_turn` fail, and claims that each thread still writes its name.
 
 The program `swept` is a test program: `tests/main.c` includes `sweep.h`, and sweeps the `malloc` of `take_two` of `src/take.c`, or of `take_one` with the argument `one`.
 

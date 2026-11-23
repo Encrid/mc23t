@@ -1,0 +1,11 @@
+[[case]]
+name = "guarded"
+run = ["{out}/defend{exe}", "a", "b"]
+claims = { status = 0, line = ["guard"] }
+false = { run = ["{out}/defend{exe}"] }
+
+[[case]]
+name = "plain"
+run = ["{out}/defend{exe}"]
+claims = { status = 0, line = ["ok 1"] }
+false = { run = ["{out}/defend{exe}", "a", "b"] }

@@ -1,13 +1,15 @@
 # .toolchain/tests/cases/test.toml
 
 The group `test` checks `.toolchain/tools/test.py`.
-The first thirteen cases use the keys of a case. Their commands are short Python programs, thus they need no build.
+The first fourteen cases use the keys of a case. Their commands are short Python programs, thus they need no build.
 The other cases run `test.py` on a project in `{case}`. Their `folders` copy the files of `.toolchain/tests/data/test` into it.
 
 | File | Content |
 | --- | --- |
 | `.toolchain/project.toml` | A project with no artifact, and a timeout of 60 seconds. |
 | `note.txt` | The line `written at the prompt`. |
+| `held_put/holder.py` | A program that opens a file, writes `open`, and waits for a line. It then reads the file by the handle that it holds and by its path, and writes both. On Windows, the handle shares the read, the write and the delete. |
+| `held_put/new.txt` | The line `new`. |
 | `passes.toml` | The case `passes`, which passes. |
 | `fails.toml` | The case `fails`, which ends with the status 1. |
 | `not_text.toml` | The case `bytes`, which ends with the status 1. Its command writes `a`, the byte 255, which is not UTF-8, and `b`. |
@@ -30,13 +32,16 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `tabled/project.toml` | The project of `project.toml`, with `tables = true` in `[test]`. |
 | `own_stated.toml` | The case `stated`, which passes and states `process = "status"`. The case `fed`, which passes with a `stdin` and states `process = "script"`. |
 | `own_word.toml` | The case `worded`, which states `process = "speed"`. |
+| `systems.toml` | The case `on windows`, with `systems = ["windows"]`, and the case `on posix`, with `systems = ["posix"]`. Each passes. |
+| `systems_none.toml` | The same 2 cases, with no `systems`. |
+| `systems_wrong.toml` | The case `on linux`, with `systems = ["linux"]`. |
 | `own_script.toml` | The case `silent`, which states `process = "script"` with no `script` and no `stdin`. |
 | `table_own.toml` | The table of `table.toml`, which also states `process`. |
 | `swept_by_hand.toml` | 3 cases with one command. Each one states `process`, and makes one call of `malloc` fail: the first, the second, the third. |
 | `alone.toml` | The case `alone`, which has no false variant. |
 | `silent.toml` | The case `silent`, which claims nothing. |
 | `colour.toml` | The case `colour`, which has the key `colour`. |
-| `signals.py` | A program that writes `ready`, reads a line, and writes `done`. It writes `paused` before `done` if 1 second went by after `ready`. |
+| `signals.py` | A program that writes `ready`, reads a line, and writes `done`. It writes `paused` before `done` if 1 second went by after `ready`. It writes each line with no buffer, so a signal that comes during a write cannot make a write inside a write. |
 | `signals.py`, the signals | For each signal, `signals.py` writes `got <signal>`. After a hang-up it ends with 0. If it cannot write `done`, it ends with 3. |
 | `unknown_signal.toml`, `closed_input.toml`, `zero_pause.toml` and `ignored_termination.toml` | Each has one case with a value that a script or `ignore` does not allow. |
 | `interrupt_termination.toml`, `after_hang_up.toml` and `wait_after_close.toml` | Each has one case with a script that cannot run the same way on each system. |
@@ -46,6 +51,19 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `later/project.toml` | An artifact that links `linked.txt`, which is not there. Its kind has `unlinked` steps. |
 | `nowhere/project.toml` | The project of `.toolchain/project.toml`, and the target `nowhere`, whose `runs_on` is empty. |
 | `port/project.toml`, `unported.toml` and `ported.toml` | A project whose variable `address` holds `{port}`. The case `unported` names `{address}` only, and the case `ported` names `{port}` too. |
+| `patterned.toml` | The case `patterned`, whose `folders` copy each file of the pattern `data/*.txt` into `{case}/got`. |
+| `met.py` | A program that writes its mark into a folder, and looks for the mark of another case for some seconds. With `meet`, it ends with 0 if it sees the mark. With `apart`, it ends with 0 if it does not see the mark, and then removes its own mark. |
+| `met.toml` | The cases `a meets b` and `b meets a`, which wait 5 seconds for each other with `met.py`. |
+| `order_1.toml` and `order_2.toml` | The case `slow`, which waits 2 seconds, and the case `quick`. |
+| `floored/project.toml`, `unfloored/project.toml` and `badfloor/project.toml` | The project of `.toolchain/project.toml` with `memory_floor` 2 to the power 62, 0, and -1. |
+| `linked.toml` and `copied.toml` | The case `linked`, which places `prog.txt` into `{case}/got` and writes if the placed file is the same file as its source. In `linked.toml` the source is `{build}/prog.txt`, and in `copied.toml` it is `prog.txt` of the project. |
+| `writer.toml` and `replacer.toml` | The case `writer`, which places `{build}/prog.txt` into `{case}/got`. In `writer.toml` its command opens the placed file and writes `changed`; in `replacer.toml` it writes a new file and renames it over the placed one. |
+| `overwritten.toml` and `overwrote.toml` | The case `overwritten`. In `overwritten.toml`, it places `{build}/prog.txt` into `{case}/got`, and its `files` write `changed` into the placed file. In `overwrote.toml`, its `files` write `changed` into `{build}/prog.txt`. |
+| `uses/project.toml` | The project of `.toolchain/project.toml`, with the use `gpu` for `src/gpu/**` and the use `display` for `src/screen/**`. `uses/one` has only `gpu`, `uses/none` gives `gpu` no pattern, `uses/nofile` gives it `src/none/**`, and `uses/nouse` has no use. |
+| `uses/drawn.toml`, `uses/both.toml` and `uses/plain.toml` | The cases `drawn`, `both` and `plain`, which pass. Their groups test `src/gpu`, `src/gpu` and `src/screen`, and `src/other`. |
+| `uses/probe.toml` | The case `probe`, which writes `taken` if another process holds the lock of `gpu`, and `free` if not. |
+| `uses/apart_one.toml` and `uses/apart_two.toml` | The cases `one stays apart from two` and `two stays apart from one`, which look for each other for 2 seconds with `met.py apart`. Their groups test `src/gpu`, and `src/gpu` and `src/screen`. |
+| `uses/crash.py` | A program that holds the lock of `gpu` in another process, kills that process or not, and then tries the lock. It writes `free` if it gets the lock, and `taken` if not. |
 
 The cases of the parts run `test.py` on `.toolchain/tests/data/build/family`, as `.toolchain/tests/docs/build.toml.md` tells, or on `.toolchain/tests/data/test/parted`.
 `parted` has the parts `alpha` and `beta`, each with a program and a group. The folder of `beta` is `deep/beta`.
@@ -55,6 +73,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | Case | Claim | False variant |
 | --- | --- | --- |
 | a script | The script waits for `? name`, puts `note.txt` and types `you`. The lines come in order, and the file is there. | The script types `nobody`, and puts no file. |
+| a put replaces a file that the program holds open | `holder.py` holds `x.txt` open, and the script puts `new.txt` onto it. The handle still reads `old`, and the path reads `new`. | The script puts no file. |
 | a helper | The command writes the line that the helper wrote into a file. | No helper. |
 | a variable of the environment, given | `env` gives `C23_SAID` the value `port {port}`. | No `env`. |
 | a variable of the environment, taken away | `env` removes `ZIG_LOCAL_CACHE_DIR`, thus the command writes `unset`. | No `env`. |
@@ -84,6 +103,9 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | no case | `test` writes `no case: tests/cases holds no case`, and ends with 0. | `passes.toml`. |
 | a false variant that still holds | `test --break` stops: `still as written with their claims made false: still`. | `passes.toml`. |
 | a target that does not run here | `nowhere/project.toml` is the project. `test --target nowhere` stops: `nowhere does not run here`. | No `--target`. |
+| --build builds each artifact and runs no case | With `fails.toml`, `--build` writes `built 0 artifacts`, and the case `fails` does not run. | With no `--build`, `fails` runs and fails. |
+| --build stops when an artifact is not linked | In `later`, `--build` stops: `the cases need what is linked: later`. | `linked.txt` is there. |
+| --build with --break stops | `--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break`. | `--build` alone. |
 | a case that needs what is not linked | `test` writes `compiled, not linked: later:`. Then it stops: `the cases need what is linked: later`. | `linked.txt` is there. |
 | the output of the cases | `test` runs the case `said`, and `{case}/out/{target}/said.txt` holds its output `ended after`. | `test --break`, which writes no `said.txt`. |
 | a claim of a pattern | The output matches `first.*second: \d+` over two lines. | The two lines in the other order. |
@@ -127,6 +149,26 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a case with no reason for its own process, in a project with tables | `test` stops: `the case passes has its own process and states no reason`. | The project with no `tables`. |
 | a case that states the reason of its own process | With `tables`, `stated: as written` and `fed: as written`. | `passes.toml`, which states no `process`. |
 | a process that is no reason | `test` stops, also with no `tables`: `the case worded states the process speed`. | `own_stated.toml`. |
+| a case runs only on the systems that it states | `test` on `systems.toml` writes `on {system}: as written`, `systems: 1 cases for another system: ` and `systems: 1 cases: 1 as written`. | `systems_none.toml`: both cases run, and none is left out. |
+| a system that no target has is refused | `test` stops: `the case on linux states systems ['linux'], and each must be the system of a target: posix windows`. | `systems.toml`. |
 | a case that states the process script, with no script and no standard input | `test` stops, also with no `tables`: `the case silent states the process script, and it has no script and no stdin`. | `own_stated.toml`. |
 | a table that states a process, in a project with tables | `test` stops: `the table greet states process`. | The project with no `tables`. |
 | 3 cases that refuse the calls of one function by hand, in a project with tables | `test` stops: `3 cases refuse the calls of malloc one after the other, from the case refused 1: write a sweep`. | `own_stated.toml`. |
+| a pattern of folders that matches no file stops the run | In the project of `uses/one/project.toml` with the group `patterned.toml`, `test` stops: `data/*.txt: no file matches the pattern`. | The file `{case}/data/a.txt` is there. |
+| a group waits for the lock of its use | `locks.py` holds `gpu` in a helper, and `test` writes `drawn: waits for the use gpu, which another run holds`, then `drawn: 1 cases: 1 as written`. | The helper holds `display`. |
+| a group with no use runs while a use is held | The helper holds `gpu`, and `plain` passes with no line of a wait. | The group `drawn`. |
+| a group takes its uses in the order of their names | The helper holds `display` and `gpu`. `both` waits for `display`, and not for `gpu`. | The helper holds only `gpu`. |
+| a group holds the lock of its use while its cases run | `probe` writes `taken`. | `uses/nouse`: no lock is taken. |
+| a group gives the lock of its use back after its cases | `drawn` and `both` pass in 1 run. | Only `drawn`. |
+| a use with no pattern stops the run | `[test] uses: gpu has no pattern`. | `uses/one`. |
+| a pattern of a use that matches no file stops the run | `[test] uses: src/none/** matches no file`. | `uses/one`. |
+| the cases of a group run at the same time | With `--workers 2`, the 2 cases of `met.toml` see each other: `met: 2 cases: 2 as written`. | `--workers 1`: `a meets b` waits 5 seconds alone, and fails. |
+| 2 groups that share a use take turns in 1 run | With `--workers 2`, `apart_one` and `apart_two` share `gpu`, so their cases do not see each other. No line of a wait comes, since only 1 run holds the locks. | `uses/nouse`: the 2 cases run at the same time, and see each other. |
+| the groups write their verdicts in their order | With `--workers 2`, `quick` ends first, and the output still holds `slow`, `order_1`, `quick` and `order_2` in this order. | Only `order_2.toml`. |
+| a file of the build folder is placed by a link | The folder of the build holds `prog.txt`, and `linked` writes `True`: `linked: as written`. | `copied.toml`: a copy is not the same file. |
+| a file of a case does not write into a linked file | After `overwritten`, `{case}/out/prog.txt` still holds `p`. | `overwrote.toml` writes into the build output. |
+| a case that writes into a linked build output fails | `writer` writes into the linked `prog.txt`: `writer: wrote into the build output <path>`, and `test` fails. | `replacer.toml`: a rename leaves the build output as it was. |
+| a case waits while the free memory is below the floor | With `floored`, no memory is ever enough, so `apart_one` and `apart_two` run one after the other with 2 workers, and pass. | `unfloored`: the 2 cases run at the same time, see each other, and fail. |
+| a floor of memory that is no count of bytes stops the run | `badfloor`: `[test] memory_floor is a count of bytes, 0 or more`. | `unfloored`. |
+| a count of 0 workers stops the run | `--workers 0`: `[test] workers and --workers are a count of 1 or more`. | `--workers 1`. |
+| a run that is killed gives its lock back | `crash.py` kills the process that holds `gpu`, and writes `free`. | The process is not killed: `taken`. |

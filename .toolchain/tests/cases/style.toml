@@ -330,3 +330,442 @@ static double sum_of(double *from)
     return (sum);
 }
 '''
+
+[[case]]
+name = "a hex float with a negative exponent is a number"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double scale(double x)
+{
+    return (x * 0x1p-500 + 0X1.8P+3);
+}
+'''
+
+[case.false.files]
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+static double scale(double x)
+{
+    return (x*0x1p-500 + 0X1.8P+3);
+}
+'''
+
+[[case]]
+name = "a tag declared in a header with no object is not a variable"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid;
+union bits;
+enum mode;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid r;
+union bits;
+enum mode;
+
+#endif
+'''
+
+[[case]]
+name = "a tag with an object in a header declares a variable"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:9: G4 'r' is a global variable that is not constant", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid {
+    int a;
+} r;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+struct rigid {
+    int a;
+};
+
+#endif
+'''
+
+[[case]]
+name = "a declaration with an attribute counts its arguments"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:9: F5 5 arguments, and 4 is the most", "faults: 1"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
+    unsigned long e) __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d)
+    __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[[case]]
+name = "a declaration of a symbol of the system does not count its arguments"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 1 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *open_map(void *a, void *b, unsigned long c, unsigned long d,
+    unsigned long e, const char *f) __asm__("CreateFileMappingA");
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
+    unsigned long e) __asm("MapViewOfFile") __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+void *open_map(void *a, void *b, unsigned long c, unsigned long d,
+    unsigned long e, const char *f);
+void *view_map(void *a, unsigned long b, unsigned long c, unsigned long d,
+    unsigned long e) __attribute__((nonnull(1)));
+
+#endif
+'''
+
+[[case]]
+name = "a header that defines a variable that is not constexpr"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.h:21: H1 'LIMIT' is defined in a header and is not constexpr", "src/a.h:22: H1 'ORIGIN' is defined in a header and is not constexpr", "src/a.h:23: H1 'CHOOSE' is defined in a header and is not constexpr", "src/a.h:24: H1 'SECOND' is defined in a header and is not constexpr", "faults: 4"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+static inline int pick(int first)
+{
+    int second = first;
+
+    return (second);
+}
+
+    #define SET(a, b) ((a) = (b))
+extern const int COUNT;
+extern int (*const HANDLER)(int);
+constexpr int SIZE = 4;
+static constexpr int (*PICK)(int) = pick;
+static const int LIMIT = 4;
+static const struct point { int x; } ORIGIN = { 0 };
+static int (*const CHOOSE)(int) = pick;
+static const int FIRST, SECOND = 2;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef A_H
+    #define A_H
+
+static inline int pick(int first)
+{
+    int second = first;
+
+    return (second);
+}
+
+    #define SET(a, b) ((a) = (b))
+extern const int COUNT;
+extern int (*const HANDLER)(int);
+constexpr int SIZE = 4;
+static constexpr int (*PICK)(int) = pick;
+constexpr int LIMIT = 4;
+constexpr struct point { int x; } ORIGIN = { 0 };
+static constexpr int (*CHOOSE)(int) = pick;
+constexpr int FIRST = 1, SECOND = 2;
+
+#endif
+'''
+
+[[case]]
+name = "a type that a source declares"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 1, has = ["src/a.c:8: H1 a type is declared in a source file", "src/a.c:11: H1 a type is declared in a source file", "src/a.c:14: H1 a type is declared in a source file", "src/a.c:18: H1 a type is declared in a source file", "src/a.c:22: H1 a type is declared in a source file", "src/a.c:25: H1 a type is declared in a source file", "src/a.c:28: H1 a type is declared in a source file", "src/a.c:32: H1 a type is declared in a source file", "src/a.c:35: H1 a type is declared in a source file", "src/a.c:37: H1 a type is declared in a source file", "faults: 10"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include <stdint.h>
+
+static const struct {
+    int a;
+} TABLE[] = {{1}};
+[[maybe_unused]] static const struct place {
+    int a;
+} PLACE = {1};
+static const enum mode : uint32_t {
+    FIRST,
+    SECOND,
+} MODE = FIRST;
+union {
+    float f;
+    uint32_t u;
+} const BITS = {1.0f};
+static const _Atomic struct {
+    int a;
+} SHARED = {1};
+alignas(16) static const struct {
+    int a;
+} ALIGNED[] = {{1}};
+struct later;
+
+static int sized(void)
+{
+    struct {
+        int a;
+    } kept = {1};
+    return (kept.a + (struct {
+        int b;
+    }){1}.b + (int)sizeof(struct {
+        int c;
+    }));
+}
+'''
+"{case}/p/src/p.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef P_H
+    #define P_H
+
+struct p {
+    int a;
+};
+typedef struct p point_t;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/a.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''
+
+[[case]]
+name = "a variable of a named type in a source declares no type"
+run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
+claims = { status = 0, line = ["no fault in 2 files"] }
+
+[case.files]
+"{case}/p/.toolchain/project.toml" = '''
+[project]
+targets = ["x86_64-linux-gnu"]
+'''
+"{case}/p/src/b.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''
+"{case}/p/src/p.h" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#ifndef P_H
+    #define P_H
+
+struct p {
+    int a;
+};
+typedef struct p point_t;
+
+#endif
+'''
+
+[case.false.files]
+"{case}/p/src/b.c" = '''
+/*
+** Copyright (C) 2026 Someone
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+#include "p.h"
+
+static const struct p ORIGIN = {1};
+static const struct {
+    int a;
+} TABLE[] = {{1}};
+extern const struct p SHARED;
+static const point_t CORNER = (point_t){1};
+static const struct p *const FIRST = &ORIGIN;
+
+static_assert(sizeof(struct p) == sizeof(int));
+
+static struct p make_point(int a)
+{
+    return ((struct p){.a = a});
+}
+'''

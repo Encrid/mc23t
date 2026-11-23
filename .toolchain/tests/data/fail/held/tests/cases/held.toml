@@ -1,0 +1,20 @@
+[[case]]
+name = "worker"
+run = ["{out}/held{exe}"]
+hold = { file = "{worker_file}", call = "wait_turn", at = 1, until = "{release}", times = 1 }
+claims = { status = 0, matches = ["main\\s+worker"] }
+false = { hold = { file = "src/held.c", call = "wait_turn", at = 1, until = "done", times = 1 } }
+
+[[case]]
+name = "main"
+run = ["{out}/held{exe}"]
+hold = { file = "src/held.c", call = "wait_turn", at = 1, until = "done", times = 1 }
+claims = { status = 0, matches = ["worker\\s+main"] }
+false = { hold = { file = "src/worker.c", call = "wait_turn", at = 1, until = "done", times = 1 } }
+
+[[case]]
+name = "refused"
+run = ["{out}/held{exe}"]
+fail = { wait_turn = 1 }
+claims = { status = 0, matches = ["refused"], line = ["main", "worker"] }
+false = { fail = {} }

@@ -57,4 +57,5 @@ jobs:
       - name: Toolchain
         run: python project.py test --toolchain
       - name: Break
+        if: github.base_ref == 'main'
         run: python project.py test --toolchain --break

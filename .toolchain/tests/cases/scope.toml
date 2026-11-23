@@ -55,11 +55,11 @@ claims = { status = 0, line = ["--group all"] }
 false = { files = { "{case}/changed.txt" = ".toolchain/docs/build.py.md\n" } }
 
 [[case]]
-name = "a file of the toolchain names no group in a project with no group of the whole"
+name = "a file of the toolchain names each group in a project with no group of the whole"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = ".toolchain/tools/build.py\nproject.py\n" }
-claims = { status = 0, matches_not = ["."] }
-false = { files = { "{case}/changed.txt" = "src/x.c\n" } }
+claims = { status = 0, line = ["--group one --group two"] }
+false = { files = { "{case}/changed.txt" = "readme.md\n" } }
 
 [[case]]
 name = "a document and a workflow name no group"
@@ -69,17 +69,17 @@ claims = { status = 0, matches_not = ["."] }
 false = { files = { "{case}/changed.txt" = "readme.md\nsrc/b/y.c\n" } }
 
 [[case]]
-name = "a pull request into main names the groups of the whole"
+name = "a pull request into main names the groups of the changed files and the groups of the whole"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "main"]
 files = { "{case}/changed.txt" = "src/b/y.c\n" }
-claims = { status = 0, line = ["--group all"] }
+claims = { status = 0, line = ["--group all --group b/b --group b/more"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }
 
 [[case]]
-name = "a pull request into main names no group in a project with no group of the whole"
+name = "a pull request into main names each group in a project with no group of the whole"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "main"]
-files = { "{case}/changed.txt" = "src/x.c\n" }
-claims = { status = 0, matches_not = ["."] }
+files = { "{case}/changed.txt" = "readme.md\n" }
+claims = { status = 0, line = ["--group one --group two"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/mono", "--changed", "{case}/changed.txt", "--into", "dev"] }
 
 [[case]]
@@ -123,3 +123,17 @@ run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolch
 files = { "{case}/changed.txt" = "src/b/y.c\n" }
 claims = { status_not = 0, has = ["cannot read the list"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a change of the project file in the tables of the checks names no group"
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/project.toml\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[test]\ntimeout = 7\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a project file outside a repository names the groups of the whole"
+run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/project.toml\n" }
+claims = { status = 0, line = ["--group all"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }

@@ -6,6 +6,14 @@ claims = { status = 0, order = ["hello, you", "written at the prompt"], files = 
 false = { script = [{ wait = "? name", type = "nobody" }] }
 
 [[case]]
+name = "a put replaces a file that the program holds open"
+run = ["{python}", "{root}/.toolchain/tests/data/test/held_put/holder.py", "{case}/x.txt"]
+files = { "{case}/x.txt" = "old" }
+script = [{ wait = "open", put = { "{case}/x.txt" = ".toolchain/tests/data/test/held_put/new.txt" }, type = "go" }]
+claims = { status = 0, line = ["held old, now new"] }
+false = { script = [{ wait = "open", type = "go" }] }
+
+[[case]]
 name = "a helper"
 run = ["{python}", "-c", "import sys; print(open(sys.argv[1]).read())", "{case}/said.txt"]
 helper = { run = ["{python}", "-c", "import sys; open(sys.argv[1], 'w').write('hello, helper'); print('written', flush=True); input()", "{case}/said.txt"], wait = "written", stdin = "\n", claims = { status = 0 } }
@@ -215,6 +223,27 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/nowhere/project.toml"] }
 claims = { status_not = 0, has = ["nowhere does not run here: build it, and test it where it runs"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "--build builds each artifact and runs no case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/fails.toml"] }
+claims = { status = 0, line = ["built 0 artifacts"], lacks = ["fails:"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "--build stops when an artifact is not linked"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/later/project.toml"] }
+claims = { status_not = 0, has = ["the cases need what is linked: later"] }
+false = { files = { "{case}/linked.txt" = "here" } }
+
+[[case]]
+name = "--build with --break stops"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build", "--break"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] }
+claims = { status_not = 0, has = ["--build builds each artifact and runs no case: it takes no --toolchain, --branches, --leaks or --break"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--build"] }
 
 [[case]]
 name = "a case that needs what is not linked"
@@ -517,6 +546,20 @@ claims = { status_not = 0, has = ["tests/cases/own_script.toml: the case silent 
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/own_stated.toml"] } }
 
 [[case]]
+name = "a case runs only on the systems that it states"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/systems.toml"] }
+claims = { status = 0, has = ["on {system}: as written", "systems: 1 cases for another system: ", "systems: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/systems_none.toml"] } }
+
+[[case]]
+name = "a system that no target has is refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/systems_wrong.toml"] }
+claims = { status_not = 0, has = ["tests/cases/systems_wrong.toml: the case on linux states systems ['linux'], and each must be the system of a target: posix windows"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/systems.toml"] } }
+
+[[case]]
 name = "a table that states a process, in a project with tables"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/tabled/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_own.toml"] }
@@ -550,3 +593,199 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/table_differs.toml"] }
 claims = { status_not = 0, has = ["greet writes the name that it gets: differs in 2 of 2 copies"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"] }
+
+[[case]]
+name = "a group waits for the lock of its use"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["drawn: waits for the use gpu, which another run holds", "drawn: 1 cases: 1 as written"] }
+false = { helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "display"], wait = "held display", stdin = "", claims = { status = 0 } } }
+
+[[case]]
+name = "a group with no use runs while a use is held"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/plain.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["plain: 1 cases: 1 as written"], lacks = ["waits for the use"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"] } }
+
+[[case]]
+name = "a group takes its uses in the order of their names"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/both.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu", "display"], wait = "held display gpu", stdin = "", claims = { status = 0 } }
+claims = { status = 0, line = ["both: waits for the use display, which another run holds"], lacks = ["waits for the use gpu"] }
+false = { helper = { run = ["{python}", "{root}/.toolchain/tools/locks.py", "{case}/locks", "20", "gpu"], wait = "held gpu", stdin = "", claims = { status = 0 } } }
+
+[[case]]
+name = "a group holds the lock of its use while its cases run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks", MC23T_TOOLS = "{root}/.toolchain/tools" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/probe.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["probe: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nouse/project.toml"] } }
+
+[[case]]
+name = "a group gives the lock of its use back after its cases"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml", ".toolchain/tests/data/uses/both.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["drawn: 1 cases: 1 as written", "both: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"] } }
+
+[[case]]
+name = "a use with no pattern stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/none/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["[test] uses: gpu has no pattern"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
+
+[[case]]
+name = "a pattern of a use that matches no file stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nofile/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/drawn.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["[test] uses: src/none/** matches no file"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"] } }
+
+[[case]]
+name = "the cases of a group run at the same time"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/met.toml"], "{case}" = [".toolchain/tests/data/test/met.py"] }
+claims = { status = 0, line = ["met: 2 cases: 2 as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "1"] }
+
+[[case]]
+name = "2 groups that share a use take turns in 1 run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/apart_one.toml", ".toolchain/tests/data/uses/apart_two.toml"], "{case}" = [".toolchain/tests/data/test/met.py"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["apart_one: 1 cases: 1 as written", "apart_two: 1 cases: 1 as written"], lacks = ["waits for the use"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/nouse/project.toml"] } }
+
+[[case]]
+name = "the groups write their verdicts in their order"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml", ".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, order = ["slow: as written", "order_1: 1 cases: 1 as written", "quick: as written", "order_2: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a file of the build folder is placed by a link"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/linked.toml"] }
+files = { "{case}/out/prog.txt" = "p", "{case}/prog.txt" = "p" }
+claims = { status = 0, line = ["linked: as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/copied.toml"] } }
+
+[[case]]
+name = "a file of a case does not write into a linked file"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/overwritten.toml"] }
+files = { "{case}/out/prog.txt" = "p" }
+claims = { status = 0, files = { "{case}/out/prog.txt" = "p" } }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/overwrote.toml"] } }
+
+[[case]]
+name = "a case that writes into a linked build output fails"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/writer.toml"] }
+files = { "{case}/out/prog.txt" = "p" }
+claims = { status_not = 0, has = ["writer: wrote into the build output "] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/replacer.toml"] } }
+
+[[case]]
+name = "a case waits while the free memory is below the floor"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "2"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/floored/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/uses/apart_one.toml", ".toolchain/tests/data/uses/apart_two.toml"], "{case}" = [".toolchain/tests/data/test/met.py"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"], "{case}/src/screen" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status = 0, line = ["apart_one: 1 cases: 1 as written", "apart_two: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/unfloored/project.toml"] } }
+
+[[case]]
+name = "a floor of memory that is no count of bytes stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badfloor/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/passes.toml"] }
+claims = { status_not = 0, has = ["[test] memory_floor is a count of bytes, 0 or more"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/unfloored/project.toml"] } }
+
+[[case]]
+name = "a count of 0 workers stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "0"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status_not = 0, has = ["[test] workers and --workers are a count of 1 or more"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--workers", "1"] }
+
+[[case]]
+name = "a pattern of folders that matches no file stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+env = { MC23T_LOCKS = "{case}/locks" }
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/uses/one/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/patterned.toml"], "{case}/src/gpu" = [".toolchain/tests/data/uses/code.c"] }
+claims = { status_not = 0, has = ["data/*.txt: no file matches the pattern"] }
+false = { files = { "{case}/data/a.txt" = "a\n" } }
+
+[[case]]
+name = "a run that is killed gives its lock back"
+run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "kill"]
+claims = { status = 0, line = ["free"] }
+false = { run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "keep"] }
+
+[[case]]
+name = "a run writes the time of the build, of the cases of each group, and of the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, matches = ["the build took [0-9]+\\.[0-9] s", "order_2: its cases took [0-9]+\\.[0-9] s", "the run of the cases took [0-9]+\\.[0-9] s"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml"] } }
+
+[[case]]
+name = "a run lists its slowest cases, the slowest first"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml", ".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, order = ["the 2 slowest cases:"], matches = ["  [0-9]+\\.[0-9] s order_1: slow\n  [0-9]+\\.[0-9] s order_2: quick"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a run of 11 cases lists only the 10 slowest"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/eleven.toml"] }
+claims = { status = 0, line = ["the 10 slowest cases:"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a case above [test] slow writes the line of a slow case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/slowed/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, has = ["a slow case: order_2: quick took "] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "a [test] slow below 0 stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badslow/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status_not = 0, has = ["[test] slow is a count of seconds, 0 or more"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/slowed/project.toml"] } }
+
+[[case]]
+name = "[test] env gives its variables to each case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_show.toml"] }
+claims = { status = 0, line = ["env_show: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "the env of a case replaces a variable of [test] env"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_case.toml"] }
+claims = { status = 0, line = ["env_case: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/env_nocase.toml"] } }
+
+[[case]]
+name = "a [test] env with a value that is no text and no false stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badenv/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_show.toml"] }
+claims = { status_not = 0, has = ["[test] env: write a table of names, each with a text or false"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"] } }

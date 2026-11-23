@@ -9,12 +9,14 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/branches`, with 
 | `reached` | The same program, with no function that no case calls and no macro. Four cases reach each outcome. |
 | `empty` | A project with no source and no case. |
 | `excused` | The program `defend`, whose guard no case reaches, and an exemption of `project.toml` that excuses the guard. |
+| `mayreach` | The program `defend` of `excused`, which calls the guard with `2 - argc`, so a run with 2 arguments reaches it. 2 cases, 1 for each side, and an exemption of the guard with `may_reach = true`. |
 | `badexempt` | The same program, with an exemption that states no reason and an exemption that matches no outcome. |
 | `systemed` | The same program, with the exemption of `excused` for the system `elsewhere`. |
 | `loaded` | The library `chooser`, with one condition, and the test program `loader` that opens it, calls it and closes it. The case `both` calls it with 1 and with 0. The case `one` calls it with 1. |
 | `ended` | The program `ender`. With the argument `exit` it ends with `_Exit(1)`, with a different argument it calls `abort`, and with no argument it ends with 0. Its three cases run the three paths. Only the paths of `_Exit` and of `abort` make the condition `count > 1` true. |
 | `expanded` | The program `macros`. Its conditions touch calls of `TWICE`, `SAME` and `PICK`. The test in `PICK`, the 2 tests of `BOTH` and the test of `IFPOS` hold only a part of a call. Its cases `none`, `two` and `three` reach each outcome. |
 | `embedded` | The program `show`, which embeds `word.txt` with `#embed` and no byte after it. `word.txt` is an input, which the run builds after the dump. With an argument the program writes the argument, else it writes `one`. Its cases `word` and `argument` reach each outcome. |
+| `variants` | The programs `plain` and `turned` compile `turn.c`. `turned` defines `TURNED`, which adds a condition. The case `plain` runs `plain` with no argument, and the cases `turned two` and `turned one` run `turned`. |
 | `shared` | The parts `core` and `app`. The program `core` builds `core.c` and `core_main.c`, and its 2 cases reach each outcome of `core`. The program `app` builds `app.c` and `core.c`, and includes `core.h`. Its 3 cases reach each outcome of `app.c`, but not each outcome of `core.c` and `core.h`. The case `app without memory` makes the first `malloc` fail. |
 
 | Case | Claim | False variant |
@@ -27,6 +29,10 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/branches`, with 
 | an outcome stays when the program ends with _Exit or abort | `test` on `ended` writes `branches: 7 outcomes, 7 reached`, and ends with 0. | `-k plain`, thus no case ends with `_Exit` or `abort`. |
 | a closed library keeps its outcomes | `test` writes `branches: 3 outcomes, 3 reached`, and ends with 0. On macOS this needs the constructor that keeps the library mapped. | `-k one`, thus the condition is never false. |
 | a probe holds each call of a macro in full | `test` on `expanded` writes 3 conditions as not measured, at `src/macros.c:28:14`, `30:9` and `32:5`. It writes `branches: 17 outcomes, 17 reached`, and stops. | `-k none`, thus 9 outcomes are not reached. |
+| an exemption with the side macro excuses a condition in a macro | The files of `expanded`, with 3 exemptions of the side `macro`, give `branches: 17 outcomes, 17 reached, 3 exempt`. | 1 exemption of the side `true` at line 28: the 3 branches in macros stay faults, and the exemption excuses nothing. |
+| an exemption that may reach is no fault when a case reaches its branch | `test --branches` on the files of `mayreach`: `branches: 4 outcomes, 4 reached`. | With no `may_reach`, the exemption excuses no unreached outcome. |
+| an exemption that may reach names a branch of the code | The exemption names line 99: `src/defend.c:99:9: this exemption names no outcome`. | Line 10. |
+| may_reach is true or false | `may_reach = "yes"`: `src/defend.c:10:9: may_reach is true or false`. | `true`. |
 | an exemption for a different system does not apply | `test` on `systemed` writes `src/defend.c:10:9: no case makes this condition true`, and stops. No line names the exemption. | The project `excused`. |
 | an exemption with no reason or no target is a fault | `test` writes the unreached branch, `this exemption states no reason` and `this exemption excuses no unreached outcome`, and stops. | The project `excused`. |
 | a program that embeds an input is measured | `test` on `embedded` writes `branches: 3 outcomes, 3 reached`, and ends with 0. The dump finds a stand-in of `word.txt`, so the array is not empty. | `-k word`, thus the condition is never true. |
@@ -38,3 +44,4 @@ Each case runs `test.py` on a project of `.toolchain/tests/data/branches`, with 
 | the cases of a group reach each branch of the code that the group tests | With `-k "app one"`, the group `app/app` does not reach one outcome of `app.c`, and the run fails: `outcomes not reached: 1`. | No `-k`. |
 | a file is measured only when each group that tests it runs | The project `grouped` has one source, and its groups `one` and `two` state no `code`. `test --branches --group one` measures no file: `branches: 0 outcomes, 0 reached`. | The 2 groups: 3 outcomes. |
 | the groups that test a file reach its branches together | `test --branches --group one --group two` on `grouped` writes `branches: 3 outcomes, 3 reached`. | `-k one`, thus the case of `two` does not run, and one outcome is not reached. |
+| each variant of a source gets its own tree | `test` on `variants` writes `branches: 5 outcomes, 5 reached`. The condition under `TURNED` gets its probe from the tree of `turned`. | `-k plain`, thus the condition of `turned` is not reached. |

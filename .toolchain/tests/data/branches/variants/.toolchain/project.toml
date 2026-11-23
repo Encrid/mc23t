@@ -1,0 +1,18 @@
+[project]
+name = "variants"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[[artifact]]
+name = "plain"
+kind = "program"
+sources = ["src/turn.c"]
+
+[[artifact]]
+name = "turned"
+kind = "program"
+sources = ["src/turn.c"]
+defines = ["TURNED"]
+
+[test]
+timeout = 60
+copies = 1

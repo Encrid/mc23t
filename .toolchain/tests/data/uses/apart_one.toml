@@ -1,0 +1,7 @@
+code = ["src/gpu/**"]
+
+[[case]]
+name = "one stays apart from two"
+run = ["{python}", "{root}/met.py", "{root}/marks", "one", "two", "2", "apart"]
+claims = { status = 0 }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

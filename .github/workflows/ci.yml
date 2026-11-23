@@ -23,15 +23,7 @@ jobs:
           - target: x86_64-windows-gnu
             runner: windows-latest
             architecture: x64
-        gate:
-          - name: test
-            run: test
-          - name: break
-            run: test --break
-          - name: branches
-            run: test --branches
-          - name: leaks
-            run: test --leaks
+        gate: ${{ fromJSON(github.base_ref == 'main' && '[{"name":"test","run":"test"},{"name":"break","run":"test --break"},{"name":"branches","run":"test --branches"},{"name":"leaks","run":"test --leaks"}]' || '[{"name":"test","run":"test"}]') }}
     runs-on: ${{ matrix.platform.runner }}
     timeout-minutes: 60
     env:
@@ -43,7 +35,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          clean: false
           fetch-depth: 0
+      - name: Clean
+        run: git clean -ffdx -- . ':!/build/'
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: '3.13'
