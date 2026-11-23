@@ -27,4 +27,5 @@ The words of a sentence of these cases are numbers, for example `1 2 3`, thus a 
 | sections out of order | `readme.md:9: the section Install must come before Usage`. | Install comes before Usage. |
 | a section that the readme needs | `readme.md:1: no section License`. | The readme has the section License. |
 | a document of .toolchain/docs | `.toolchain/docs/a.md:3: 26 words in a sentence, and 25 is the most`. | 3 words. |
-| a project with no name | `[project] name` is empty: `prose.py: .toolchain/project.toml: write the name of the project in [project] name`. | The name is `sample`. |
+| a project with no name | `[project] name` is empty: `.toolchain/project.toml: write the name of the project in [project] name`. | The name is `sample`. |
+| a project with no name still reads each document | `[project] name` is empty, and `docs/a.md` has a sentence of 26 words: `docs/a.md:3: 26 words in a sentence, and 25 is the most`. | The sentence has 3 words. |
