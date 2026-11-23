@@ -7,6 +7,7 @@
 | Function | Result |
 | --- | --- |
 | `environment(changes, values)` | Gives the environment of a command, with the changes of `env`. |
+| `common_env(config)` | Gives `[test] env`, or an empty table. A value that is no text and no `false` stops the run: `[test] env: write a table of names, each with a text or false`. |
 | `bound(kind, port)` | Binds a socket of a kind, TCP or UDP, on `127.0.0.1` and a port. It gives the bound port, or 0 if the system refuses the port. Port 0 asks the system for a free port. |
 | `free_port()` | Gives a port of this machine that is free for TCP and for UDP. UDP gives a free port, and TCP must accept the same number. Else it tries again. |
 | `watched(timeout, stop)` | Starts a timer that calls `stop` after `timeout` seconds, and gives it. |
@@ -131,6 +132,7 @@ With `tables = true` in `[test]`, `groups_of` then gives the cases of each file 
 A case that holds no `{port}` gets no port. In such a case, a value of `[variables]` that holds `{port}` stops `test`: `no variable {port} for <text>`.
 
 With `counted`, the command and the helper get the variable `C23_LEAKS`: the path of the folder of the case, with `.leaks` added.
+The environment of the command and of its helper is the one of `test`, with the changes of `[test] env`, then the changes of the case. So the `env` of a case replaces a variable of `[test] env`.
 If the case states `fail` or `hold`, the command gets the variable `C23_FAIL`: `.toolchain/docs/fail.py.md`, *The layer*. Else `tried` removes `C23_FAIL` from the environment of the command.
 
 A case that states `fail`, `sweep` or `hold` also gives the command `C23_FAIL_PART`, the part that `owner` gives for the group of the case. With no such part, `tried` removes `C23_FAIL_PART` too.

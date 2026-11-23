@@ -1,0 +1,6 @@
+[[case]]
+name = "mark"
+run = ["{python}", "-c", "import os; print(os.environ.get('MARK'))"]
+env = { MARK = "case" }
+claims = { status = 0, line = ["case"] }
+false = { run = ["{python}", "-c", "import sys; sys.exit(1)"] }

@@ -746,3 +746,24 @@ run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badslow/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
 claims = { status_not = 0, has = ["[test] slow is a count of seconds, 0 or more"] }
 false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/slowed/project.toml"] } }
+
+[[case]]
+name = "[test] env gives its variables to each case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_show.toml"] }
+claims = { status = 0, line = ["env_show: 1 cases: 1 as written"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "the env of a case replaces a variable of [test] env"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_case.toml"] }
+claims = { status = 0, line = ["env_case: 1 cases: 1 as written"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/env_nocase.toml"] } }
+
+[[case]]
+name = "a [test] env with a value that is no text and no false stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badenv/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/env_show.toml"] }
+claims = { status_not = 0, has = ["[test] env: write a table of names, each with a text or false"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/envied/project.toml"] } }
