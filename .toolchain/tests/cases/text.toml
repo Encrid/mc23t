@@ -71,6 +71,30 @@ claims = { status = 1, line = ["project.py:1: a string statement"] }
 false = { files = { "{case}/project.py" = "print(1)\n" } }
 
 [[case]]
+name = "a function defined 2 times in 1 file"
+run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }
+files = { "{case}/project.py" = "def a():\n    return 1\n\n\ndef a():\n    return 2\n" }
+claims = { status = 1, line = ["project.py:5: the function a is defined again, first at line 1"] }
+false = { files = { "{case}/project.py" = "def a():\n    return 1\n\n\ndef b():\n    return 2\n" } }
+
+[[case]]
+name = "a class defined 2 times in 1 file"
+run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }
+files = { "{case}/project.py" = "class A:\n    pass\n\n\nclass A:\n    pass\n" }
+claims = { status = 1, line = ["project.py:5: the class A is defined again, first at line 1"] }
+false = { files = { "{case}/project.py" = "class A:\n    pass\n\n\nclass B:\n    pass\n" } }
+
+[[case]]
+name = "a function defined in each branch of an if"
+run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }
+files = { "{case}/project.py" = "if True:\n    def a():\n        return 1\nelse:\n    def a():\n        return 2\n" }
+claims = { lacks = ["defined again"] }
+false = { files = { "{case}/project.py" = "if True:\n    def a():\n        return 1\n\n    def a():\n        return 2\n" } }
+
+[[case]]
 name = "a comment in a TOML file"
 run = ["{python}", "{root}/.toolchain/tools/text.py", "--root", "{case}"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/text/project.toml"] }

@@ -1,5 +1,7 @@
 # Project Name
 
+One line that tells what the project does.
+
 ## Install
 
 Python 3.11 or a later version.

@@ -33,6 +33,9 @@ A Python file of a case has no legal notice if the fault of the case is a differ
 | a notice with the line ends of Windows | Each line of the file ends with a carriage return and a line feed. It is not a fault. | The file has no notice. |
 | a comment in a Python file | `project.py:1: a comment`. | No comment. |
 | a string statement | A docstring: `project.py:1: a string statement`. | No docstring. |
+| a function defined 2 times in 1 file | `project.py:5: the function a is defined again, first at line 1`. | The second function has another name. |
+| a class defined 2 times in 1 file | `project.py:5: the class A is defined again, first at line 1`. | The second class has another name. |
+| a function defined in each branch of an if | No line says `defined again`. | The 2 functions are in the same branch. |
 | a comment in a TOML file | `a.toml:1: a comment`. | The `#` is in the string. |
 | a comment in a YAML file | `.github/workflows/ci.yml:1: a comment`. | The `#` is in a string. |
 | a comment in a document | `a.md` has an HTML comment: `docs/a.md:3: a comment`. | No HTML comment. |
