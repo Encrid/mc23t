@@ -52,3 +52,9 @@ name = "a repository with no commit"
 run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "{case}/repo", "--", "{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/repo"]
 claims = { status = 0, line = ["no fault in 0 commits"] }
 false = { run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "{case}/repo", "fix: correct the sum", "--", "{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/repo"] }
+
+[[case]]
+name = "a branch from dev, with a bad commit before its last one"
+run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "{case}/repo", "fix: start the sum", "+topic", "Correct the sum", "fix: correct the sum", "--", "{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/repo"]
+claims = { status_not = 0, has = ["the line is not type(scope): description", "faults: 1"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/commits/commit.py", "{case}/repo", "fix: start the sum", "Correct the sum", "fix: correct the sum", "--", "{python}", "{root}/.toolchain/tools/commits.py", "--root", "{case}/repo"] }

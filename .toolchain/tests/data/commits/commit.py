@@ -12,7 +12,9 @@ env = dict(os.environ, GIT_CONFIG_GLOBAL=str(folder / 'none'), GIT_CONFIG_NOSYST
            GIT_AUTHOR_NAME='c23', GIT_AUTHOR_EMAIL='c23@example.com',
            GIT_COMMITTER_NAME='c23', GIT_COMMITTER_EMAIL='c23@example.com')
 folder.mkdir(parents=True, exist_ok=True)
-subprocess.run(['git', 'init', '-q', str(folder)], env=env, check=True)
+subprocess.run(['git', 'init', '-q', '-b', 'dev', str(folder)], env=env, check=True)
 for message in messages:
-    subprocess.run(['git', '-C', str(folder), 'commit', '-q', '--allow-empty', '-m', message], env=env, check=True)
+    branch = message.startswith('+')
+    step = ['checkout', '-q', '-b', message[1:]] if branch else ['commit', '-q', '--allow-empty', '-m', message]
+    subprocess.run(['git', '-C', str(folder)] + step, env=env, check=True)
 sys.exit(subprocess.run(command).returncode)
