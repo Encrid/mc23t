@@ -711,3 +711,38 @@ name = "a run that is killed gives its lock back"
 run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "kill"]
 claims = { status = 0, line = ["free"] }
 false = { run = ["{python}", ".toolchain/tests/data/uses/crash.py", "{root}/.toolchain/tools", "{case}/locks", "keep"] }
+
+[[case]]
+name = "a run writes the time of the build, of the cases of each group, and of the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, matches = ["the build took [0-9]+\\.[0-9] s", "order_2: its cases took [0-9]+\\.[0-9] s", "the run of the cases took [0-9]+\\.[0-9] s"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml"] } }
+
+[[case]]
+name = "a run lists its slowest cases, the slowest first"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_1.toml", ".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, order = ["the 2 slowest cases:"], matches = ["  [0-9]+\\.[0-9] s order_1: slow\n  [0-9]+\\.[0-9] s order_2: quick"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a run of 11 cases lists only the 10 slowest"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/eleven.toml"] }
+claims = { status = 0, line = ["the 10 slowest cases:"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] } }
+
+[[case]]
+name = "a case above [test] slow writes the line of a slow case"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/slowed/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status = 0, has = ["a slow case: order_2: quick took "] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"] } }
+
+[[case]]
+name = "a [test] slow below 0 stops the run"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/badslow/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/order_2.toml"] }
+claims = { status_not = 0, has = ["[test] slow is a count of seconds, 0 or more"] }
+false = { folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/slowed/project.toml"] } }

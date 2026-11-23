@@ -41,6 +41,8 @@
 | `verdict(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs the copies of one case at the same time, and gives their verdict. |
 | `uses_of(config, values, running)` | Gives the uses of each group of `running`, as *The uses* tells. It stops for each fault of *The uses*. |
 | `test(config, values, outputs, groups, broken, said, copies, counted, failing, workers)` | Runs the cases of all the groups with `workers` threads, as *The workers* tells, and writes each verdict. With `said`, it writes `said.txt`. It gives the names of the cases that failed. |
+| `slow_of(config)` | Gives `[test] slow`, or 10. A value below 0, or one that is no number, stops the run: `[test] slow is a count of seconds, 0 or more`. |
+| `timed(slow, took, seconds)` | Writes the slowest cases, the line of each slow case, and the time of the run, as *The times* tells. |
 | `lanes_of(jobs, uses)` | Gives the lanes of the cases. The cases of the groups with the same uses are 1 lane. Each case of a group with no use is 1 lane. |
 | `one(config, values, outputs, group, index, case, broken, copies, counted, failing)` | Runs one case or table, and gives the name, the verdict and the outputs of each case or row. |
 | `told(named, ends, broken)` | Writes the verdict of each case or row, and the output of a run that failed. |
@@ -63,7 +65,7 @@
 With `--leaks`, `main` runs `tallied`, and nothing else. With `--branches`, it runs `measured`, and nothing else.
 Else `main` does these steps:
 
-1. It builds with `build`, which stops if the target does not run on this machine. With `--toolchain`, it only calls `prepared` of `build.py`, and builds nothing.
+1. It builds with `build`, which stops if the target does not run on this machine, and writes `the build took <seconds> s`. With `--toolchain`, it only calls `prepared` of `build.py`, and builds nothing.
    With `--toolchain`, the configuration has each target of `.toolchain/toolchain.toml`, so a test of the toolchain runs on each target.
 2. It stops if an artifact is not linked: `the cases need what is linked: <names>`.
    With `--build`, it then writes `built <count> artifacts`, and ends. Thus a project can prove that each artifact builds, the test ones too, with no case.
@@ -318,6 +320,18 @@ It starts only when `free_memory` gives at least `[test] memory_floor`, or when 
 With no measure of the memory, on a system that none of these 3 reads covers, a case does not wait.
 
 A case can share a thing of the machine that no use names, for example the clipboard. It can then fail when another case runs at the same time. Such a case gets a use.
+
+## The times
+
+`test` measures the time of each case, from its start to its verdict, with the wait for a use and for room left out. A table is 1 case.
+After the line of each group, it writes `<group>: its cases took <seconds> s`, the sum of the times of its cases. With many workers, this sum can be more than the time that the group took.
+After the last group, it writes:
+
+1. `the <count> slowest cases:`, then 1 line `  <seconds> s <group>: <name>` for each of the 10 slowest cases, the slowest first. A run with less than 10 cases lists each case.
+2. `a slow case: <group>: <name> took <seconds> s, above [test] slow of <slow> s` for each case that took more than `[test] slow`. The default is 10 seconds.
+3. `the run of the cases took <seconds> s`, from the start of the first case to the verdict of the last.
+
+Thus each run of CI shows the cases that make it slow, and a new slow case shows at once.
 
 ## The uses
 

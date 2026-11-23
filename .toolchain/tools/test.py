@@ -414,19 +414,23 @@ def test(config, values, outputs, groups, broken, said, copies, counted=False, f
                 return
             try:
                 with room, locks.held(uses.get(group, []), group):
-                    future.set_result(one(config, values, outputs, group, index, case, broken, copies, counted,
-                                          failing))
+                    start = time.monotonic()
+                    found = one(config, values, outputs, group, index, case, broken, copies, counted, failing)
+                    future.set_result((found, time.monotonic() - start))
             except BaseException as error:
                 future.set_exception(error)
 
+    slow, begun, took = slow_of(config), time.monotonic(), []
     with concurrent.futures.ThreadPoolExecutor(workers) as pool:
         for lane in lanes:
             pool.submit(ran, lane)
         try:
             for (group, _), mine in zip(groups, jobs):
-                right, count = 0, 0
-                for *_, future in mine:
-                    named, ends = future.result()
+                right, count, spent = 0, 0, 0.0
+                for _, _, case, future in mine:
+                    (named, ends), seconds = future.result()
+                    took.append((seconds, group, case['name']))
+                    spent += seconds
                     texts += [said for _, said in ends]
                     told(named, ends, broken)
                     right += sum(ok for _, ok, _ in named)
@@ -434,12 +438,32 @@ def test(config, values, outputs, groups, broken, said, copies, counted=False, f
                     wrong += [name for name, ok, _ in named if not ok]
                 print('%s: %d claims made false: %d cases failed' % (group, count, right) if broken else
                       '%s: %d cases: %d as written' % (group, count, right))
+                print('%s: its cases took %.1f s' % (group, spent))
         except BaseException:
             stop.set()
             raise
+    timed(slow, took, time.monotonic() - begun)
     if said:
         (Path(values['out']) / 'said.txt').write_text('\n'.join(texts), encoding='utf-8', newline='\n')
     return wrong
+
+
+def slow_of(config):
+    slow = config.get('test', {}).get('slow', 10)
+    if isinstance(slow, bool) or not isinstance(slow, (int, float)) or slow < 0:
+        die('[test] slow is a count of seconds, 0 or more')
+    return slow
+
+
+def timed(slow, took, seconds):
+    took = sorted(took, key=lambda one: -one[0])
+    print('the %d slowest cases:' % min(10, len(took)))
+    for spent, group, name in took[:10]:
+        print('  %.1f s %s: %s' % (spent, group, name))
+    for spent, group, name in took:
+        if spent > slow:
+            print('a slow case: %s: %s took %.1f s, above [test] slow of %s s' % (group, name, spent, slow))
+    print('the run of the cases took %.1f s' % seconds)
 
 
 def lanes_of(jobs, uses):
@@ -644,7 +668,9 @@ def main():
         config, values = build.prepared(args, True)
         made = []
     else:
+        start = time.monotonic()
         config, values, made = build.build(args, True)
+        print('the build took %.1f s' % (time.monotonic() - start))
     unlinked = [name for name, paths in made if not paths]
     if unlinked:
         die('the cases need what is linked: ' + ' '.join(unlinked))
