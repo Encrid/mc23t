@@ -37,6 +37,13 @@ def environment(changes, values):
     return env
 
 
+def common_env(config):
+    table = config.get('test', {}).get('env', {})
+    if not (isinstance(table, dict) and all(isinstance(value, str) or value is False for value in table.values())):
+        die('[test] env: write a table of names, each with a text or false')
+    return table
+
+
 def bound(kind, port):
     with socket.socket(socket.AF_INET, kind) as free:
         try:
@@ -270,11 +277,13 @@ def tried(config, values, outputs, where, case, broken, counted=False, failing=N
     part = ''.join(' %s ' % name for name in use['fail_parts']) if 'fail_parts' in use else part
     linked = placed(use, outputs, mine)
     root, timeout, helper = values['root'], config['test']['timeout'], use.get('helper')
-    beside = started(expanded(helper['run'], mine), root, timeout, environment(counting, mine)) if helper else None
+    common = common_env(config)
+    beside = started(expanded(helper['run'], mine), root, timeout, environment({**common, **counting}, mine)) \
+        if helper else None
     if helper:
         waited(beside, expand(helper['wait'], mine))
     running = started(expanded(use['run'], mine), root, timeout,
-                      environment({**counting, 'C23_FAIL': plan, 'C23_FAIL_PART': bool(plan or use.get('sweep')) and part,
+                      environment({**common, **counting, 'C23_FAIL': plan, 'C23_FAIL_PART': bool(plan or use.get('sweep')) and part,
                                    **use.get('env', {})},
                                   mine), use)
     scripted(running, use.get('script', []), outputs, mine)
@@ -421,6 +430,7 @@ def test(config, values, outputs, groups, broken, said, copies, counted=False, f
                 future.set_exception(error)
 
     slow, begun, took = slow_of(config), time.monotonic(), []
+    common_env(config)
     with concurrent.futures.ThreadPoolExecutor(workers) as pool:
         for lane in lanes:
             pool.submit(ran, lane)

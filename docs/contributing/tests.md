@@ -374,6 +374,7 @@ A case that fails in some copies writes the number of these copies, for example 
 | `copies` | The number of copies of each case that run at the same time. `--copies` replaces it. |
 | `memory_floor` | Optional. The bytes of memory that must stay free when a case starts, while another case of the run runs. The default is 2 GiB, and 0 turns the wait off: `.toolchain/docs/test.py.md`, *The workers*. |
 | `workers` | Optional. The number of cases that run at the same time. The default is the count of the processors. `--workers` replaces it: `.toolchain/docs/test.py.md`, *The workers*. |
+| `env` | Optional. Changes to the environment of each case, as the `env` of a case: a text, or `false` to remove the variable. The `env` of a case replaces them. A project states here what keeps a verdict the same on each machine. |
 | `slow` | Optional. The seconds above which a case is slow, and `test` writes its line. The default is 10: `.toolchain/docs/test.py.md`, *The times*. |
 | `rule` | The rules of the groups. Each `[[test.rule]]` has `lacks` and `exempt`. |
 | `writers` | The functions that write the messages of the code, for example `fprintf`. |
