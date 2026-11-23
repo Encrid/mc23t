@@ -28,7 +28,7 @@ Each case file of the data holds one case, which no case runs.
 | a file of the toolchain names the groups of the whole | `.toolchain/tools/build.py` and `.toolchain/toolchain.toml` give `--group all`. | A document of the toolchain. |
 | a file of the toolchain names each group in a project with no group of the whole | In `mono`, `.toolchain/tools/build.py` and `project.py` give `--group one --group two`. | A readme writes nothing. |
 | a document and a workflow name no group | A readme, 2 documents of a part, a workflow and a document of the toolchain write nothing. | A source of `b` too. |
-| a pull request into main names the groups of the whole | `--into main` gives `--group all`. | `--into dev`. |
+| a pull request into main names the groups of the changed files and the groups of the whole | `--into main` gives `--group all --group b/b --group b/more`. | `--into dev`: only `--group b/b --group b/more`. |
 | a pull request into main names each group in a project with no group of the whole | In `mono`, `--into main` gives `--group one --group two`, also for a readme. | `--into dev`: the readme writes nothing. |
 | a project with no case group names nothing | The project `plain` writes nothing. | The project `parted`. |
 | an empty list names nothing | No path writes nothing. | A source of `b`. |
