@@ -312,6 +312,14 @@ def repository(root):
     return not top.returncode and Path(top.stdout.strip()).resolve() == Path(root).resolve()
 
 
+def base(root, branch):
+    for name in ('origin/' + branch, branch):
+        done = subprocess.run(['git', '-C', str(root), 'merge-base', 'HEAD', name], capture_output=True, text=True)
+        if not done.returncode:
+            return done.stdout.strip()
+    return None
+
+
 def ours(root, tests=False):
     if repository(root):
         found = subprocess.run(['git', 'ls-files', '-co', '--exclude-standard'], cwd=root, capture_output=True,
