@@ -153,7 +153,10 @@ If the system refuses a link, for example across 2 disks, `placed` copies the fi
 
 A link shares its bytes with the build output. A case that opens a placed file for a write changes the output for each later case. A replace by a rename is safe.
 So `tried` takes the stamp of each linked file again when the case ends. If a stamp changed, the case fails: `wrote into the build output <paths>`.
-The step `put` of a script removes its target first, as `placed` does.
+
+The step `put` of a script copies its file to `<case>.put`, beside the folder of the case, and then renames the copy onto its target.
+So a program that runs always finds the old file or the whole new file, and never a missing or a partial file.
+A rename does not write into the old file, so a put never writes into a linked file.
 
 `made_false` makes the false variant: the keys of `false` replace the keys of the case.
 For `files` and for `folders`, each path of `false` replaces only that path.
