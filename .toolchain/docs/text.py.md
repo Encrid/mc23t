@@ -53,7 +53,8 @@ The messages are:
 - `<path>:<line>: a string statement`
 
 A body of a Python file defines each function and each class at most 1 time.
-A body is the module, the body of a class or of a function, or 1 branch of a statement, for example the `else` of an `if`.
+A body is the module, or the body of a class or of a function.
+Each branch of a statement is a body too, for example the `else` of an `if`.
 Thus a file can define a function in each branch of an `if`, for example 1 for each system.
 A second definition hides the first, so a call can run code that its author did not read.
 `<line>` is the line of the second definition, and `<first>` is the line of the first:
