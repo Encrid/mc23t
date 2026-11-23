@@ -1,13 +1,15 @@
 # .toolchain/tests/cases/test.toml
 
 The group `test` checks `.toolchain/tools/test.py`.
-The first thirteen cases use the keys of a case. Their commands are short Python programs, thus they need no build.
+The first fourteen cases use the keys of a case. Their commands are short Python programs, thus they need no build.
 The other cases run `test.py` on a project in `{case}`. Their `folders` copy the files of `.toolchain/tests/data/test` into it.
 
 | File | Content |
 | --- | --- |
 | `.toolchain/project.toml` | A project with no artifact, and a timeout of 60 seconds. |
 | `note.txt` | The line `written at the prompt`. |
+| `held_put/holder.py` | A program that opens a file, writes `open`, and waits for a line. It then reads the file by the handle that it holds and by its path, and writes both. On Windows, the handle shares the read, the write and the delete. |
+| `held_put/new.txt` | The line `new`. |
 | `passes.toml` | The case `passes`, which passes. |
 | `fails.toml` | The case `fails`, which ends with the status 1. |
 | `not_text.toml` | The case `bytes`, which ends with the status 1. Its command writes `a`, the byte 255, which is not UTF-8, and `b`. |
@@ -68,6 +70,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | Case | Claim | False variant |
 | --- | --- | --- |
 | a script | The script waits for `? name`, puts `note.txt` and types `you`. The lines come in order, and the file is there. | The script types `nobody`, and puts no file. |
+| a put replaces a file that the program holds open | `holder.py` holds `x.txt` open, and the script puts `new.txt` onto it. The handle still reads `old`, and the path reads `new`. | The script puts no file. |
 | a helper | The command writes the line that the helper wrote into a file. | No helper. |
 | a variable of the environment, given | `env` gives `C23_SAID` the value `port {port}`. | No `env`. |
 | a variable of the environment, taken away | `env` removes `ZIG_LOCAL_CACHE_DIR`, thus the command writes `unset`. | No `env`. |

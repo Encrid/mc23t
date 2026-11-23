@@ -214,6 +214,31 @@ def placed(use, outputs, values):
     return linked
 
 
+def renamed(source, target):
+    if os.name == 'nt':
+        import ctypes
+        from ctypes import wintypes as w
+
+        name = os.path.abspath(target)
+
+        class Rename(ctypes.Structure):
+            _fields_ = [('flags', w.DWORD), ('root', w.HANDLE), ('length', w.DWORD), ('name', w.WCHAR * (len(name) + 1))]
+        k = ctypes.WinDLL('kernel32', use_last_error=True)
+        k.CreateFileW.restype = w.HANDLE
+        k.CreateFileW.argtypes = [w.LPCWSTR, w.DWORD, w.DWORD, ctypes.c_void_p, w.DWORD, w.DWORD, w.HANDLE]
+        k.SetFileInformationByHandle.argtypes = [w.HANDLE, ctypes.c_int, ctypes.c_void_p, w.DWORD]
+        k.CloseHandle.argtypes = [w.HANDLE]
+        info = Rename(3, None, 2 * len(name), name)
+        handle = k.CreateFileW(os.path.abspath(source), 0x10000, 7, None, 3, 0, None)
+        done = handle not in (None, w.HANDLE(-1).value) and k.SetFileInformationByHandle(
+            handle, 22, ctypes.byref(info), ctypes.sizeof(info))
+        if handle not in (None, w.HANDLE(-1).value):
+            k.CloseHandle(handle)
+        if done:
+            return
+    os.replace(source, target)
+
+
 def scripted(running, script, outputs, values):
     for step in script:
         if 'wait' in step and not waited(running, expand(step['wait'], values)):
@@ -221,7 +246,7 @@ def scripted(running, script, outputs, values):
         for path, item in step.get('put', {}).items():
             spare = Path(values['case'] + '.put')
             shutil.copy(source_of(item, outputs, values), spare)
-            os.replace(spare, located(path, values))
+            renamed(spare, located(path, values))
         for path in step.get('remove', []):
             located(path, values).unlink()
         if 'type' in step:

@@ -28,6 +28,7 @@
 | `stamp(path)` | Gives the size and the time of the last write of a file, or nothing if it is not there. |
 | `sources_of(item, outputs, values)` | Gives the files of 1 item of `folders`: the artifact or the file, or each file of the project that a pattern with `*` matches. It stops the run if a pattern matches no file. |
 | `cleared(folder)` | Removes a folder with all its files, also a file that is read-only on Windows, such as an object of git. It changes the mode of no other file, so a link keeps the mode of its build output. |
+| `renamed(source, target)` | Renames a file onto its target. On Windows, it renames with the POSIX semantics, so the rename succeeds while a program holds the target open with a share of the delete. If the file system refuses it, it renames with `os.replace`. |
 | `scripted(running, script, outputs, values)` | Does the steps of a script. |
 | `held(hold)` | Gives the text of a hold in `C23_FAIL`, or the empty text with no hold: *The hold*. |
 | `hold_checked(hold, name, path, calls, root)` | Stops if the hold of the case `name` of the file `path` has a fault: *The hold*. |
@@ -157,6 +158,7 @@ So `tried` takes the stamp of each linked file again when the case ends. If a st
 The step `put` of a script copies its file to `<case>.put`, beside the folder of the case, and then renames the copy onto its target.
 So a program that runs always finds the old file or the whole new file, and never a missing or a partial file.
 A rename does not write into the old file, so a put never writes into a linked file.
+On Windows, `renamed` uses the POSIX semantics, so a put also replaces a file that the program holds open, if its handle shares the delete.
 
 `made_false` makes the false variant: the keys of `false` replace the keys of the case.
 For `files` and for `folders`, each path of `false` replaces only that path.
