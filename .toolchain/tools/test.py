@@ -212,8 +212,9 @@ def scripted(running, script, outputs, values):
         if 'wait' in step and not waited(running, expand(step['wait'], values)):
             return
         for path, item in step.get('put', {}).items():
-            located(path, values).unlink(missing_ok=True)
-            shutil.copy(source_of(item, outputs, values), located(path, values))
+            spare = Path(values['case'] + '.put')
+            shutil.copy(source_of(item, outputs, values), spare)
+            os.replace(spare, located(path, values))
         for path in step.get('remove', []):
             located(path, values).unlink()
         if 'type' in step:
