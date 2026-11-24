@@ -22,6 +22,8 @@ The includes and the code of `src/wrapped.c` are in one `#if`. `src/plain.c` use
 That file names `grab` as a function that takes memory, and the pairs `box_open` and `handle_open`.
 `handle_open` gives a `handle_t`, which is a `typedef` of a pointer.
 `grab` and `seize` of `third_party/grab/grab.c` take memory with no count. The case `named` frees the result of `grab`, and `foreign` frees the result of `seize`.
+The case `copies` takes a copy with `strdup` and a copy with `strndup`, and frees both. `copylost` frees only the copy of `strdup`.
+The case `aligned` takes a block with `aligned_alloc` and frees it, and `alignlost` keeps the block. Windows has no `aligned_alloc`, so on Windows the 2 cases do what `whole` does.
 
 `third_party/grab/grab.c` also holds a small library that the count does not count. It has notes, and parts that `part_new` writes through its second argument.
 It has tickets, which are handles by value, and texts, which `text_fill` fills through a `restrict` pointer and `text_join` gives back two at a time.
@@ -47,6 +49,8 @@ The kind `part` takes at `*2` of `part_new`, at `*2.part` of `sheet_fill`, and a
 | a call of realloc with 0 bytes | `test` on `zero` writes `leaks: zero calls realloc with 0 bytes`, and stops. | The case `whole`. |
 | memory that no count took | `test` on `foreign` writes `leaks: foreign gives back 1 memory that it did not take`, and stops. | The case `named`. |
 | a function of [leaks] memory takes memory | `test` on `named` writes `leaks: 1 cases, 1 give back what they take`, and ends with 0. | The case `foreign`. |
+| a copy of strdup and of strndup is counted memory | `test` on `copies` writes `leaks: 1 cases, 1 give back what they take`, and ends with 0. | The case `copylost`. |
+| a block of aligned_alloc is counted memory | On a system of POSIX, `test` on `aligned` writes `leaks: 1 cases, 1 give back what they take`, and ends with 0. | The case `alignlost`. |
 | a pair keeps a count of its own | `test` on `boxed`, which does not close its box, writes `leaks: boxed keeps 1 box_open`, and stops. | The case `whole`. |
 | a helper is counted | `test` on `helped`, whose helper keeps a block, writes `leaks: helped keeps 1 memory`, and stops. | The case `whole`. |
 | a line that does not fit the kinds | `test` on `spoiled`, which adds a line for a file that is not counted and a line with one count, stops: `a line of src/main.c does not match its counts`. | The case `whole`. |

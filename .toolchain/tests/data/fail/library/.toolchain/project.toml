@@ -6,11 +6,7 @@ targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-mac
 fread = "0"
 memchr = "nullptr"
 bsearch = "nullptr"
-aligned_alloc = "nullptr"
 _aligned_malloc = "nullptr"
-
-[leaks]
-memory = ["aligned_alloc"]
 
 [leaks.pairs]
 _aligned_malloc = "_aligned_free"

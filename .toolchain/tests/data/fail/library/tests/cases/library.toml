@@ -36,3 +36,19 @@ stdin = "a"
 fail = { aligned_alloc = 1, _aligned_malloc = 1 }
 claims = { status = 4, line = ["no aligned block"] }
 false = { fail = {} }
+
+[[case]]
+name = "copy"
+run = ["{out}/library{exe}"]
+stdin = "a"
+fail = { strdup = 1 }
+claims = { status = 5, line = ["no copy"] }
+false = { fail = {} }
+
+[[case]]
+name = "copy of a part"
+run = ["{out}/library{exe}"]
+stdin = "a"
+fail = { strndup = 1 }
+claims = { status = 5, line = ["no copy"] }
+false = { fail = {} }

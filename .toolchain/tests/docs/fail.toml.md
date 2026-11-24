@@ -1,7 +1,7 @@
 # .toolchain/tests/cases/fail.toml
 
 The group `fail` checks `.toolchain/tools/fail.py`, through `test`, `test --branches` and `test --leaks` of `.toolchain/tools/test.py`.
-Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, `library` for four cases, `swept` for four cases, or `rowed` for three cases.
+Each case runs `test.py` on a project of `.toolchain/tests/data/fail`, with its output in `{case}/out`: `failed`, `typed` for three cases, `library` for five cases, `swept` for four cases, or `rowed` for three cases.
 
 The program `failed` takes a block with `first_block` of `src/first.c`, and a second block with `malloc` in `src/main.c`.
 Then it takes a block with `calloc`, makes it bigger with `realloc`, and opens and shuts a door.
@@ -27,11 +27,13 @@ The declaration of `pthread_create` on macOS holds `_Nullable` and `_Nonnull`, a
 Its case `both` states no `fail`. The case `first` makes `start_one` fail, and `second` makes `start_two` fail.
 The case `third` makes `pthread_create` and `CreateThread` fail, and each system calls one of them. The false variants state no `fail`.
 
-The program `library` reads a byte with `fread`, finds a byte with `memchr` and a key with `bsearch`, and takes an aligned block.
+The program `library` reads a byte with `fread`, finds a byte with `memchr` and a key with `bsearch`, takes an aligned block, and takes 2 copies of a text.
 It takes the block with `aligned_alloc` in `src/posix/aligned.c`, and with `_aligned_malloc` in `src/windows/aligned.c`.
+It takes the copies with `strdup` and `strndup`, and writes `no copy` with the status 5 when one of them fails.
+`[fail.calls]` of `library` does not list `aligned_alloc`, `strdup` and `strndup`, because they are always in the list.
 The result of `fread` is a `size_t`, and the compiler spells it `__size_t`. The headers of glibc make `memchr` a macro with arguments.
 The declaration of `bsearch` on Windows writes `__cdecl` in the type of its callback. The declaration of `aligned_alloc` checks its alignment.
-Each case writes `a` to the program. The cases `read`, `byte`, `key` and `aligned` each make one of these calls fail, and their false variants state no `fail`.
+Each case writes `a` to the program. The cases `read`, `byte`, `key`, `aligned`, `copy` and `copy of a part` each make one of these calls fail, and their false variants state no `fail`.
 
 The project `parted` has the parts `alpha` and `beta`, and `alpha` uses `beta`. The program `beta` calls `malloc` once, and writes `made` or `no memory`.
 The case `other part` of the group `alpha/alpha` runs `beta` with `fail = { malloc = 1 }`, and claims `made`. Its false variant runs `alpha`.
@@ -64,7 +66,8 @@ The case `alpha` runs `alpha`, so that a run of branches reaches its `main`.
 | a listed fread fails, and its result of size_t builds | `test -k read` on `library` writes `read: as written`. | `--break`. |
 | a listed memchr fails, also where a macro of its header has its name | `test -k byte` on `library` writes `byte: as written`. | `--break`. |
 | a listed bsearch fails, also where its declaration writes a calling convention | `test -k key` on `library` writes `key: as written`. | `--break`. |
-| a listed aligned allocation fails, also where its declaration checks the alignment | `test -k aligned` on `library` writes `aligned: as written`. | `--break`. |
+| an aligned allocation fails, also where its declaration checks the alignment | `test -k aligned` on `library` writes `aligned: as written`. | `--break`. |
+| strdup and strndup fail with nullptr | `test -k copy` on `library` writes `copy: as written` and `copy of a part: as written`. | `--break`. |
 | a call that [fail.calls] does not list | With `--set listed=tests/no_door.toml`, `test` stops: `the case door makes door_open fail, and [fail.calls] does not list it`. | No `--set`. |
 | a call that two tables list | With `--set listed=tests/twice.toml`, `test` stops: `[fail.calls] lists malloc two times`. | No `--set`. |
 | a file of [fail] with that is not there | With `--set listed=tests/none.toml`, `test` stops: `[fail] with: <file> is not there`. | No `--set`. |
