@@ -255,7 +255,7 @@ It runs each case one time. Then it writes a line for each case that does not gi
 - `leaks: <case> gives back <number> <kind> that it did not take`: the code gives back a resource that code with no count took.
 - `leaks: <case> calls realloc with 0 bytes`.
 
-The kind `memory` counts `malloc`, `calloc`, `realloc` and `free`.
+The kind `memory` counts `malloc`, `calloc`, `realloc`, `aligned_alloc`, `strdup`, `strndup` and `free`.
 `leaks.toml` of `.toolchain/config` names more functions, pairs and kinds, for example the pair `os_reserve` and `os_release`.
 `.toolchain/docs/project.toml.md`, *[leaks]*, gives its keys.
 
@@ -279,7 +279,7 @@ claims = { status = 1, line = ["greet: no memory"] }
 false = { fail = {} }
 ```
 
-`malloc`, `calloc` and `realloc` can always fail, and so can the two loaders `GetProcAddress` and `dlsym`, with `nullptr`.
+`malloc`, `calloc`, `realloc`, `aligned_alloc`, `strdup` and `strndup` can always fail, and so can the two loaders `GetProcAddress` and `dlsym`, with `nullptr`.
 `fail.toml` of `.toolchain/config` names more functions, each with the value that a failed call gives.
 `.toolchain/docs/project.toml.md`, *[fail]*, gives its keys. Only the calls of the code of `src` count, and the files of one program share one count.
 

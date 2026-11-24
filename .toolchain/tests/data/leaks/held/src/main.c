@@ -72,10 +72,52 @@ static int served(void)
     return (kept == nullptr);
 }
 
+static int copied(const char *mode)
+{
+    char *copy = nullptr;
+    char *part = nullptr;
+    int failed = 0;
+
+    if (strcmp(mode, "copies") && strcmp(mode, "copylost"))
+        return (-1);
+    copy = strdup("copy");
+    part = strndup("part", 2);
+    failed = !copy || !part;
+    free(copy);
+    if (!strcmp(mode, "copies"))
+        free(part);
+    return (failed);
+}
+
+#if defined(_WIN32)
+static int aligned(const char *)
+{
+    return (-1);
+}
+#else
+static int aligned(const char *mode)
+{
+    void *block = nullptr;
+    int failed = 0;
+
+    if (strcmp(mode, "aligned") && strcmp(mode, "alignlost"))
+        return (-1);
+    block = aligned_alloc(16, 16);
+    failed = !block;
+    if (!strcmp(mode, "aligned"))
+        free(block);
+    return (failed);
+}
+#endif
+
 static int chosen(const char *mode)
 {
     int done = kinds(mode);
 
+    if (done < 0)
+        done = copied(mode);
+    if (done < 0)
+        done = aligned(mode);
     if (done >= 0)
         return (done);
     if (!strcmp(mode, "kept"))

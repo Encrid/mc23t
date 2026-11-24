@@ -77,10 +77,16 @@ claims = { status = 0, line = ["key: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/library", "--out", "{case}/out", "-k", "key", "--break"] }
 
 [[case]]
-name = "a listed aligned allocation fails, also where its declaration checks the alignment"
+name = "an aligned allocation fails, also where its declaration checks the alignment"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/library", "--out", "{case}/out", "-k", "aligned"]
 claims = { status = 0, line = ["aligned: as written"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/library", "--out", "{case}/out", "-k", "aligned", "--break"] }
+
+[[case]]
+name = "strdup and strndup fail with nullptr"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/library", "--out", "{case}/out", "-k", "copy"]
+claims = { status = 0, line = ["copy: as written", "copy of a part: as written"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/fail/library", "--out", "{case}/out", "-k", "copy", "--break"] }
 
 [[case]]
 name = "a call that [fail.calls] does not list"
