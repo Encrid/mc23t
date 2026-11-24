@@ -106,3 +106,27 @@ name = "lends"
 run = ["{out}/held{exe}", "lends"]
 claims = { status = 0, line = ["lends"] }
 false = { run = ["{out}/held{exe}"] }
+
+[[case]]
+name = "copies"
+run = ["{out}/held{exe}", "copies"]
+claims = { line = ["copies"] }
+false = { run = ["{out}/held{exe}"] }
+
+[[case]]
+name = "copylost"
+run = ["{out}/held{exe}", "copylost"]
+claims = { line = ["copylost"] }
+false = { run = ["{out}/held{exe}"] }
+
+[[case]]
+name = "aligned"
+run = ["{out}/held{exe}", "aligned"]
+claims = { line = ["aligned"] }
+false = { run = ["{out}/held{exe}"] }
+
+[[case]]
+name = "alignlost"
+run = ["{out}/held{exe}", "alignlost"]
+claims = { line = ["alignlost"] }
+false = { run = ["{out}/held{exe}"] }

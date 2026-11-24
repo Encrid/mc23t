@@ -35,6 +35,19 @@ claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "foreign"] }
 
 [[case]]
+name = "a copy of strdup and of strndup is counted memory"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "copies"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "copylost"] }
+
+[[case]]
+name = "a block of aligned_alloc is counted memory"
+systems = ["posix"]
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "aligned"]
+claims = { status = 0, line = ["leaks: 1 cases, 1 give back what they take"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "alignlost"] }
+
+[[case]]
 name = "a pair keeps a count of its own"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/leaks/held", "--out", "{case}/out", "--leaks", "-k", "boxed"]
 claims = { status = 1, line = ["leaks: boxed keeps 1 box_open"] }

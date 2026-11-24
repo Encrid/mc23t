@@ -32,6 +32,17 @@ static int searched(void)
     return (0);
 }
 
+static int copied(void)
+{
+    char *copy = strdup("a");
+    char *part = strndup("ab", 1);
+    int done = copy && part ? 0 : said("no copy", 5);
+
+    free(copy);
+    free(part);
+    return (done);
+}
+
 int main(void)
 {
     char byte = 0;
@@ -47,5 +58,8 @@ int main(void)
     if (!block)
         return (said("no aligned block", 4));
     aligned_drop(block);
+    done = copied();
+    if (done)
+        return (done);
     return (said("each call gave its value", 0));
 }
