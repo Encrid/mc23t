@@ -19,6 +19,7 @@ The cases of the options, of the report and of the files of a project run a shor
 | `config` | The artifact `thing`, stated in a file of `.toolchain/config` and not in `project.toml`. |
 | `joined` | The artifact `alpha` in `project.toml`, and the artifact `beta` in `more.toml` of `.toolchain/config`. |
 | `clash` | `[variables] word` in `one.toml` and in `two.toml` of `.toolchain/config`. |
+| `same_file` | The parts `alpha` and `beta`, and 6 artifacts of the kind `file`: `same.txt` and `{second}` of `alpha`; `shared.txt` of each part; and the test artifacts `{probe}` of `alpha` and `probe.txt` of `beta`. By default, `second` is `same.txt` and `probe` is `probe_alpha.txt`. |
 | `leaky` | The artifact `stamped`, whose section holds `[variables] stamp`. `stamp` is `{root}`: the folder of the project. |
 | `archived` | The archive `one`. |
 | `started` | The program `sizer`, which calls `stat`. |
@@ -165,3 +166,6 @@ The cases of the jobs run `.toolchain/tests/data/build/jobs.py` with the folder 
 The case `the free memory divides the jobs` needs a machine with 2 processors or more, as each runner of CI has.
 
 `.toolchain/docs/build.py.md` gives the limits of these cases.
+| 2 artifacts of 1 part that make the same file are refused | `build.py` on `same_file` stops: `the artifacts same.txt of alpha, same.txt of alpha make the same file same.txt`. | `--set second=other.txt`. |
+| 2 test artifacts of 2 parts that make the same file are refused | `test.py --build` on `same_file`, with `second=other.txt` and `probe=probe.txt`, stops: `the artifacts probe.txt of alpha, probe.txt of beta make the same file probe.txt`. | `probe` keeps its default. |
+| 2 shipped artifacts of 2 parts can make the same file | `test.py --build` on `same_file` with `second=other.txt` builds 6 artifacts, `shared.txt` of each part among them. | `second` keeps `same.txt`, so the build stops. |

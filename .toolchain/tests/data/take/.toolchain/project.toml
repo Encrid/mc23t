@@ -6,6 +6,7 @@ targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-mac
 sample = "sample"
 made = "sample"
 maybe = "nothing"
+pinned = "absent"
 
 [[dependency]]
 name = "sample"
@@ -25,6 +26,13 @@ name = "maybe"
 from = "{root}/{maybe}"
 list = "package.txt"
 into = "{build}/taken/maybe"
+optional = true
+
+[[dependency]]
+name = "pinned"
+from = "{root}/{pinned}"
+list = "{root}/pins.txt"
+into = "{build}/taken/pinned"
 optional = true
 
 [[agree]]

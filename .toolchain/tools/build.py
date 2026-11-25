@@ -78,17 +78,21 @@ def moved(path, tree):
     return path
 
 
-def planned(config, values, artifact, tree=None):
-    kind = config['kinds'][artifact['kind']]
+def output_of(config, values, artifact):
     mine = dict(values)
     if 'target' in artifact:
         mine.update(config['targets'][artifact['target']], target=artifact['target'])
-    name = expand(artifact['name'], mine)
-    mine['name'] = name
+    mine['name'] = expand(artifact['name'], mine)
+    return mine, Path(values['out']) / artifact.get('folder', '') / expand(config['kinds'][artifact['kind']]['output'], mine)
+
+
+def planned(config, values, artifact, tree=None):
+    kind = config['kinds'][artifact['kind']]
+    mine, output = output_of(config, values, artifact)
+    name = mine['name']
     sources = files(Path(values['root']), expanded(artifact['sources'], mine))
     if not sources:
         die('no file matches the sources of %s' % name)
-    output = Path(values['out']) / artifact.get('folder', '') / expand(kind['output'], mine)
     work = Path(values['out']) / 'obj' / output.relative_to(values['out'])
     mine.update(sources=[moved(source, tree) for source in sources], output=output.as_posix(), work=work.as_posix(),
                 defines=['-D' + define for define in expanded(artifact.get('defines', []), mine)],
@@ -309,6 +313,19 @@ def artifacts(config):
     return sorted(found, key=lambda artifact: rank.get(artifact.get('part'), 0))
 
 
+def clashed(config, values, chosen):
+    makers = {}
+    for artifact in chosen:
+        mine, output = output_of(config, values, artifact)
+        makers.setdefault(output, []).append((mine['name'], artifact))
+    for output, same in makers.items():
+        parts = [artifact.get('part') for _, artifact in same]
+        if len(same) > 1 and (any(artifact.get('test') for _, artifact in same) or len(set(parts)) < len(parts)):
+            die('the artifacts %s make the same file %s' % (', '.join(
+                '%s of %s' % (name, artifact.get('part') or 'the project') for name, artifact in same),
+                output.relative_to(values['out']).as_posix()))
+
+
 def ranked(config):
     uses = {part: table.get('uses', []) for part, table in config.get('parts', {}).items()}
     try:
@@ -498,6 +515,7 @@ def ready(args, here=False):
 
 def made(config, values, tree=None, tests=True):
     chosen = [artifact for artifact in artifacts(config) if tests or not artifact.get('test')]
+    clashed(config, values, chosen)
     if runner(config) == 'zig':
         done = graphed(config, values, chosen, tree)
     else:
