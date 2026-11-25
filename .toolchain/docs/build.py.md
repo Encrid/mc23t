@@ -15,6 +15,8 @@ With `--pack`, it also puts the deliverable into a zip file. With `--join`, it j
 | `do(step, values, unstamped)` | Does one step of a kind. |
 | `put(path, source)` | Writes a copy of `source` only if it is not there or is different. Then it gives the copy the mode of `source`, as *The deliverable* tells. |
 | `moved(path, tree)` | Gives the path in `tree` for a path of `src` or of `include`, and for each other path that `tree` holds. Else it gives the path. With no tree, it gives the path. |
+| `output_of(config, values, artifact)` | Gives the variables of one artifact with its expanded `name`, and the path of its output file. |
+| `clashed(config, values, chosen)` | Stops if 2 artifacts make the same file, as *Artifacts* tells. |
 | `planned(config, values, artifact, tree)` | Gives the kind and the variables of one artifact, as steps 1 to 4 of *Artifacts* tell. |
 | `built(config, values, artifact, tree)` | Builds one artifact with the runner `mpbt`. It gives the name of the artifact and its files. |
 | `wrote(name, output)` | Stops if the steps of an artifact did not write its output. |
@@ -155,6 +157,9 @@ The `unlinked` steps write no `{output}`.
 A kind with no `unlinked` steps stops `built` if a file of `link` is not there.
 The message is `<file> is not there, and <name> is linked with it`.
 An artifact that is not linked gives no file. `built` writes `compiled, not linked: <name>: <file> is not there` for it.
+
+Before it builds, `made` stops if 2 artifacts make the same file: `the artifacts <name> of <part>, ... make the same file <path>`.
+It allows 2 artifacts of 2 parts to make the same file only when neither is a test artifact. Each part is packed apart, so each package holds its own file, for example `leaks.toml`.
 
 ## Modules
 
