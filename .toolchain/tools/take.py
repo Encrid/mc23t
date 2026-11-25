@@ -3,7 +3,7 @@
 # Under the GNU Affero General Public License, version 3 only: see license.
 import re
 
-from shared import die, expanded, located, run, sha256
+from shared import die, expand, expanded, located, run, sha256
 
 DIGEST = re.compile(r'[0-9a-f]{64}')
 
@@ -40,8 +40,11 @@ def take(config, values):
         if 'make' in dependency:
             run(expanded(dependency['make'], values), values['root'])
         source, into = located(dependency['from'], values), located(dependency['into'], values)
-        listing = source / dependency['list']
+        listing = source / expand(dependency['list'], values)
         values[dependency['name']] = into.as_posix()
+        if dependency.get('optional') and not source.is_dir():
+            print('not taken: %s is not there' % source.as_posix())
+            continue
         if not listing.is_file() and not dependency.get('optional'):
             die('%s is not there' % listing.as_posix())
         if not listing.is_file():

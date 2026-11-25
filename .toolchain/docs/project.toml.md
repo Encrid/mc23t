@@ -158,10 +158,10 @@ The `package.txt` of a different project is such a list.
 | --- | --- |
 | `name` | The name of the dependency. The variable `{<name>}` is its `into` folder. |
 | `from` | The folder that has the files. |
-| `list` | The list of the files, in `from`. |
+| `list` | The list of the files, in `from`. It can hold variables. A whole path names a list outside `from`, for example a list of the project for files that each developer puts in `from`. |
 | `into` | The folder that gets the copies. |
 | `make` | Optional. A command that runs before the tools read the list. |
-| `optional` | Optional. If it is `true` and the list is not there, the tools do not take the dependency, and continue. |
+| `optional` | Optional. If it is `true` and the folder `from` or the list is not there, the tools do not take the dependency, and continue. |
 
 For example, this dependency takes the package of a project beside this project:
 
