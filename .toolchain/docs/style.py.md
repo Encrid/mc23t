@@ -9,7 +9,8 @@ python .toolchain/tools/style.py [--root <folder>]
 
 ## The files
 
-`style.py` checks each file `.c` and `.h` that `ours` gives.
+`style.py` checks each file `.c` and `.h` that `ours` gives, also the files of `tests`.
+The code of a test has the style of the code that it tests.
 `[style]` of `.toolchain/toolchain.toml` gives the limits of the rules F3, F4, F5, O3 and C1.
 
 Before the checks, `style.py` hides the text of each comment, each string and each character constant, so no check reads it.

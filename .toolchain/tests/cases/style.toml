@@ -199,7 +199,7 @@ static int long_one(void)
 [[case]]
 name = "a file of tests"
 run = ["{python}", "{root}/.toolchain/tools/style.py", "--root", "{case}/p"]
-claims = { status = 0, line = ["no fault in 0 files"] }
+claims = { status = 1, line = ["tests/a.c:1: G1 the file does not start with the legal notice"] }
 
 [case.files]
 "{case}/p/.toolchain/project.toml" = '''
@@ -209,7 +209,13 @@ targets = ["x86_64-linux-gnu"]
 "{case}/p/tests/a.c" = ""
 
 [case.false.files]
-"{case}/p/src/a.c" = ""
+"{case}/p/tests/a.c" = '''
+/*
+** Copyright (C) 2026 Enkrid
+**
+** Under the GNU Affero General Public License, version 3 only: see license.
+*/
+'''
 
 [[case]]
 name = "an exception for a file that is not there"
