@@ -4,7 +4,7 @@ The group `scope` checks `.toolchain/tools/scope.py`.
 Each case writes the list of the changed paths into `{case}/changed.txt` with `files`, and gives it to `scope.py` with `--changed`.
 The paths of the lists need not be there, since `scope.py` reads only their text. Only a config file and the case files must be there.
 Each case file of the data holds one case, which no case runs.
-`branched.py` makes a repository: it copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to `.toolchain/project.toml` of the copy without a commit, and then runs the command after `--`.
+`branched.py` makes a repository: it copies a project of the data into a new folder, commits it, names the commit `dev`, adds a text to the file that it names in the copy, without a commit, and then runs the command after `--`.
 
 | Data | Content |
 | --- | --- |
@@ -14,6 +14,7 @@ Each case file of the data holds one case, which no case runs.
 | `owned` | A project with no part. Its one group `x` states `code = ["src/x/**"]`. |
 | `miscoded` | A project whose group states `code = "src/x"`. |
 | `miswhole` | A project whose group states `whole = "yes"`. |
+| `failing` | A project with no part. Its `.toolchain/config/fail.toml` names `open_store` in `[fail.calls]`. `src/a/x.c` calls `open_store`, and `src/b/y.c` calls `close_store`. The group `a` states `code` with the config file and `src/a/**`, and the group `b` with the config file and `src/b/**`. |
 | `plain` | A project with no part and no case group. |
 
 | Case | Claim | False variant |
@@ -38,3 +39,5 @@ Each case file of the data holds one case, which no case runs.
 | a list that is not there stops the tool | `cannot read the list <path>`. | The list is there. |
 | a change of the project file in the tables of the checks names no group | `branched.py` adds a table `[[style.exception]]` to `parted`, and `.toolchain/project.toml` writes nothing. | It adds a table `[test]`, and the file gives `--group all`. |
 | a project file outside a repository names the groups of the whole | `parted` is no repository of its own, so `.toolchain/project.toml` gives `--group all`. | A repository with a change of `[style]` only. |
+| a change of an entry of the failed calls names only the groups whose code calls it | `branched.py` adds `close_store` to `[fail.calls]` of `failing`, and the file gives `--group b`. | It adds `close_store` in a table `[fail.more]`, and the file gives `--group a --group b`. |
+| a change of an entry of the failed calls that no code calls names no group | It adds `free_store`, which no source names, and the file writes nothing. | It adds `close_store`, and the file gives `--group b`. |
