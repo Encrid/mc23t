@@ -50,6 +50,17 @@ The base is the commit that `shared.base` gives for the branch.
 The file gives its groups as each other file of the toolchain does when the project is not a repository of its own.
 It does the same when git does not give the base, or the file at the base.
 
+The layer of the failed calls wraps each call of a function that a table `[fail.calls]` names: `.toolchain/docs/fail.py.md`.
+A change of 1 entry acts only on the code that calls that function.
+A changed function is an entry that is added, removed, or given another value.
+A config file can differ from its form at the base only in its table `[fail.calls]`.
+Then it gives only those of its groups that test a file that names a changed function.
+
+`git grep` finds these files, as whole words, in the tracked files and in the new files that git does not ignore.
+A config file does not count as a file that names the function.
+So a change of an entry that no tested file names gives no group.
+Each other change of the file gives its groups as before, and so does a project that is not a repository of its own.
+
 A part that uses a changed part gives no group. Its groups test its own code.
 
 The tool stops with these faults:
@@ -59,6 +70,7 @@ The tool stops with these faults:
 - `<group file>: code is a list of patterns`.
 - `<group file>: whole is true or false`.
 - `<path>: no case group tests this file`.
+- `git grep fails in <root>: <error>`.
 
 A project with no case group gives nothing.
 
@@ -71,7 +83,10 @@ A project with no case group gives nothing.
 | `groups(settings, root)` | Gives each group of `[test] cases` that has a case: its name, its file, its `code`, its `whole` and its part. |
 | `tests(settings, root, found, group, path)` | Tells if a group tests a path. `found` holds each group of the project. |
 | `claimed(settings, root, names)` | Gives the function that tells if the named groups hold each group that tests a file: `.toolchain/docs/branches.py.md`, *The files of the named groups*. |
+| `versions(root, path, into)` | Gives the tables of a file at the base and now. It gives `None` out of a repository of its own, with no file at the base, or with a form that is no TOML. |
 | `checked_only(root, into)` | Tells if `.toolchain/project.toml` differs from its form at the base only in the tables `[check]`, `[dup]`, `[prose]` and `[style]`. |
+| `failed_only(root, path, into)` | Gives the sorted names of the changed entries of `[fail.calls]` of a config file, or `None` if the file differs in any other place. |
+| `calling(root, names)` | Gives each file out of `.toolchain/config` that names one of the functions as a whole word. |
 | `git(root, *argv)` | Runs git in the project, and gives its output, or `None` if git fails. |
 | `owner(settings, root, path)` | Gives the part of one path, or `None`. |
 | `stated(root, path)` | Gives the part that a config file states alone, or `None`. |

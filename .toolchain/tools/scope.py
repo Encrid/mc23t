@@ -37,19 +37,45 @@ def git(root, *argv):
     return None if done.returncode else done.stdout
 
 
-def checked_only(root, into):
+def versions(root, path, into):
     if not repository(root):
-        return False
+        return None
     shared = base(root, into)
-    before = shared and git(root, 'show', shared + ':' + PROJECT)
+    before = shared and git(root, 'show', shared + ':' + path)
     if not before:
-        return False
+        return None
     try:
-        tables = [tomllib.loads(text) for text in (before.decode('utf-8'), (root / PROJECT).read_text(encoding='utf-8'))]
+        return [tomllib.loads(text) for text in (before.decode('utf-8'), (root / path).read_text(encoding='utf-8'))]
     except (OSError, UnicodeDecodeError, ValueError):
+        return None
+
+
+def checked_only(root, into):
+    tables = versions(root, PROJECT, into)
+    if not tables:
         return False
     kept = [{name: value for name, value in table.items() if name not in CHECKED} for table in tables]
     return kept[0] == kept[1]
+
+
+def failed_only(root, path, into):
+    tables = versions(root, path, into) if path.startswith(CONFIG) else None
+    if not tables:
+        return None
+    calls = [table['fail'].pop('calls', None) if isinstance(table.get('fail'), dict) else None for table in tables]
+    if tables[0] != tables[1] or not all(isinstance(one, dict) for one in calls):
+        return None
+    return sorted(name for name in calls[0].keys() | calls[1].keys() if calls[0].get(name) != calls[1].get(name))
+
+
+def calling(root, names):
+    if not names:
+        return []
+    done = subprocess.run(['git', '-C', str(root), 'grep', '-l', '-z', '-w', '-F', '--untracked']
+                          + [item for name in names for item in ('-e', name)], capture_output=True)
+    if done.returncode > 1:
+        die('git grep fails in %s: %s' % (root, done.stderr.decode('utf-8', 'replace').strip()))
+    return [path for path in done.stdout.decode('utf-8').split('\0') if path and not path.startswith(CONFIG)]
 
 
 def groups(settings, root):
@@ -102,6 +128,11 @@ def scoped(settings, root, paths, into):
             die('%s: no case group tests this file' % path)
         if not mine and (path.startswith(BUILT) or path in FILES):
             mine = wholes
+        names = failed_only(root, path, into) if mine else None
+        if names is not None:
+            callers = calling(root, names)
+            mine = [group['name'] for group in found if group['name'] in mine
+                    and any(tests(settings, root, found, group, caller) for caller in callers)]
         picked.update(mine)
     return sorted(picked)
 
