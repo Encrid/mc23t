@@ -26,7 +26,7 @@ false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{roo
 [[case]]
 name = "an optional dependency that is not there"
 run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out"]
-claims = { status = 0, has = ["not taken: ", "nothing/package.txt is not there"] }
+claims = { status = 0, has = ["not taken: ", "/nothing is not there"] }
 false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out", "--set", "maybe=sample"] }
 
 [[case]]
@@ -39,4 +39,10 @@ false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{roo
 name = "dependencies that do not agree"
 run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out", "--set", "made=other"]
 claims = { status_not = 0, has = ["refused: the dependencies do not agree"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out"] }
+
+[[case]]
+name = "an optional dependency whose list is in the project"
+run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out", "--set", "pinned=sample"]
+claims = { status = 0, line = ["taken: pinned, package pinned"], files = { "{case}/out/taken/pinned/greeting.txt" = "hello from a dependency" } }
 false = { run = ["{python}", "{root}/.toolchain/tools/fetch.py", "--root", "{root}/.toolchain/tests/data/take", "--out", "{case}/out"] }
