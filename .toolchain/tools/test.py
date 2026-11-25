@@ -248,6 +248,10 @@ def scripted(running, script, outputs, values):
             shutil.copy(source_of(item, outputs, values), spare)
             renamed(spare, located(path, values))
         for path in step.get('remove', []):
+            if not located(path, values).exists():
+                running['watch'].cancel()
+                running['proc'].kill()
+                die('the script removes %s, and it does not exist' % located(path, values).as_posix())
             located(path, values).unlink()
         if 'type' in step:
             typed(running, expand(step['type'], values) + '\n')

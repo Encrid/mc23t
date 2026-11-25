@@ -39,6 +39,8 @@ The other cases run `test.py` on a project in `{case}`. Their `folders` copy the
 | `table_own.toml` | The table of `table.toml`, which also states `process`. |
 | `swept_by_hand.toml` | 3 cases with one command. Each one states `process`, and makes one call of `malloc` fail: the first, the second, the third. |
 | `alone.toml` | The case `alone`, which has no false variant. |
+| `removes.toml` | The case `removes`, whose script removes `gone.txt` of its folder. No case writes that file. |
+| `removes_here.toml` | The case `removes` of `removes.toml`, with `files` that writes `gone.txt` first. |
 | `silent.toml` | The case `silent`, which claims nothing. |
 | `colour.toml` | The case `colour`, which has the key `colour`. |
 | `signals.py` | A program that writes `ready`, reads a line, and writes `done`. It writes `paused` before `done` if 1 second went by after `ready`. It writes each line with no buffer, so a signal that comes during a write cannot make a write inside a write. |
@@ -80,6 +82,7 @@ The project exempts that side and that block, so a run of `alpha` meets two exem
 | a variable of the environment, taken away | `env` removes `ZIG_LOCAL_CACHE_DIR`, thus the command writes `unset`. | No `env`. |
 | claims on the status and on the output | `stdin` gives `two`. The command writes `one two`, and ends with 3. `status`, `status_not`, `has` and `lacks` hold. | `stdin` gives `three`. |
 | a script that removes a file | The script removes `gone.txt` that `files` wrote, thus the command writes `False`. | The script removes no file. |
+| a script that removes a file that does not exist | `test.py` on the case of `removes.toml`, whose script removes `gone.txt` that no case wrote, stops: `the script removes <path>/gone.txt, and it does not exist`, with no traceback. | The case of `removes_here.toml` writes `gone.txt` first. |
 | a folder of files | `folders` copies `note.txt` into `{case}/in`. | The folder is empty. |
 | a script that sends an interrupt | The script waits for `ready`, sends an interrupt, and waits for `got`. The output has `got interrupt`, then `done`. | The script sends a hang-up. |
 | a script that sends a termination | The output has `got termination`, then `done`. | The script sends an interrupt. |

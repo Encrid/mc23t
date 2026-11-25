@@ -186,7 +186,7 @@ Each step of a `script` does these actions, in this order:
 
 1. `wait` waits for a line of the output that contains its text. A step with no `wait` does its actions at once.
 2. `put` copies files. The key is the path, and the value is an artifact or a file.
-3. `remove` removes the files of the list.
+3. `remove` removes the files of the list. If a file of the list does not exist, `test` stops the command and stops: `the script removes <path>, and it does not exist`.
 4. `type` writes this line to the command.
 5. `close` closes the output of the command. Its only value is `"output"`. After it, a write of the command to its output fails.
 6. `signal` sends a signal to the command: `interrupt`, `termination` or `hang-up`.
