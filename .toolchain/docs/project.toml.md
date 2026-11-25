@@ -266,7 +266,7 @@ An artifact is a file that the build makes, for example a program, a library or 
 
 | Key | Value |
 | --- | --- |
-| `name` | The name of the artifact. It can contain variables, for example `{system}`. |
+| `name` | The name of the artifact. It can contain variables, for example `{system}`. 2 artifacts that make the same file are refused, unless they are of 2 parts and neither is a test artifact. |
 | `kind` | The kind of the artifact. |
 | `sources` | The patterns of the sources, from the folder of the project. |
 | `include` | Optional. The folders of the headers. |

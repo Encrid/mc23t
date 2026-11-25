@@ -630,3 +630,21 @@ run = ["{python}", "{root}/.toolchain/tests/data/build/jobs.py", "{root}/.toolch
 env = { C23_FREE_MEMORY = "lots" }
 claims = { status = 1, has = ["C23_FREE_MEMORY is lots, and it must be a count of bytes"] }
 false = { env = { C23_FREE_MEMORY = "0" } }
+
+[[case]]
+name = "2 artifacts of 1 part that make the same file are refused"
+run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out"]
+claims = { status_not = 0, has = ["the artifacts same.txt of alpha, same.txt of alpha make the same file same.txt"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/build.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out", "--set", "second=other.txt"] }
+
+[[case]]
+name = "2 test artifacts of 2 parts that make the same file are refused"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out", "--build", "--set", "second=other.txt", "--set", "probe=probe.txt"]
+claims = { status_not = 0, has = ["the artifacts probe.txt of alpha, probe.txt of beta make the same file probe.txt"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out", "--build", "--set", "second=other.txt"] }
+
+[[case]]
+name = "2 shipped artifacts of 2 parts can make the same file"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out", "--build", "--set", "second=other.txt"]
+claims = { status = 0, line = ["built 6 artifacts"] }
+false = { run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{root}/.toolchain/tests/data/build/same_file", "--out", "{case}/out", "--build"] }

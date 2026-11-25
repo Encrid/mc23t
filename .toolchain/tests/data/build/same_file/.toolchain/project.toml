@@ -1,0 +1,60 @@
+[project]
+name = "same_file"
+targets = ["x86_64-linux-gnu", "aarch64-linux-gnu", "aarch64-macos", "x86_64-macos", "x86_64-windows-gnu", "aarch64-windows-gnu"]
+
+[variables]
+second = "same.txt"
+probe = "probe_alpha.txt"
+
+[tools]
+interpreter = "{python}"
+
+[parts.alpha]
+name = "SameFile-Alpha"
+folder = "alpha"
+uses = []
+third_party = []
+
+[parts.beta]
+name = "SameFile-Beta"
+folder = "beta"
+uses = []
+third_party = []
+
+[[artifact]]
+name = "same.txt"
+kind = "file"
+part = "alpha"
+sources = [".toolchain/project.toml"]
+
+[[artifact]]
+name = "{second}"
+kind = "file"
+part = "alpha"
+sources = [".toolchain/project.toml"]
+
+[[artifact]]
+name = "shared.txt"
+kind = "file"
+part = "alpha"
+sources = [".toolchain/project.toml"]
+
+[[artifact]]
+name = "shared.txt"
+kind = "file"
+part = "beta"
+sources = [".toolchain/project.toml"]
+
+[[artifact]]
+name = "{probe}"
+kind = "file"
+part = "alpha"
+test = true
+sources = [".toolchain/project.toml"]
+
+[[artifact]]
+name = "probe.txt"
+kind = "file"
+part = "beta"
+test = true
+sources = [".toolchain/project.toml"]
