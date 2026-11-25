@@ -292,6 +292,13 @@ claims = { status = 0, files = { "{case}/out/{target}/scratch/cases/lone/0/ran.t
 false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/ran.toml"] } }
 
 [[case]]
+name = "a script that removes a file that does not exist"
+run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out"]
+folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/removes.toml"] }
+claims = { status_not = 0, has = ["/gone.txt, and it does not exist"], lacks = ["Traceback"] }
+false = { folders = { "{case}/tests/cases" = [".toolchain/tests/data/test/removes_here.toml"] } }
+
+[[case]]
 name = "copies that differ"
 run = ["{python}", "{root}/.toolchain/tools/test.py", "--root", "{case}", "--out", "{case}/out", "--copies", "2"]
 folders = { "{case}/.toolchain" = [".toolchain/tests/data/test/project.toml"], "{case}/tests/cases" = [".toolchain/tests/data/test/fails.toml"] }
