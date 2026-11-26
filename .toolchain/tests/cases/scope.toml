@@ -104,6 +104,13 @@ claims = { status = 1, line = ["scope.py: src/y/a.c: no case group tests this fi
 false = { files = { "{case}/changed.txt" = "src/x/a.c\n" } }
 
 [[case]]
+name = "a source that the branch deletes, and that no group tests, names no group"
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/owned", "{case}/repo", "src/y/a.c", "--remove", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/y/a.c\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/owned", "{case}/repo", "src/y/a.c", "int b(void);\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
 name = "a code that is no list of patterns"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/miscoded", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = "src/x/a.c\n" }
@@ -126,14 +133,28 @@ false = { run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{roo
 
 [[case]]
 name = "a change of the project file in the tables of the checks names no group"
-run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", ".toolchain/project.toml", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = ".toolchain/project.toml\n" }
 claims = { status = 0, matches_not = ["."] }
-false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[test]\ntimeout = 7\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", ".toolchain/project.toml", "[test]\ntimeout = 7\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
 
 [[case]]
 name = "a project file outside a repository names the groups of the whole"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/parted", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = ".toolchain/project.toml\n" }
 claims = { status = 0, line = ["--group all"] }
-false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/parted", "{case}/repo", ".toolchain/project.toml", "[[style.exception]]\nrule = \"F5\"\npath = \"src/a/x.c\"\nwhy = \"The interface gives 5 inputs.\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a change of an entry of the failed calls names only the groups whose code calls it"
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/failing", "{case}/repo", ".toolchain/config/fail.toml", "close_store = \"-1\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/config/fail.toml\n" }
+claims = { status = 0, line = ["--group b"] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/failing", "{case}/repo", ".toolchain/config/fail.toml", "[fail.more]\nclose_store = \"-1\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
+name = "a change of an entry of the failed calls that no code calls names no group"
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/failing", "{case}/repo", ".toolchain/config/fail.toml", "free_store = \"\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = ".toolchain/config/fail.toml\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/failing", "{case}/repo", ".toolchain/config/fail.toml", "close_store = \"0\"\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }

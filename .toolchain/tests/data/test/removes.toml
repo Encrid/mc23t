@@ -1,0 +1,6 @@
+[[case]]
+name = "removes"
+run = ["{python}", "-c", "print('? gone', flush=True); input()"]
+script = [{ wait = "? gone", remove = ["{case}/gone.txt"], type = "go" }]
+claims = { status = 0 }
+false = { script = [{ wait = "? gone", type = "go" }] }
