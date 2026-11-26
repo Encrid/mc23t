@@ -109,3 +109,24 @@ run = ["{python}", "{root}/.toolchain/tools/c23.py", "--root", "{case}/p"]
 files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n", "{case}/p/src/a.c" = "/* NULL */ char *s = \"NULL\";\n" }
 claims = { status = 0, line = ["no fault in 1 files"] }
 false = { files = { "{case}/p/src/a.c" = "/* NULL */ char *s = \"NULL\"; p = NULL;\n" } }
+
+[[case]]
+name = "an exception excuses the older spellings of its file"
+run = ["{python}", "{root}/.toolchain/tools/c23.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[c23.exception]]\npath = \"tests/sdl/*.c\"\nwhy = \"SDL builds it with -std=gnu11.\"\n", "{case}/p/tests/sdl/a.c" = "p = NULL;\n" }
+claims = { status = 0, line = ["no fault in 1 files"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[c23.exception]]\npath = \"tests/other/*.c\"\nwhy = \"SDL builds it with -std=gnu11.\"\n" } }
+
+[[case]]
+name = "an exception with no reason"
+run = ["{python}", "{root}/.toolchain/tools/c23.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[c23.exception]]\npath = \"tests/sdl/*.c\"\n", "{case}/p/tests/sdl/a.c" = "p = NULL;\n" }
+claims = { status = 1, has = [".toolchain/project.toml:1: the exception for 'tests/sdl/*.c' states no reason"] }
+false = { files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[c23.exception]]\npath = \"tests/sdl/*.c\"\nwhy = \"SDL builds it with -std=gnu11.\"\n" } }
+
+[[case]]
+name = "an exception that excuses nothing"
+run = ["{python}", "{root}/.toolchain/tools/c23.py", "--root", "{case}/p"]
+files = { "{case}/p/.toolchain/project.toml" = "[project]\ntargets = [\"x86_64-linux-gnu\", \"aarch64-linux-gnu\", \"aarch64-macos\", \"x86_64-macos\", \"x86_64-windows-gnu\", \"aarch64-windows-gnu\"]\n\n[[c23.exception]]\npath = \"tests/sdl/*.c\"\nwhy = \"SDL builds it with -std=gnu11.\"\n", "{case}/p/tests/sdl/a.c" = "p = nullptr;\n" }
+claims = { status = 1, has = [".toolchain/project.toml:1: the exception for 'tests/sdl/*.c' excuses nothing"] }
+false = { files = { "{case}/p/tests/sdl/a.c" = "p = NULL;\n" } }

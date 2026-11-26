@@ -455,6 +455,25 @@ why = "The table of the grammar is one long function."
 
 The check of the style reports an exception that excuses nothing.
 
+## [[c23.exception]]
+
+An exception lets the files of a path keep the older spellings of C, for `.toolchain/tools/c23.py`.
+
+| Key | Value |
+| --- | --- |
+| `path` | The path of the files. It can contain `*`. |
+| `why` | The reason for the exception. |
+
+For example:
+
+```toml
+[[c23.exception]]
+path = "tests/sdl/*.c"
+why = "SDL builds it with -std=gnu11."
+```
+
+`c23.py` reports its faults: `.toolchain/docs/c23.py.md`, *Exceptions*.
+
 ## [[dup.exception]]
 
 An exception lets a group of documents share passages, for `.toolchain/tools/dup.py`.
