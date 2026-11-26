@@ -1,10 +1,11 @@
 # Copyright (C) 2026 Enkrid
 #
 # Under the GNU Affero General Public License, version 3 only: see license.
+import fnmatch
 import re
 
 import shared
-from style import ROOT, ours
+from style import CONFIG, ROOT, ours
 
 OLDER = [
     (r'\bNULL\b', 'nullptr'),
@@ -26,16 +27,33 @@ OLDER = [
 SILENT = re.compile(r'''/\*.*?\*/|//[^\n]*|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*\'''', re.S)
 
 
+def excused(paths, faults):
+    listed = [[entry.get('path', ''), entry.get('why'), 0] for entry in CONFIG.get('c23', {}).get('exception', [])]
+    kept = []
+    for path in paths:
+        mine = [entry for entry in listed if fnmatch.fnmatch(path, entry[0])]
+        for entry in mine:
+            entry[2] += len(faults.get(path, []))
+        if not mine:
+            kept += faults.get(path, [])
+    for where, why, used in listed:
+        if not why:
+            kept.append(".toolchain/project.toml:1: the exception for '%s' states no reason" % where)
+        elif not used:
+            kept.append(".toolchain/project.toml:1: the exception for '%s' excuses nothing" % where)
+    return kept
+
+
 def main():
-    paths, found = [path for path in ours() if not path.startswith('third_party/')], []
+    paths, found = [path for path in ours() if not path.startswith('third_party/')], {}
     for path in paths:
         text = (ROOT / path).read_text(encoding='utf-8')
         code = SILENT.sub(lambda m: re.sub(r'[^\n]', ' ', m.group(0)), text)
         for older, newer in OLDER:
             for m in re.finditer(older, code, re.M):
                 line = code.count('\n', 0, m.start()) + 1
-                found.append('%s:%d: %s  ->  %s' % (path, line, m.group(0).strip(), newer))
-    shared.report(found, len(paths))
+                found.setdefault(path, []).append('%s:%d: %s  ->  %s' % (path, line, m.group(0).strip(), newer))
+    shared.report(excused(paths, found), len(paths))
 
 
 if __name__ == '__main__':
