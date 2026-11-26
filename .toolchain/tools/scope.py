@@ -50,6 +50,11 @@ def versions(root, path, into):
         return None
 
 
+def deleted(root, path, into):
+    shared = repository(root) and not (root / path).exists() and base(root, into)
+    return bool(shared) and git(root, 'cat-file', '-e', shared + ':' + path) is not None
+
+
 def checked_only(root, into):
     tables = versions(root, PROJECT, into)
     if not tables:
@@ -124,7 +129,7 @@ def scoped(settings, root, paths, into):
         if path == PROJECT and checked_only(root, into):
             continue
         mine = [group['name'] for group in found if tests(settings, root, found, group, path)]
-        if not mine and path.startswith(CODE):
+        if not mine and path.startswith(CODE) and not deleted(root, path, into):
             die('%s: no case group tests this file' % path)
         if not mine and (path.startswith(BUILT) or path in FILES):
             mine = wholes

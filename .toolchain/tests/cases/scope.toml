@@ -104,6 +104,13 @@ claims = { status = 1, line = ["scope.py: src/y/a.c: no case group tests this fi
 false = { files = { "{case}/changed.txt" = "src/x/a.c\n" } }
 
 [[case]]
+name = "a source that the branch deletes, and that no group tests, names no group"
+run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/owned", "{case}/repo", "src/y/a.c", "--remove", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"]
+files = { "{case}/changed.txt" = "src/y/a.c\n" }
+claims = { status = 0, matches_not = ["."] }
+false = { run = ["{python}", "{root}/.toolchain/tests/data/scope/branched.py", "{root}/.toolchain/tests/data/scope/owned", "{case}/repo", "src/y/a.c", "int b(void);\n", "--", "{python}", "{root}/.toolchain/tools/scope.py", "--root", "{case}/repo", "--changed", "{case}/changed.txt", "--into", "dev"] }
+
+[[case]]
 name = "a code that is no list of patterns"
 run = ["{python}", "{root}/.toolchain/tools/scope.py", "--root", "{root}/.toolchain/tests/data/scope/miscoded", "--changed", "{case}/changed.txt", "--into", "dev"]
 files = { "{case}/changed.txt" = "src/x/a.c\n" }

@@ -15,6 +15,9 @@ env = dict(os.environ, GIT_CONFIG_GLOBAL=str(folder.parent / 'none'), GIT_CONFIG
 shutil.copytree(data, folder)
 for argv in (['init', '-q'], ['add', '-A'], ['commit', '-q', '-m', 'base'], ['update-ref', 'refs/heads/dev', 'HEAD']):
     subprocess.run(['git', '-C', str(folder)] + argv, env=env, check=True)
-with open(folder / file, 'a', encoding='utf-8', newline='') as changed:
-    changed.write(added)
+if added == '--remove':
+    (folder / file).unlink()
+else:
+    with open(folder / file, 'a', encoding='utf-8', newline='') as changed:
+        changed.write(added)
 sys.exit(subprocess.run(command).returncode)
