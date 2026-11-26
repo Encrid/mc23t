@@ -42,6 +42,7 @@ A project with no group of the whole takes each of its groups in their place. A 
 A pull request into `main` does the same.
 
 A file of `src`, `include`, `tests` or `tools` that no group tests stops the tool. Thus no code is left with no test.
+A file that the branch deletes does not stop it: the file is not there, and git gives it at the base. A deleted file has no code left to test.
 Each other path gives no group: a document and a workflow change no code.
 
 Only `check` reads the tables `[check]`, `[dup]`, `[prose]` and `[style]` of `.toolchain/project.toml`, and no case reads them.
@@ -84,6 +85,7 @@ A project with no case group gives nothing.
 | `tests(settings, root, found, group, path)` | Tells if a group tests a path. `found` holds each group of the project. |
 | `claimed(settings, root, names)` | Gives the function that tells if the named groups hold each group that tests a file: `.toolchain/docs/branches.py.md`, *The files of the named groups*. |
 | `versions(root, path, into)` | Gives the tables of a file at the base and now. It gives `None` out of a repository of its own, with no file at the base, or with a form that is no TOML. |
+| `deleted(root, path, into)` | Tells if a path is not there, and git gives it at the base: the branch deletes it. |
 | `checked_only(root, into)` | Tells if `.toolchain/project.toml` differs from its form at the base only in the tables `[check]`, `[dup]`, `[prose]` and `[style]`. |
 | `failed_only(root, path, into)` | Gives the sorted names of the changed entries of `[fail.calls]` of a config file, or `None` if the file differs in any other place. |
 | `calling(root, names)` | Gives each file out of `.toolchain/config` that names one of the functions as a whole word. |
